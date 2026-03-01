@@ -1,5 +1,6 @@
-import { Client, Environment } from 'square';
+import square from 'square';
 import crypto from 'crypto';
+const { Client, Environment } = square;
 
 const client = new Client({
   accessToken: process.env.SQUARE_ACCESS_TOKEN,
