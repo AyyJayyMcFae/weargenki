@@ -1,6 +1,11 @@
 import square from 'square';
 import crypto from 'crypto';
-const { Client, Environment } = square;
+const squareSdk = square?.default || square || {};
+const ClientCtor = squareSdk.Client || squareSdk.SquareClient;
+const EnvironmentEnum = squareSdk.Environment || {
+  Production: 'production',
+  Sandbox: 'sandbox',
+};
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
 
@@ -165,9 +170,14 @@ export default async function handler(req, res) {
           .slice(0, 450)
       : undefined;
 
-    const client = new Client({
+    if (!ClientCtor) {
+      throw new Error('Square SDK client constructor is unavailable in this runtime.');
+    }
+
+    const client = new ClientCtor({
       accessToken: process.env.SQUARE_ACCESS_TOKEN,
-      environment: process.env.SQUARE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
+      environment:
+        process.env.SQUARE_ENV === 'production' ? EnvironmentEnum.Production : EnvironmentEnum.Sandbox,
     });
 
     const { result } = await client.paymentsApi.createPayment({
