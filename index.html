@@ -1547,7 +1547,7 @@
        if(tokenResult.status !== 'OK'){
         throw new Error(tokenResult.errors?.[0]?.message || 'Card could not be processed.');
        }
-       resp = await fetch('/.netlify/functions/square-payment', {
+       resp = await fetch('/api/square-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...payload, sourceId: tokenResult.token })
