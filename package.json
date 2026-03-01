@@ -1,0 +1,11 @@
+{
+  "name": "genki-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/generate-config.mjs"
+  },
+  "dependencies": {
+    "square": "^43.1.0"
+  }
+}
