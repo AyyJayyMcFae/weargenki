@@ -673,8 +673,8 @@
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="space-y-2">
             <p class="text-xs uppercase tracking-[0.35em] text-white/60">Checkout</p>
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Review & pay</h1>
-            <p class="text-gray-400 leading-relaxed">Confirm your order and shipping details before payment.</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Review Your Order</h1>
+            <p class="text-yellow-400 leading-relaxed">A Cancel Code will be generated after you complete your order. This code is required to cancel your order within 12 hours of purchase.</p>
           </div>
           <a href="#shop" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Continue shopping</a>
         </div>
@@ -694,9 +694,9 @@
 
           <section id="checkout-form" class="lg:col-span-5 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
             <h2 class="text-xl font-semibold tracking-wide">Shipping Details</h2>
-            <p class="text-xs text-gray-400">Pay securely without leaving the site.</p>
-            <p id="square-test-note" class="text-xs text-yellow-400 hidden">Order request mode: If you choose to share manual payment details, your order can be canceled with your cancel code within 12 hours.
-            </p>
+            <p class="text-xs text-gray-400"></p>
+            <!-- <p id="square-test-note" class="text-xs text-yellow-400 hidden">Order request mode: If you choose to share manual payment details, your order can be canceled with your cancel code within 12 hours.
+            </p> -->
             <div class="space-y-3">
               <input id="sq-name" type="text" placeholder="Full name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
               <input id="sq-email" type="email" placeholder="Email" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
@@ -714,14 +714,14 @@
                 <input id="sq-phone" type="tel" placeholder="Phone number" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
               </div>
               <div class="space-y-2 border border-white/10 p-3">
-                <p class="text-xs uppercase tracking-[0.3em] text-white/60">Card details (required for Pay Now)</p>
-                <input id="sq-cardholder-name" type="text" placeholder="Cardholder name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-                <input id="sq-billing-zip" type="text" placeholder="Billing ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-                <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div>
+                <p class="text-xs uppercase tracking-[0.3em] text-white/60">Card details (Pay Now coming soon)</p>
+                <!-- <input id="sq-cardholder-name" type="text" placeholder="Cardholder name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" readonly disabled/>
+                <input id="sq-billing-zip" type="text" placeholder="Billing ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-gray-400" readonly disabled/>
+                <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div> -->
               </div>
               <textarea id="sq-notes" type="text" placeholder="Extra Notes (optional)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
               <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button id="square-pay-later" class="w-full py-3 border border-white/20 text-white font-bold tracking-widest hover:border-white transition">Submit Request (No Payment, No Fulfillment)</button>
+                <button id="square-pay-later" class="w-full py-3 border border-white/20 text-white font-bold tracking-widest hover:border-white transition">Submit Request</button>
                 <button id="square-pay" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Pay Now</button>
               </div>
               <p class="text-xs text-gray-500">Pay Now captures payment securely. Submit Request does not place a paid order.</p>
@@ -757,8 +757,8 @@
         </div>
         <div class="flex items-center justify-center gap-3">
           <a href="#shop" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Back to shop</a>
-          <a href="#cancel" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">Cancel Order</a>
-          <a href="#contact" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">Need help?</a>
+          
+          <a href="#home" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">Back Home</a>
         </div>
       </div>
     </div>
@@ -1730,7 +1730,8 @@
         badge: 'SPORT',
         categories: 'Tops',
         keywords: 'genki sport champion long sleeve shirt athletic',
-        sizes: ['S', 'M', 'L', 'XL', '2XL'],
+        sizes: ['S', 'M', 'L', 'XL', '2XL†'],
+        surcharges: { '2XL†': 2 },
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173490502110580-1.png',
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173490502110580-5.png',
@@ -1889,11 +1890,7 @@
           'Simple cuffed fit.'
         ]
       },
-
-      
-
-      
-
+ 
     // --- NEW PRODUCT: Genki Woman Eco Tote ---
      {
         id: 'genki-woman-eco-tote',
@@ -2001,6 +1998,7 @@
         ]
         
       },
+// --- NEW PRODUCT: ACD Unfinished Organic Sweatshirt ---
       {
         id: 'acd-organic-sweatshirt',
         title: "ACD Unfinished Organic Sweatshirt",
@@ -2072,6 +2070,12 @@
         badge: '',
         categories: 'Tops',
         keywords: 'tshirt Unfinished heavy kanji loud artwork ali can\'t draw',
+        sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†'],
+        surcharges: {
+            '2XL†': 2.00,
+            '3XL†': 3.00,
+            '4XL†': 5.00
+        },
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337217700-1.png', 
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337217700-2.png',
@@ -2129,6 +2133,10 @@
         id: 'genki-sport-fitted-tee',
         title: 'Genki Sport Fitted T-shirt',
         price: '$30.00 ',
+        surcharges: {
+            '2XL†': 2.00,
+            '3XL†': 3.00
+        },
         badge: 'SPORT',
         categories: 'Tops',
         keywords: 'fitted t-shirt sport breathable lightweight comfortable genki',
@@ -2173,6 +2181,9 @@
         id: 'genki-sport-fleece-joggers',
         title: 'Genki Sport Fleece Joggers',
         price: '$45.00 ',
+          surcharges: {
+              '2XL†': 3.00
+          },
         badge: 'SPORT',
         categories: 'Bottoms',
         keywords: 'fleece joggers sport comfortable warm genki activewear',
@@ -2229,7 +2240,10 @@
         badge: 'ACD Sketch',
         categories: 'Tops',
         keywords: 'heavy tee 4 am vibes acd sketch comfortable durable artwork ali can\'t draw',
-        size: ['XS','S', 'M', 'L', 'XL', '2XL†'],
+        sizes: ['S', 'M', 'L', 'XL', '2XL†'],
+         surcharges: {
+              '2XL†': 2.00
+          },
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17653149238850-4.png', 
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17653149238850-1.png',
@@ -2368,6 +2382,12 @@
         id: 'genki-sakura-hoodie',
         title: 'Genki Sakura Heavy Hoodie',
         price: '$40.00 ',
+         surcharges: {
+            '2XL†': 2.00,
+            '3XL†': 3.00,
+            '4XL†': 5.00,
+            '5XL†': 6.00 // Added based on your screenshot
+        },
         badge: '',
         categories: 'Tops',
         keywords: 'hoodie heavy sakura genki thick warm comfortable japanese flower',
@@ -2406,11 +2426,17 @@
       },
      
       
-      // --- NEW PRODUCT: Genki Sakura Heavy Hoodie ---
+      // --- NEW PRODUCT: Genki Skull Hoodie ---
       {
         id: 'genki-skull-hoodie',
         title: 'Genki Skull Hoodie',
         price: '$40.00 ',
+          surcharges: {
+              '2XL†': 2.00,
+              '3XL†': 3.00,
+              '4XL†': 5.00,
+              '5XL†': 6.00 // Added based on your screenshot
+          },
         badge: '',
         categories: 'Tops',
         keywords: 'hoodie heavy skull genki thick warm comfortable japanese flower',
@@ -2466,6 +2492,9 @@
         id: 'genki-esquire-jacket',
         title: 'Genki Esquire Packable Jacket',
         price: '$45.00 ',
+        surcharges: {
+          '2XL†': 6.00
+        },
         badge: '',
         categories: [ 'Tops', 'Outerwear' ],
         keywords: 'jacket packable esquire genki lightweight warm comfortable',
@@ -2515,6 +2544,13 @@
         id: 'acd-kancho-hancho-shirt',
         title: 'ACD Kancho Hancho Button Up Shirt',
         price: '$50.00 ',
+        surcharges: {
+          '2XL†': 2.00,
+          '3XL†': 3.00,
+          '4XL†': 5.00,
+          '5XL†': 6.00,
+          '6XL†': 7.00
+        },
         badge: 'ACD Sketch',
         categories: 'Tops',
         keywords: 'button-up shirt kancho hancho acd sketch casual lightweight artwork ali can\'t draw',
@@ -2542,6 +2578,12 @@
         badge: '',
         categories: 'Tops',
         keywords: 't-shirt rainman graphic genki reverse',
+        sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†'],
+         surcharges: {
+              '2XL†': 2.00,
+              '3XL†': 3.00,
+              '4XL†': 5.00,
+          },
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-5.png',
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-2.png',
@@ -2586,7 +2628,7 @@
           'Reverse-style construction for a deconstructed look.'
         ]
       },
-
+// --- Genki Sakura Duffel Bag ---
       {
         id: 'genki-sakura-duffel-bag',
         title: 'Genki Sakura Duffel Bag',
@@ -2607,7 +2649,7 @@
           'Front zip pocket and adjustable shoulder strap.'
         ]
       },
-
+// --- Genki Two Faced Hoodie ---
       {
         id: 'genki-two-faced-hoodie',
         title: 'Genki Two Faced Hoodie',
@@ -2615,6 +2657,14 @@
         badge: '',
         categories: 'Tops',
         keywords: 'hoodie two-faced genki unique design',
+        sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†', '5XL†', '6XL†'],
+         surcharges: {
+              '2XL†': 2.00,
+              '3XL†': 3.00,
+              '4XL†': 5.00,
+              '5XL†': 6.00,
+              '6XL†': 7.00
+          },
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602693618730-12.png',
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602693618730-13.png',
@@ -2628,6 +2678,7 @@
           'Oversized fit.'
         ]
       },
+// --- Genki Shinobi Beanie ---
       {
         id: 'genki-shinobi-beanie',
         title: 'Genki Shinobi Beanie',
@@ -3615,6 +3666,20 @@ setTimeout(morphText, pauseDuration);
       return PRODUCTS.find(p => p.id === id);
     }
 
+    // helper used throughout the UI – returns base price + any size surcharge
+    function getPriceForSize(product, size) {
+      // parse the base price ("$40.00 ", "40", etc.)
+      const base = parseFloat(String(product?.price || '').replace(/[^0-9.\-\.]/g, '')) || 0;
+      if (product && product.surcharges && size) {
+        const clean = String(size).trim();
+        if (Object.prototype.hasOwnProperty.call(product.surcharges, clean)) {
+          const extra = Number(product.surcharges[clean]) || 0;
+          return base + extra;
+        }
+      }
+      return base;
+    }
+
     // Product detail renderer.
     // Handles variant selectors, gallery switching, add-to-cart payload, and related items.
     function renderProduct(key) {
@@ -3884,6 +3949,14 @@ setTimeout(morphText, pauseDuration);
           let activeSize = 0;
           sizeName.textContent = sizes[activeSize];
 
+          // update the price element to reflect the currently selected size
+          const updateDisplayedPrice = () => {
+            if (!priceEl) return;
+            const selected = sizes[activeSize];
+            const total = getPriceForSize(data, selected);
+            priceEl.textContent = `$${total.toFixed(2)}`;
+          };
+
           const renderSizes = () => {
             sizesContainer.innerHTML = '';
             sizes.forEach((s, i) => {
@@ -3898,11 +3971,14 @@ setTimeout(morphText, pauseDuration);
                 sizeName.textContent = s;
                 sizesContainer.querySelectorAll('button').forEach(b => b.classList.remove('bg-white','text-black','font-bold'));
                 btn.classList.add('bg-white','text-black','font-bold');
+                updateDisplayedPrice();
               });
               sizesContainer.appendChild(btn);
             });
           };
           renderSizes();
+          // initial price adjustment in case first size has a surcharge
+          updateDisplayedPrice();
         } else {
           sizeBlock.style.display = 'none';
           sizeName.textContent = 'OS';
@@ -3921,13 +3997,17 @@ setTimeout(morphText, pauseDuration);
       const addBtn = document.getElementById('product-add-to-cart');
       if (addBtn && window.Cart && typeof Cart.add === 'function') {
         addBtn.onclick = () => {
-          const priceCents = Math.round(parseFloat(String(data.price).replace(/[^0-9.]/g,'')) * 100) || 0;
           const selectedHoodieEl = hoodieColorsContainer ? hoodieColorsContainer.querySelector('button.border-white') : null;
           const selectedSkullEl = skullColorsContainer ? skullColorsContainer.querySelector('button.border-white') : null;
           const selectedSizeEl = sizesContainer ? sizesContainer.querySelector('button.bg-white') : null;
           const colorLabel = selectedHoodieEl ? (selectedHoodieEl.title || selectedHoodieEl.getAttribute('title')) : undefined;
           const skullLabel = selectedSkullEl ? (selectedSkullEl.title || selectedSkullEl.getAttribute('title')) : undefined;
           const sizeLabel = selectedSizeEl ? selectedSizeEl.textContent : undefined;
+
+          // calculate price including any surcharge for the chosen size
+          const priceDecimal = getPriceForSize(data, sizeLabel);
+          const priceCents = Math.round(priceDecimal * 100) || 0;
+
           Cart.add({
             id: data.id,
             title: data.title,
@@ -4336,6 +4416,7 @@ setTimeout(morphText, pauseDuration);
     if (event.target === checkoutModal) window.closeCheckoutModal();
    });
    checkoutModalPanel?.addEventListener('click', (event) => event.stopPropagation());
+
 
 
    </script>
