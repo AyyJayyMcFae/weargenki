@@ -2,11 +2,6 @@ import square from 'square';
 import crypto from 'crypto';
 const { Client, Environment } = square;
 
-const client = new Client({
-  accessToken: process.env.SQUARE_ACCESS_TOKEN,
-  environment: process.env.SQUARE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
-});
-
 const RESEND_API_URL = 'https://api.resend.com/emails';
 
 const escapeHtml = (value = '') =>
@@ -128,43 +123,53 @@ const parsePayload = (body) => {
   return null;
 };
 
+const getErrorMessage = (err, fallback = 'Server error while processing payment.') => {
+  const msg = err?.result?.errors?.[0]?.detail || err?.message || fallback;
+  return typeof msg === 'string' && msg.trim() ? msg : fallback;
+};
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.status(405).send('Method Not Allowed');
-    return;
-  }
-  if (!process.env.SQUARE_ACCESS_TOKEN || !process.env.SQUARE_LOCATION_ID) {
-    res.status(500).json({ error: 'Square environment variables are not set.' });
-    return;
-  }
-
-  const payload = parsePayload(req.body);
-  if (!payload) {
-    res.status(400).json({ error: 'Invalid JSON payload.' });
-    return;
-  }
-
-  const { sourceId, amount, buyer, items = [], cancelCode, cancelWindowHours } = payload;
-  const amountInt = parseInt(amount, 10);
-
-  if (!sourceId || !amountInt || amountInt <= 0) {
-    res.status(400).json({ error: 'Missing or invalid payment details.' });
-    return;
-  }
-
-  const note = Array.isArray(items)
-    ? items
-        .map(
-          (it) =>
-            `${it.title || it.id || 'item'} x${it.qty || 1} ${it.color ? `(${it.color})` : ''} ${
-              it.size ? `[${it.size}]` : ''
-            }`
-        )
-        .join('; ')
-        .slice(0, 450)
-    : undefined;
-
   try {
+    if (req.method !== 'POST') {
+      res.status(405).send('Method Not Allowed');
+      return;
+    }
+    if (!process.env.SQUARE_ACCESS_TOKEN || !process.env.SQUARE_LOCATION_ID) {
+      res.status(500).json({ error: 'Square environment variables are not set.' });
+      return;
+    }
+
+    const payload = parsePayload(req.body);
+    if (!payload) {
+      res.status(400).json({ error: 'Invalid JSON payload.' });
+      return;
+    }
+
+    const { sourceId, amount, buyer, items = [], cancelCode, cancelWindowHours } = payload;
+    const amountInt = parseInt(amount, 10);
+
+    if (!sourceId || !amountInt || amountInt <= 0) {
+      res.status(400).json({ error: 'Missing or invalid payment details.' });
+      return;
+    }
+
+    const note = Array.isArray(items)
+      ? items
+          .map(
+            (it) =>
+              `${it.title || it.id || 'item'} x${it.qty || 1} ${it.color ? `(${it.color})` : ''} ${
+                it.size ? `[${it.size}]` : ''
+              }`
+          )
+          .join('; ')
+          .slice(0, 450)
+      : undefined;
+
+    const client = new Client({
+      accessToken: process.env.SQUARE_ACCESS_TOKEN,
+      environment: process.env.SQUARE_ENV === 'production' ? Environment.Production : Environment.Sandbox,
+    });
+
     const { result } = await client.paymentsApi.createPayment({
       sourceId,
       idempotencyKey: crypto.randomUUID(),
@@ -205,8 +210,8 @@ export default async function handler(req, res) {
       emailError: emailResult.sent ? undefined : emailResult.error,
     });
   } catch (err) {
-    const message = err?.result?.errors?.[0]?.detail || err.message || 'Square payment failed.';
-    console.error('Square payment error', message);
+    const message = getErrorMessage(err);
+    console.error('Square payment error', err);
     res.status(500).json({ error: message });
   }
 }
