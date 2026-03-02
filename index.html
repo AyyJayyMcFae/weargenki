@@ -275,11 +275,11 @@
             </div>
             <div class="bg-transparent overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 border border-white/10 cursor-pointer" onclick="window.location.hash='#acd-kancho-hancho-shirt'">
               <div class="relative overflow-hidden">
-                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-1.png" alt="ACD Kancho Hancho Button Up Shirt" class="w-full h-64 object-cover transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/1a1a1a/ffffff?text=Cropped+Hoodie'">
+                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-1.png" alt="[ACD] Kancho Hancho Button Up Shirt" class="w-full h-64 object-cover transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/1a1a1a/ffffff?text=Cropped+Hoodie'">
                <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
               </div>
               <div class="p-4 text-center">
-                <h3 class="text-lg font-semibold text-white mb-1">ACD Kancho Hancho Button Up Shirt</h3>
+                <h3 class="text-lg font-semibold text-white mb-1">[ACD] Kancho Hancho Button Up Shirt</h3>
                 <p class="text-sm text-gray-400 mb-3">$50.00</p>
               </div>
             </div>
@@ -302,11 +302,11 @@
             </div>
             <div class="bg-transparent overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 hidden md:block border border-white/10 cursor-pointer" onclick="window.location.hash='#acd-neko-pastel-cap'">
               <div class="relative overflow-hidden">
-                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176509539212418-2.png" alt="ACD Neko Pastel Baseball Cap" class="w-full h-64 object-cover transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/d6d6d6/000000?text=Pastel+Neko+Cap'">
+                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176509539212418-2.png" alt="[ACD] Neko Pastel Baseball Cap" class="w-full h-64 object-cover transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/d6d6d6/000000?text=Pastel+Neko+Cap'">
                <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
               </div>
               <div class="p-4 text-center">
-                <h3 class="text-lg font-semibold text-white mb-1">ACD Neko Pastel Baseball Cap</h3>
+                <h3 class="text-lg font-semibold text-white mb-1">[ACD] Neko Pastel Baseball Cap</h3>
                 <p class="text-sm text-gray-400 mb-3">$30.00</p>
                 <div class="flex justify-center space-x-2">
                   <div class="w-4 h-4 bg-pink-50 border border-white/50" title="Pastel Pink"></div>
@@ -715,9 +715,9 @@
               </div>
               <div class="space-y-2 border border-white/10 p-3">
                 <p class="text-xs uppercase tracking-[0.3em] text-white/60">Card details (Pay Now coming soon)</p>
-                <!-- <input id="sq-cardholder-name" type="text" placeholder="Cardholder name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" readonly disabled/>
+                <input id="sq-cardholder-name" type="text" placeholder="Cardholder name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" readonly disabled/>
                 <input id="sq-billing-zip" type="text" placeholder="Billing ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-gray-400" readonly disabled/>
-                <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div> -->
+                <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div>
               </div>
               <textarea id="sq-notes" type="text" placeholder="Extra Notes (optional)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
               <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -1463,7 +1463,11 @@
      }
      await loadSquareSdk();
      if(!window.Square){
-      throw new Error('Square.js not loaded. Ensure the Square script is included.');
+      throw new Error('Square.js not loaded. Ensure the Square script is included and reachable.');
+     }
+     // the SDK should expose an "environments" object containing sandbox/production
+     if(!window.Square.environments || (typeof window.Square.environments.sandbox === 'undefined' && typeof window.Square.environments.production === 'undefined')){
+      throw new Error('Square.environments is missing – the wrong SDK URL may have been loaded. Verify you are fetching the sandbox script when using a sandbox app id.');
      }
      if(isTestMode()){
       throw new Error('Square app/location IDs are not configured.');
@@ -1722,10 +1726,10 @@
     // Every catalog view (home featured, shop grid, PDP, related items) reads from this array.
     const PRODUCTS = [
 
-      // --- NEW PRODUCT: Genki Sport Champion Long Sleeve Shirt ---
+      // --- NEW PRODUCT: Genki Sport Long Sleeve Shirt ---
       {
-        id: 'genki-sport-champion-long-sleeve-shirt',
-        title: 'Genki Sport Champion Long Sleeve Shirt',
+        id: 'genki-sport-long-sleeve-shirt',
+        title: 'Genki Sport Long Sleeve Shirt',
         price: '$35.00 ',
         badge: 'SPORT',
         categories: 'Tops',
@@ -1748,12 +1752,12 @@
 
       // --- NEW PRODUCT: Genki Rosebush Drawstring Bag ---
       {
-        id: 'genki-rosebush-drawstring-bag',
-        title: 'Genki Rosebush Drawstring Bag',
+        id: 'rosebush-drawstring-bag',
+        title: 'Rosebush Drawstring Bag',
         price: '$28.00 ',
         badge: '',
         categories: 'Accessories',
-        keywords: 'genki rosebush drawstring bag floral accessory',
+        keywords: 'rosebush drawstring bag floral accessory',
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009474928894-0.png'
         ],
@@ -1768,7 +1772,7 @@
       // --- NEW PRODUCT: Genki Cards Kiss-Cut Stickers ---
       {
         id: 'genki-cards-kiss-cut-stickers',
-        title: 'Genki Cards Kiss-Cut Stickers',
+        title: 'Miki Cards Kiss-Cut Stickers',
         price: '$10.00 ',
         badge: '',
         categories: 'Accessories',
@@ -1807,7 +1811,7 @@
       // --- NEW PRODUCT: Genki Nomad Beanie ---
       {
         id: 'genki-nomad-beanie',
-        title: 'Genki Nomad Beanie',
+        title: 'Nomad Beanie',
         price: '$25.00 ',
         badge: '',
         categories: 'Accessories',
@@ -1819,16 +1823,6 @@
         ],
         skullOptions: [
           {
-            name: 'Light Kanji',
-            color: 'bg-neutral-100',
-            hoodies: [
-              { name: 'Black', color: 'bg-black', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009944148936-0.png'] },
-              { name: 'Brown', color: 'bg-amber-950', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170099441412880-0.png'] },
-              { name: 'Dark Grey', color: 'bg-neutral-800', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170099441412881-0.png'] },
-              { name: 'Navy', color: 'bg-brand-navy', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009944148940-0.png'] }
-            ]
-          },
-          {
             name: 'Dark Kanji',
             color: 'bg-neutral-700',
             hoodies: [
@@ -1838,6 +1832,17 @@
               { name: 'White', color: 'bg-white', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009945818938-0.png'] }
             ]
           },
+          {
+            name: 'Light Kanji',
+            color: 'bg-neutral-100',
+            hoodies: [
+              { name: 'Black', color: 'bg-black', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009944148936-0.png'] },
+              { name: 'Brown', color: 'bg-amber-950', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170099441412880-0.png'] },
+              { name: 'Dark Grey', color: 'bg-neutral-800', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170099441412881-0.png'] },
+              { name: 'Navy', color: 'bg-brand-navy', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009944148940-0.png'] }
+            ]
+          },
+          
         ],
         details: [
           'Nomad beanie with kanji embroidery options.',
@@ -1849,7 +1854,7 @@
       // --- NEW PRODUCT: Genki Inkblot Beanie ---
       {
         id: 'genki-inkblot-beanie',
-        title: 'Genki Inkblot Beanie',
+        title: 'Inkblot Beanie',
         price: '$22.00 ',
         badge: '',
         categories: 'Accessories',
@@ -1894,7 +1899,7 @@
     // --- NEW PRODUCT: Genki Woman Eco Tote ---
      {
         id: 'genki-woman-eco-tote',
-        title: "Genki Woman Eco Tote",
+        title: "Miki Eco Tote",
         price: "$30.00 ",
         badge: '',
         categories: 'Accessories',
@@ -1998,12 +2003,12 @@
         ]
         
       },
-// --- NEW PRODUCT: ACD Unfinished Organic Sweatshirt ---
+// --- NEW PRODUCT: [ACD] Unfinished Organic Sweatshirt ---
       {
         id: 'acd-organic-sweatshirt',
-        title: "ACD Unfinished Organic Sweatshirt",
+        title: "[ACD] Unfinished Organic Sweatshirt",
         price: "$40.00 ",
-        badge: 'ACD Sketch',
+        badge: '[ACD] Sketch',
         categories: 'Tops',
         keywords: 'sweatshirt Unfinished organic casual sketch artwork ali can\'t draw',
         sizes: ['S', 'M', 'L', 'XL', '2XL'],
@@ -2065,7 +2070,7 @@
       // --- NEW PRODUCT: Genki Rainman Heavy T-shirt ---
       {
         id: 'genki-rainman-heavy-shirt',
-        title: "Genki Rainman Heavy T-shirt",
+        title: "Rainman Heavy T-shirt",
         price: "$30.00 ",
         badge: '',
         categories: 'Tops',
@@ -2232,12 +2237,12 @@
         ]
       },
 
-      // --- NEW PRODUCT: ACD 4 AM Vibes Heavy Tee ---
+      // --- NEW PRODUCT: [ACD] 4 AM Vibes Heavy Tee ---
       {
         id: 'acd-4am-vibes-tee',
-        title: 'ACD 4 AM Vibes Heavy Tee',
+        title: '[ACD] 4 AM Vibes Heavy Tee',
         price: '$45.00 ',
-        badge: 'ACD Sketch',
+        badge: '[ACD] Sketch',
         categories: 'Tops',
         keywords: 'heavy tee 4 am vibes acd sketch comfortable durable artwork ali can\'t draw',
         sizes: ['S', 'M', 'L', 'XL', '2XL†'],
@@ -2254,17 +2259,17 @@
         details: [
           'Heavyweight fabric for durability.',
           'Relaxed fit for comfort.',
-          'Features the "4 AM Vibes" ACD Sketch graphic.'
+          'Features the "4 AM Vibes" [ACD] Sketch graphic.'
         ],
       },
 
-      // --- NEW PRODUCT: ACD Neko Pastel Baseball Cap ---
+      // --- NEW PRODUCT: [ACD] Neko Pastel Baseball Cap ---
 
       {
         id: 'acd-neko-pastel-cap',
-        title: 'ACD Neko Pastel Baseball Cap',
+        title: '[ACD] Neko Pastel Baseball Cap',
         price: '$30.00 ',
-        badge: 'ACD Sketch',
+        badge: '[ACD] Sketch',
         categories: 'Accessories',
         keywords: 'cap pastel neko baseball adjustable lightweight japanese cat hat artwork ali can\'t draw',
         images: [
@@ -2380,7 +2385,7 @@
       // --- NEW PRODUCT: Genki Sakura Heavy Hoodie ---
       {
         id: 'genki-sakura-hoodie',
-        title: 'Genki Sakura Heavy Hoodie',
+        title: 'Sakura Heavy Hoodie',
         price: '$40.00 ',
          surcharges: {
             '2XL†': 2.00,
@@ -2429,7 +2434,7 @@
       // --- NEW PRODUCT: Genki Skull Hoodie ---
       {
         id: 'genki-skull-hoodie',
-        title: 'Genki Skull Hoodie',
+        title: 'Skull Hoodie',
         price: '$40.00 ',
           surcharges: {
               '2XL†': 2.00,
@@ -2490,7 +2495,7 @@
       // --- NEW PRODUCT: Genki Esquire Packable Jacket ---
       {
         id: 'genki-esquire-jacket',
-        title: 'Genki Esquire Packable Jacket',
+        title: 'Esquire Packable Jacket',
         price: '$45.00 ',
         surcharges: {
           '2XL†': 6.00
@@ -2539,10 +2544,10 @@
         ]
       },
 
-      // --- NEW PRODUCT: ACD Kancho Hancho Button Up ---
+      // --- NEW PRODUCT: [ACD] Kancho Hancho Button Up ---
       { 
         id: 'acd-kancho-hancho-shirt',
-        title: 'ACD Kancho Hancho Button Up Shirt',
+        title: '[ACD] Kancho Hancho Button Up Shirt',
         price: '$50.00 ',
         surcharges: {
           '2XL†': 2.00,
@@ -2551,7 +2556,7 @@
           '5XL†': 6.00,
           '6XL†': 7.00
         },
-        badge: 'ACD Sketch',
+        badge: '[ACD] Sketch',
         categories: 'Tops',
         keywords: 'button-up shirt kancho hancho acd sketch casual lightweight artwork ali can\'t draw',
         sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†', '5XL†', '6XL†'],
@@ -2564,7 +2569,7 @@
         
         details: [
           'Lightweight and breathable fabric for comfort.',
-          'Features the "Kancho Hancho" ACD Sketch graphic.',
+          'Features the "Kancho Hancho" [ACD] Sketch graphic.',
           'Classic button-up design with a relaxed fit.'
         ]
       },
@@ -2573,7 +2578,7 @@
       // --- EXISTING PRODUCTS ---
       {
         id: 'genki-rainman-reverse-tee',
-        title: 'Genki Rainman Reverse Graphic Tee',
+        title: 'Rainman Reverse Graphic Tee',
         price: '$30.00 ',
         badge: '',
         categories: 'Tops',
@@ -2631,7 +2636,7 @@
 // --- Genki Sakura Duffel Bag ---
       {
         id: 'genki-sakura-duffel-bag',
-        title: 'Genki Sakura Duffel Bag',
+        title: 'Sakura Duffel Bag',
         price: '$40.00 ',
         badge: '',
         categories: 'Accessories',
@@ -2652,7 +2657,7 @@
 // --- Genki Two Faced Hoodie ---
       {
         id: 'genki-two-faced-hoodie',
-        title: 'Genki Two Faced Hoodie',
+        title: 'Two Faced Hoodie',
         price: '$54.00 ',
         badge: '',
         categories: 'Tops',
@@ -2681,7 +2686,7 @@
 // --- Genki Shinobi Beanie ---
       {
         id: 'genki-shinobi-beanie',
-        title: 'Genki Shinobi Beanie',
+        title: 'Genki Village Shinobi Beanie',
         price: '$25.00 ',
       badge: '',
         categories: 'Accessories',
