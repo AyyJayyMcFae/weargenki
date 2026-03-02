@@ -1465,10 +1465,6 @@
      if(!window.Square){
       throw new Error('Square.js not loaded. Ensure the Square script is included and reachable.');
      }
-     // the SDK should expose an "environments" object containing sandbox/production
-     if(!window.Square.environments || (typeof window.Square.environments.sandbox === 'undefined' && typeof window.Square.environments.production === 'undefined')){
-      throw new Error('Square.environments is missing – the wrong SDK URL may have been loaded. Verify you are fetching the sandbox script when using a sandbox app id.');
-     }
      if(isTestMode()){
       throw new Error('Square app/location IDs are not configured.');
      }
