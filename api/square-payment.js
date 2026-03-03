@@ -2,9 +2,9 @@ import square from 'square';
 import crypto from 'crypto';
 const squareSdk = square?.default || square || {};
 const ClientCtor = squareSdk.Client || squareSdk.SquareClient;
-const EnvironmentEnum = squareSdk.Environment || {
-  Production: 'production',
-  Sandbox: 'sandbox',
+const EnvironmentEnum = squareSdk.Environment || squareSdk.SquareEnvironment || {
+  Production: 'https://connect.squareup.com',
+  Sandbox: 'https://connect.squareupsandbox.com',
 };
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
@@ -174,10 +174,15 @@ export default async function handler(req, res) {
       throw new Error('Square SDK client constructor is unavailable in this runtime.');
     }
 
+    const rawSquareEnv = String(process.env.SQUARE_ENV || 'sandbox').trim().toLowerCase();
+    const isProductionEnv = rawSquareEnv === 'production' || rawSquareEnv === 'prod' || rawSquareEnv === 'live';
+    const normalizedEnvironment = isProductionEnv
+      ? (EnvironmentEnum.Production || EnvironmentEnum.PRODUCTION || 'https://connect.squareup.com')
+      : (EnvironmentEnum.Sandbox || EnvironmentEnum.SANDBOX || 'https://connect.squareupsandbox.com');
+
     const client = new ClientCtor({
       accessToken: process.env.SQUARE_ACCESS_TOKEN,
-      environment:
-        process.env.SQUARE_ENV === 'production' ? EnvironmentEnum.Production : EnvironmentEnum.Sandbox,
+      environment: normalizedEnvironment,
     });
 
     const legacyCreatePayment = client?.paymentsApi?.createPayment?.bind(client.paymentsApi);
