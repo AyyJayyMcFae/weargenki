@@ -963,18 +963,9 @@
     <input type="hidden" name="total" />
     <input type="hidden" name="name" />
     <input type="hidden" name="email" />
-    <input type="hidden" name="address" />
-    <input type="hidden" name="address_line1" />
-    <input type="hidden" name="address_line2" />
-    <input type="hidden" name="city" />
-    <input type="hidden" name="state" />
-    <input type="hidden" name="zip" />
-    <input type="hidden" name="country" />
     <input type="hidden" name="phone" />
-    <input type="hidden" name="cardholder_name" />
-    <input type="hidden" name="card_last4" />
-    <input type="hidden" name="card_expiry" />
-    <input type="hidden" name="billing_zip" />
+    <input type="hidden" name="shipping_details" />
+    <input type="hidden" name="notes" />
     <input type="hidden" name="items" />
     <input type="hidden" name="cancel_code" />
     <input type="hidden" name="cancel_window_hours" />
@@ -1065,46 +1056,15 @@
    function remove(index){ state.items.splice(index,1); save(); render(); }
    function updateQty(index, delta){ const it = state.items[index]; if(!it) return; it.qty = Math.max(1, it.qty+delta); save(); render(); }
    function subtotal(){ return state.items.reduce((s,it)=> s + it.priceCents * it.qty, 0); }
-   function buildOrderSlipText({ amount, buyer, items, cancelCode, cancelWindowHours }){
+   function buildItemsText(items){
     const lines = [];
-    lines.push(`New order request`);
-    lines.push(`Total: ${money(amount)}`);
-    if(cancelCode){
-     lines.push(`Cancel Code: ${cancelCode}`);
-     if(cancelWindowHours){ lines.push(`Cancel Window: ${cancelWindowHours} hours`); }
-    }
-    lines.push('');
-    lines.push('Customer:');
-    lines.push(`Name: ${buyer?.name || ''}`);
-    lines.push(`Email: ${buyer?.email || ''}`);
-    lines.push(`Phone: ${buyer?.phone || ''}`);
-    if(buyer?.addressParts){
-     lines.push(`Address: ${buyer.addressParts.line1 || ''}`);
-     if(buyer.addressParts.line2){ lines.push(`Address 2: ${buyer.addressParts.line2}`); }
-     lines.push(`City: ${buyer.addressParts.city || ''}`);
-     lines.push(`State: ${buyer.addressParts.state || ''}`);
-     lines.push(`ZIP: ${buyer.addressParts.zip || ''}`);
-     lines.push(`Country: ${buyer.addressParts.country || ''}`);
-    }else{
-     lines.push(`Address: ${buyer?.address || ''}`);
-    }
-    if(buyer?.manualPayment){
-     lines.push('');
-     lines.push('Manual payment details:');
-     lines.push(`Cardholder Name: ${buyer.manualPayment.cardholderName || ''}`);
-     lines.push(`Card Last 4: ${buyer.manualPayment.last4 || ''}`);
-     lines.push(`Expiry: ${buyer.manualPayment.expiry || ''}`);
-     lines.push(`Billing ZIP: ${buyer.manualPayment.billingZip || ''}`);
-    }
-    lines.push('');
-    lines.push('Items:');
     (items || []).forEach((it) => {
      const title = it.title || it.id || 'Item';
      const color = it.color ? ` / ${it.color}` : '';
      const size = it.size ? ` / ${it.size}` : '';
      lines.push(`- ${title}${color}${size} x${it.qty || 1} (${money(it.priceCents)})`);
     });
-    return lines.join('\n');
+    return lines.length ? lines.join('\n') : '- No items';
    }
    // Submits order details to FormSubmit's AJAX endpoint.
    async function submitOrderSlipForm(payload){
@@ -1119,19 +1079,10 @@
     setValue('total', money(payload.amount));
     setValue('name', payload.buyer?.name || '');
     setValue('email', payload.buyer?.email || '');
-    setValue('address', payload.buyer?.address || '');
-    setValue('address_line1', payload.buyer?.addressParts?.line1 || '');
-    setValue('address_line2', payload.buyer?.addressParts?.line2 || '');
-    setValue('city', payload.buyer?.addressParts?.city || '');
-    setValue('state', payload.buyer?.addressParts?.state || '');
-    setValue('zip', payload.buyer?.addressParts?.zip || '');
-    setValue('country', payload.buyer?.addressParts?.country || '');
     setValue('phone', payload.buyer?.phone || '');
-    setValue('cardholder_name', payload.buyer?.manualPayment?.cardholderName || '');
-    setValue('card_last4', payload.buyer?.manualPayment?.last4 || '');
-    setValue('card_expiry', payload.buyer?.manualPayment?.expiry || '');
-    setValue('billing_zip', payload.buyer?.manualPayment?.billingZip || '');
-    setValue('items', buildOrderSlipText(payload));
+    setValue('shipping_details', payload.buyer?.shippingDetails || payload.buyer?.address || '');
+    setValue('notes', payload.buyer?.notes || '');
+    setValue('items', buildItemsText(payload.items));
     setValue('cancel_code', payload.cancelCode || '');
     setValue('cancel_window_hours', payload.cancelWindowHours ? String(payload.cancelWindowHours) : '');
     const toPlainObject = (fd) => {
@@ -1483,6 +1434,7 @@
      const zip = sqZipInput?.value.trim() || '';
      const country = sqCountryInput?.value.trim() || '';
      const phone = sqPhoneInput?.value.trim() || '';
+     const notes = (document.getElementById('sq-notes')?.value || '').trim();
      const cardholderName = sqCardholderNameInput?.value.trim() || '';
      const last4 = (sqCardLast4Input?.value || '').replace(/\D/g, '').slice(0, 4);
      const expiry = sqCardExpiryInput?.value.trim() || '';
@@ -1496,6 +1448,8 @@
       phone,
       address1,
       address,
+      shippingDetails: address,
+      notes,
       cancelCode,
       addressParts: { line1: address1, line2: address2, city, state, zip, country },
       manualPayment: { cardholderName, last4, expiry, billingZip }
@@ -1559,6 +1513,12 @@
         ? 'Unable to submit your request. Please try again.'
         : 'Payment failed. Please try again.';
        throw new Error(data.error || fallback);
+      }
+      // Mirror paid orders into the same FormSubmit order sheet used by "Submit Request".
+      // Keep payment success non-blocking if FormSubmit is temporarily unavailable.
+      const slipSent = await submitOrderSlipForm(payload);
+      if(!slipSent){
+       console.warn('Paid order succeeded, but FormSubmit order sheet failed to send.');
       }
       applyCheckoutSuccessMessage({ paymentStatus: 'paid' });
       setCancelDetails(cancelCode);
