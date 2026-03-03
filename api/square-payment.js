@@ -180,9 +180,15 @@ export default async function handler(req, res) {
       ? (EnvironmentEnum.Production || EnvironmentEnum.PRODUCTION || 'https://connect.squareup.com')
       : (EnvironmentEnum.Sandbox || EnvironmentEnum.SANDBOX || 'https://connect.squareupsandbox.com');
 
+    const squareAccessToken = String(process.env.SQUARE_ACCESS_TOKEN || '').trim();
     const client = new ClientCtor({
-      accessToken: process.env.SQUARE_ACCESS_TOKEN,
+      // New SDK (v40+) fields:
+      token: squareAccessToken,
+      baseUrl: normalizedEnvironment,
       environment: normalizedEnvironment,
+      // Legacy SDK fields:
+      accessToken: squareAccessToken,
+      bearerAuthCredentials: { accessToken: squareAccessToken },
     });
 
     const legacyCreatePayment = client?.paymentsApi?.createPayment?.bind(client.paymentsApi);
