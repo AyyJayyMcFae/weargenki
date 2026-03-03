@@ -180,7 +180,15 @@ export default async function handler(req, res) {
         process.env.SQUARE_ENV === 'production' ? EnvironmentEnum.Production : EnvironmentEnum.Sandbox,
     });
 
-    const { result } = await client.paymentsApi.createPayment({
+    const createPayment =
+      client?.paymentsApi?.createPayment?.bind(client.paymentsApi) ||
+      client?.payments?.create?.bind(client.payments);
+
+    if (!createPayment) {
+      throw new Error('Square client is missing a payments create method.');
+    }
+
+    const { result } = await createPayment({
       sourceId,
       idempotencyKey: crypto.randomUUID(),
       amountMoney: { amount: amountInt, currency: 'USD' },
