@@ -180,18 +180,21 @@ export default async function handler(req, res) {
         process.env.SQUARE_ENV === 'production' ? EnvironmentEnum.Production : EnvironmentEnum.Sandbox,
     });
 
-    const createPayment =
-      client?.paymentsApi?.createPayment?.bind(client.paymentsApi) ||
-      client?.payments?.create?.bind(client.payments);
+    const legacyCreatePayment = client?.paymentsApi?.createPayment?.bind(client.paymentsApi);
+    const modernCreatePayment = client?.payments?.create?.bind(client.payments);
+    const createPayment = legacyCreatePayment || modernCreatePayment;
 
     if (!createPayment) {
       throw new Error('Square client is missing a payments create method.');
     }
 
+    // Square SDK v43 expects bigint for amount; older SDK clients expect number.
+    const amountValue = modernCreatePayment ? BigInt(amountInt) : amountInt;
+
     const { result } = await createPayment({
       sourceId,
       idempotencyKey: crypto.randomUUID(),
-      amountMoney: { amount: amountInt, currency: 'USD' },
+      amountMoney: { amount: amountValue, currency: 'USD' },
       locationId: process.env.SQUARE_LOCATION_ID,
       buyerEmailAddress: buyer?.email,
       note,
