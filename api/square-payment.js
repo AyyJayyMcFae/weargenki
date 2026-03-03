@@ -1,11 +1,4 @@
-import square from 'square';
 import crypto from 'crypto';
-const squareSdk = square?.default || square || {};
-const ClientCtor = squareSdk.Client || squareSdk.SquareClient;
-const EnvironmentEnum = squareSdk.Environment || squareSdk.SquareEnvironment || {
-  Production: 'https://connect.squareup.com',
-  Sandbox: 'https://connect.squareupsandbox.com',
-};
 
 const RESEND_API_URL = 'https://api.resend.com/emails';
 
@@ -170,51 +163,40 @@ export default async function handler(req, res) {
           .slice(0, 450)
       : undefined;
 
-    if (!ClientCtor) {
-      throw new Error('Square SDK client constructor is unavailable in this runtime.');
-    }
-
     const rawSquareEnv = String(process.env.SQUARE_ENV || 'sandbox').trim().toLowerCase();
     const isProductionEnv = rawSquareEnv === 'production' || rawSquareEnv === 'prod' || rawSquareEnv === 'live';
-    const normalizedEnvironment = isProductionEnv
-      ? (EnvironmentEnum.Production || EnvironmentEnum.PRODUCTION || 'https://connect.squareup.com')
-      : (EnvironmentEnum.Sandbox || EnvironmentEnum.SANDBOX || 'https://connect.squareupsandbox.com');
+    const squareBaseUrl = isProductionEnv
+      ? 'https://connect.squareup.com'
+      : 'https://connect.squareupsandbox.com';
 
     const squareAccessToken = String(process.env.SQUARE_ACCESS_TOKEN || '').trim();
-    const client = new ClientCtor({
-      // New SDK (v40+) fields:
-      token: squareAccessToken,
-      baseUrl: normalizedEnvironment,
-      environment: normalizedEnvironment,
-      // Legacy SDK fields:
-      accessToken: squareAccessToken,
-      bearerAuthCredentials: { accessToken: squareAccessToken },
+    const squareResp = await fetch(`${squareBaseUrl}/v2/payments`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${squareAccessToken}`,
+        'Content-Type': 'application/json',
+        'Square-Version': '2024-06-04',
+      },
+      body: JSON.stringify({
+        source_id: sourceId,
+        idempotency_key: crypto.randomUUID(),
+        amount_money: { amount: amountInt, currency: 'USD' },
+        location_id: String(process.env.SQUARE_LOCATION_ID || '').trim(),
+        buyer_email_address: buyer?.email,
+        note,
+        billing_address: buyer?.address ? { address_line_1: buyer.address } : undefined,
+      }),
     });
 
-    const legacyCreatePayment = client?.paymentsApi?.createPayment?.bind(client.paymentsApi);
-    const modernCreatePayment = client?.payments?.create?.bind(client.payments);
-    const createPayment = legacyCreatePayment || modernCreatePayment;
-
-    if (!createPayment) {
-      throw new Error('Square client is missing a payments create method.');
+    const squareBody = await squareResp.json().catch(() => ({}));
+    if (!squareResp.ok) {
+      const detail =
+        squareBody?.errors?.[0]?.detail ||
+        squareBody?.errors?.[0]?.code ||
+        `Square request failed with status ${squareResp.status}.`;
+      throw new Error(detail);
     }
-
-    // Square SDK v43 expects bigint for amount; older SDK clients expect number.
-    const amountValue = modernCreatePayment ? BigInt(amountInt) : amountInt;
-
-    const { result } = await createPayment({
-      sourceId,
-      idempotencyKey: crypto.randomUUID(),
-      amountMoney: { amount: amountValue, currency: 'USD' },
-      locationId: process.env.SQUARE_LOCATION_ID,
-      buyerEmailAddress: buyer?.email,
-      note,
-      billingAddress: buyer?.address
-        ? {
-            addressLine1: buyer.address,
-          }
-        : undefined,
-    });
+    const result = squareBody;
 
     const emailTo = process.env.ORDER_EMAIL_TO || 'ayyjayy.genki@gmail.com';
     const emailFrom = process.env.ORDER_EMAIL_FROM || 'orders@resend.dev';
