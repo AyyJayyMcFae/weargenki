@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GENKI - Streetwear Label</title>
+  <title>GENKI - Wear Genki</title>
   <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Use Inter font family -->
@@ -39,7 +39,8 @@
       navy: '#1a2a4a',
       maroon: '#4a1010',
       charcoal: '#38302a',
-      Moss: '#70745b',
+      moss: '#70745b',
+      army: '#323f34',
       
      },
     },
@@ -1681,6 +1682,171 @@
     // 1. Centralized Product Data (single source of truth)
     // Every catalog view (home featured, shop grid, PDP, related items) reads from this array.
     const PRODUCTS = [
+
+      // --- NEW PRODUCT: Genki Sport Perfomance ShortSkirt ---
+      { id: 'genki-sport-performance-shortskirt',
+        title: 'Genki Sport Performance ShortSkirt',
+        price: '$50.00 ',
+        badge: 'NEW',
+        categories: 'Bottoms',
+        keywords: 'genki sport performance shortskirt athletic skirt tennis skirt',
+        sizes: ['S', 'M', 'L', 'XL'],
+        surcharges: { '2XL†': 3 },
+        images: [
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599084/Genki_Sport_Performance_Skirt_White_vtfxel.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599083/Genki_Sport_Performance_Skirt_White_B_hdm1ht.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599087/Genki_Sport_Performance_Skirt_Stripes_mcxk3c.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599085/GS_Performance_Skirt_Shorts_ziaxd1.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599095/GS_Performance_Skirt_Waist_llaqhx.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599099/image_2026-03-03_223911069_z0eoay.png'
+        ],
+        colors: [
+          {white: 'white', color: 'bg-white',
+            images: [],
+        },
+        {black: 'black', color: 'bg-black',
+          images: [
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599086/Genki_Sport_Performance_Skirt_fwmg8o.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599084/Genki_Sport_Performance_Skirt_B_evqgdc.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772599902/GS_Performance_Skirt_Pose_ucqss2.png'
+
+          ],
+
+        }
+        ],
+        details: [
+          'Athletic short skirt with built-in performance shorts.',
+          'Moisture-wicking fabric for all-day comfort.',
+          'Flared silhouette with elastic waistband.'
+        ]
+      },
+
+      // --- NEW PRODUCT: Ouroboros Sun Fade Fur Hoodie ---
+
+      { id: 'ouroboros-sun-fade-fur-hoodie',
+        title: 'Ouroboros Sun Fade Fur Hoodie',
+        price: '$80.00 ',
+        badge: 'NEW',
+        categories: 'Tops',
+        keywords: 'ouroboros sun fade fur hoodie sweatshirt pullover',
+        sizes: ['S', 'M', 'L', 'XL'],
+        surcharges: { '2XL†': 5 },
+        images: [
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582737/Ouroboro_Sun_Fade_Fur_Hoodie_B_vselav.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582743/Ouroboro_Sun_Fade_Fur_Hoodie_F_oarton.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582749/Ouroboro_Sun_Fade_Fur_Hoodie_Hood_g3tzz5.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582746/Ouroboro_Sun_Fade_Fur_Hoodie_Sleeve_oxmkm3.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582751/Ouroboro_Sun_Fade_Fur_Hoodie_Bunch_qijrur.png'
+        ],
+        colors: [],
+        details: [
+          'Cozy faux fur hoodie with GENKI Ouroboros design.',
+          'Soft and warm with a relaxed fit.',
+          'Features a front kangaroo pocket and adjustable drawstring hood.'
+        ]
+      },
+      
+      // NEW PRODUCT --- Esquire Rough Edge Drawstring Shorts
+      {
+        id: 'esquire-rough-edge-drawstring-shorts',
+        title: 'Esquire Rough Edge Drawstring Shorts',
+        price: '$45.00 ',
+        badge: 'NEW',
+        categories: 'Bottoms',
+        keywords: 'esquire rough edge drawstring shorts casual pants',
+        sizes: ['S', 'M', 'L', 'XL'],
+        surcharges: { '2XL†': 3 },
+        images: [
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772583816/Esquire_REDS_F_igglsb.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772583522/Esquire_REDS_B_qg0lri.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772584158/Esquire_REDS_Waist_v2mfn9.png',
+          
+        'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772584363/Esquire_REDS_Pocket_gtru5m.png',
+        ],
+        colors: [
+          { name: 'black', color: 'bg-black',
+            images: [
+              
+            ]
+           },
+          { name: 'Grey', color: 'bg-white',
+            images: [
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772583526/Esquire_REDS_Grey_F_vm7otq.png',
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772583523/Esquire_REDS_Grey_B_skzat7.png'
+            ]
+           }
+        ],
+        details: [
+          'Casual drawstring shorts with rough edge hem.',
+          'Lightweight cotton blend for all-day comfort.',
+          'Relaxed fit with functional side pockets.'
+        ]
+      },
+
+      // --- NEW PRODUCT: Vintage Washed Jeans
+      {
+        id: 'vintage-washed-jeans',
+        title: 'Vintage Washed Jeans',
+        price: '$65.00 ',
+        badge: 'NEW',
+        categories: 'Bottoms',
+        keywords: 'vintage washed jeans denim pants trousers',
+        sizes: ['S', 'M', 'L', 'XL'],
+        surcharges: { '2XL†': 3 },
+        images: [
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772581613/VW_Jeans_F_bia8iq.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772581771/VW_Jeans_B_vuw1fj.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772581343/VW_Jeans_Waist_fbhwr9.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772581621/VW_Jeans_Bunch_ifihdj.png'
+        ],
+        colors: [],
+        details: [
+          'Classic straight leg fit with vintage wash.',
+          'Durable cotton denim with soft handfeel.',
+          'Cropped ankle length with raw hem.'
+        ]
+      },
+
+      // --- NEW PRODUCT: Ouroboros Stiped Straight Legs ---
+      {
+        id: 'ouroboros-striped-straight-legs',
+        title: 'Ouroboros Striped Straight Legs',
+        price: '$60.00 ',
+        badge: 'NEW',
+        categories: 'Bottoms',
+        keywords: 'ouroboros striped straight legs pants trousers',
+        sizes: ['S', 'M', 'L', 'XL'],
+        surcharges: { '2XL†': 3 },
+        images: [
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772585838/ourobours_pants_F_l9kcq1.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772594528/ourobours_pants_B_mwcdcz.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595273/ourobours_SSL_Stripe_f2xqfy.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595272/ourobours_SSL_Hem_vv3owh.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595271/ourobours_SSL_Waist_oau5in.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595274/ourobours_SSL_Bunch_qo7mni.png'
+
+        ],
+        colors: [
+          { name: 'Black', color: 'bg-black',
+            images: [
+              
+            ]
+           },
+           { name: 'Green', color: 'bg-brand-army',
+            images: [
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595435/Ouroboros_SSL_F_yl6c5w.png',
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595435/Ouroboros_SSL_B_bfvugy.png'
+            ]
+           }
+          
+          
+        ],
+        details: [
+          'Relaxed straight leg fit with GENKI striping.',
+          'Midweight cotton blend with soft handfeel.',
+          'Cropped ankle length with elastic cuffs.'
+        ]
+      },
 
       // --- NEW PRODUCT: Genki Sport Long Sleeve Shirt ---
       {
