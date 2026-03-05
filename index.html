@@ -52,6 +52,10 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+    html { font-size: 100%; }
+    @media (min-width: 1024px) {
+      html { font-size: 90%; }
+    }
     body {
       font-family: 'Inter', sans-serif;
       background-color: #0d0d0d; /* Dark background for streetwear aesthetic */
@@ -68,6 +72,9 @@
     .page-content { display: none; }
     /* Fallback: Show home page if JS fails */
     #home-page { display: block; }
+    /* Non-home pages are already pushed down by fixed-header offset logic. */
+    /* Remove extra top padding from Tailwind `py-24` to prevent large gaps. */
+    #app-container > .page-content:not(#home-page) { padding-top: 10px !important; }
 
     /* ---- CLEAN HERO ANIMATION (replaces character scramble) ---- */
     #hero-title {
@@ -183,6 +190,46 @@
     @media (min-width: 1600px) {
       .look-main-collage { column-count: 4; column-gap: 14px; }
     }
+
+    /* Announcement ticker under fixed nav */
+    #announcement-bar {
+      width: 100%;
+      height: 28px;
+      border-top: 1px solid rgba(255,255,255,.1);
+      background: rgba(0,0,0,.9);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .announcement-marquee {
+      display: flex;
+      width: max-content;
+      will-change: transform;
+    }
+    .announcement-run {
+      display: flex;
+      align-items: center;
+      height: 28px;
+      white-space: nowrap;
+    }
+    .announcement-item {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .28em;
+      color: rgba(255,255,255,.82);
+      padding-right: 2.2rem;
+      padding-left: .6rem;
+    }
+    .announcement-divider {
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,.42);
+      margin-right: 2.2rem;
+      flex: 0 0 auto;
+    }
   </style>
 </head>
 <body>
@@ -219,6 +266,21 @@
           <span id="cart-count" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
         </button>
       </nav>
+    </div>
+    <div id="announcement-bar" class="announcement-bar">
+      <div class="announcement-marquee" aria-label="Store announcements">
+        <div class="announcement-run">
+          <span class="announcement-item">Submit photos for the lookbook</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item">New drops weekly</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item">Newsletter coming soon</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item">Mind Our Dust</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+        </div>
+        
+      </div>
     </div>
   </header>
 
@@ -675,7 +737,7 @@
           <div class="space-y-2">
             <p class="text-xs uppercase tracking-[0.35em] text-white/60">Checkout</p>
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Review Your Order</h1>
-            <p class="text-yellow-400 leading-relaxed">A Cancel Code will be generated after you complete your order. This code is required to cancel your order within 12 hours of purchase.</p>
+            <p class="text-yellow-400 leading-relaxed">Genki is officially live. If you run into any checkout errors, Submit an order request and we will be in touch with a payment link.</p>
           </div>
           <a href="#shop" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Continue shopping</a>
         </div>
@@ -846,8 +908,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-4">
           <!-- Image Gallery (All images and containers are sharp) -->
           <div class="space-y-4">
-            <div class="relative">
-              <img id="product-main-image" src="https://placehold.co/1200x1600/333333/ffffff?text=Oversized+Hoodie+%28Front%29" alt="Product Main Image" class="w-full shadow-xl border border-white/10" style="max-height:65vh; aspect-ratio: 4 / 5; object-fit: contain; width:100%; height:auto;">
+            <div id="product-main-image-viewport" class="relative overflow-hidden bg-neutral-900 select-none touch-pan-y">
+              <img id="product-main-image" src="https://placehold.co/1200x1600/333333/ffffff?text=Oversized+Hoodie+%28Front%29" alt="Product Main Image" class="w-full shadow-xl border border-white/10" style="max-height:65vh; aspect-ratio: 4 / 5; object-fit: contain; width:100%; height:auto; transform-origin:center center; transform:translate3d(0,0,0) scale(1); transition:transform 160ms ease; will-change:transform; cursor:zoom-in;">
               <button id="product-thumbs-prev" type="button" aria-label="Previous image" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center border border-white/25 bg-black/40 hover:border-white transition disabled:opacity-35 disabled:cursor-not-allowed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </button>
@@ -867,7 +929,10 @@
           <!-- Product Details -->
           <div class="space-y-8">
             <div class="border-b border-white/10 pb-6">
-              <span id="product-badge" class="text-xs font-medium uppercase tracking-widest text-white border border-white/50 px-1 py-0.5 inline-block">New Arrival</span>
+              <div class="flex items-center gap-2">
+                <span id="product-badge" class="text-xs font-medium uppercase tracking-widest text-white border border-white/50 px-1 py-0.5 inline-block">New Arrival</span>
+                <span id="product-urgency-badge" class="text-xs font-medium tracking-widest text-white border border-red-400/60 px-1 py-0.5 hidden">Archiving</span>
+              </div>
               <h1 id="product-title" class="text-4xl md:text-5xl font-extrabold mt-1 mb-2"></h1>
               <p id="product-price" class="text-3xl font-light text-white"></p>
             </div>
@@ -1683,13 +1748,13 @@
     // Every catalog view (home featured, shop grid, PDP, related items) reads from this array.
     const PRODUCTS = [
 
-      // --- NEW PRODUCT: Genki Sport Perfomance ShortSkirt ---
-      { id: 'genki-sport-performance-shortskirt',
-        title: 'Genki Sport Performance ShortSkirt',
-        price: '$50.00 ',
-        badge: 'NEW',
+      // --- NEW PRODUCT: Genki Fit Perfomance ShortSkirt ---
+      { id: 'genki-fit-performance-shortskirt',
+        title: 'Genki Fit Performance ShortSkirt',
+        price: '$45.00 ',
+        badge: 'FIT',
         categories: 'Bottoms',
-        keywords: 'genki sport performance shortskirt athletic skirt tennis skirt',
+        keywords: 'genki fit performance shortskirt athletic skirt tennis skirt',
         sizes: ['S', 'M', 'L', 'XL'],
         surcharges: { '2XL†': 3 },
         images: [
@@ -1725,9 +1790,9 @@
 
       { id: 'ouroboros-sun-fade-fur-hoodie',
         title: 'Ouroboros Sun Fade Fur Hoodie',
-        price: '$80.00 ',
+        price: '$115.00 ',
         badge: 'NEW',
-        categories: 'Tops',
+        categories: ['Tops', 'outerwear'],
         keywords: 'ouroboros sun fade fur hoodie sweatshirt pullover',
         sizes: ['S', 'M', 'L', 'XL'],
         surcharges: { '2XL†': 5 },
@@ -1750,7 +1815,7 @@
       {
         id: 'esquire-rough-edge-drawstring-shorts',
         title: 'Esquire Rough Edge Drawstring Shorts',
-        price: '$45.00 ',
+        price: '$50.00 ',
         badge: 'NEW',
         categories: 'Bottoms',
         keywords: 'esquire rough edge drawstring shorts casual pants',
@@ -1785,12 +1850,12 @@
 
       // --- NEW PRODUCT: Vintage Washed Jeans
       {
-        id: 'vintage-washed-jeans',
+        id: 'vintage-washed-heavyweight-jeans',
         title: 'Vintage Washed Jeans',
-        price: '$65.00 ',
+        price: '$85.00 ',
         badge: 'NEW',
         categories: 'Bottoms',
-        keywords: 'vintage washed jeans denim pants trousers',
+        keywords: 'vintage washed heavyweight jeans denim pants trousers',
         sizes: ['S', 'M', 'L', 'XL'],
         surcharges: { '2XL†': 3 },
         images: [
@@ -1811,15 +1876,15 @@
       {
         id: 'ouroboros-striped-straight-legs',
         title: 'Ouroboros Striped Straight Legs',
-        price: '$60.00 ',
+        price: '$55.00 ',
         badge: 'NEW',
         categories: 'Bottoms',
         keywords: 'ouroboros striped straight legs pants trousers',
         sizes: ['S', 'M', 'L', 'XL'],
         surcharges: { '2XL†': 3 },
         images: [
-          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772585838/ourobours_pants_F_l9kcq1.png',
-          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772594528/ourobours_pants_B_mwcdcz.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772667327/ourobours_pants_F_tz2us2.png',
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772667326/ourobours_pants_B_h1eqrs.png',
           'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595273/ourobours_SSL_Stripe_f2xqfy.png',
           'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595272/ourobours_SSL_Hem_vv3owh.png',
           'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772595271/ourobours_SSL_Waist_oau5in.png',
@@ -1850,12 +1915,12 @@
 
       // --- NEW PRODUCT: Genki Sport Long Sleeve Shirt ---
       {
-        id: 'genki-sport-long-sleeve-shirt',
-        title: 'Genki Sport Long Sleeve Shirt',
-        price: '$35.00 ',
-        badge: 'SPORT',
+        id: 'genki-fit-long-sleeve-shirt',
+        title: 'Genki Fit Long Sleeve Shirt',
+        price: '$55.00 ',
+        badge: 'FIT',
         categories: 'Tops',
-        keywords: 'genki sport champion long sleeve shirt athletic',
+        keywords: 'genki fit champion long sleeve shirt athletic',
         sizes: ['S', 'M', 'L', 'XL', '2XL†'],
         surcharges: { '2XL†': 2 },
         images: [
@@ -1876,7 +1941,7 @@
       {
         id: 'rosebush-drawstring-bag',
         title: 'Rosebush Drawstring Bag',
-        price: '$28.00 ',
+        price: '$35.00 ',
         badge: '',
         categories: 'Accessories',
         keywords: 'rosebush drawstring bag floral accessory',
@@ -1895,7 +1960,7 @@
       {
         id: 'genki-cards-kiss-cut-stickers',
         title: 'Miki Cards Kiss-Cut Stickers',
-        price: '$10.00 ',
+        price: '$5.00 ',
         badge: '',
         categories: 'Accessories',
         keywords: 'genki cards kiss-cut stickers decal',
@@ -1934,7 +1999,7 @@
       {
         id: 'genki-nomad-beanie',
         title: 'Nomad Beanie',
-        price: '$25.00 ',
+        price: '$30.00 ',
         badge: '',
         categories: 'Accessories',
         keywords: 'genki nomad beanie knit cap',
@@ -1977,7 +2042,7 @@
       {
         id: 'genki-inkblot-beanie',
         title: 'Inkblot Beanie',
-        price: '$22.00 ',
+        price: '$30.00 ',
         badge: '',
         categories: 'Accessories',
         keywords: 'genki inkblot beanie knit cap',
@@ -2022,10 +2087,10 @@
      {
         id: 'genki-woman-eco-tote',
         title: "Miki Eco Tote",
-        price: "$30.00 ",
+        price: "$35.00 ",
         badge: '',
         categories: 'Accessories',
-        keywords: 'tote eco sustainable woman',
+        keywords: 'tote eco sustainable woman miki bag envioronmentally friendly eco-friendly enviroenment',
         sizes: ['One Size'],
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-172881681510457-0.png'
@@ -2044,7 +2109,7 @@
       {
         id: 'rosebush-heavy-hoodie',
         title: "Rosebush Heavy Hoodie",
-        price: "$40.00 ",
+        price: "$65.00 ",
         badge: '',
         categories: 'Tops',
         keywords: 'hoodie heavy rosebush oversized casual',
@@ -2077,9 +2142,9 @@
       {
         id: 'genki-nomad-jacket',
         title: "GENKI Nomad Jacket",
-        price: "$55.00 ",
+        price: "$85.00 ",
         badge: '',
-        categories: 'Tops',
+        categories: ['Tops', 'outerwear'],
         keywords: 'jacket Unfinished packable casual kanji',
         sizes: ['S', 'M', 'L', 'XL', '2XL'],
         images: [
@@ -2255,18 +2320,18 @@
         
       },
 
-      // --- NEW PRODUCT: Genki Sport Fitted T-shirt ---
+      // --- NEW PRODUCT: Genki Fit Fitted T-shirt ---
       {
-        id: 'genki-sport-fitted-tee',
-        title: 'Genki Sport Fitted T-shirt',
-        price: '$30.00 ',
+        id: 'genki-fit-fitted-tee',
+        title: 'Genki Fit Fitted T-shirt',
+        price: '$40.00 ',
         surcharges: {
             '2XL†': 2.00,
             '3XL†': 3.00
         },
-        badge: 'SPORT',
+        badge: 'FIT',
         categories: 'Tops',
-        keywords: 'fitted t-shirt sport breathable lightweight comfortable genki',
+        keywords: 'fitted t-shirt fit breathable lightweight comfortable genki',
         sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†'],
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17349048674886-0.png', 
@@ -2305,15 +2370,15 @@
 
       // --- NEW PRODUCT: Genki Sport Fleece Joggers ---
       {
-        id: 'genki-sport-fleece-joggers',
-        title: 'Genki Sport Fleece Joggers',
-        price: '$45.00 ',
+        id: 'genki-fit-fleece-joggers',
+        title: 'Genki Fit Fleece Joggers',
+        price: '$55.00 ',
           surcharges: {
               '2XL†': 3.00
           },
-        badge: 'SPORT',
+        badge: 'FIT',
         categories: 'Bottoms',
-        keywords: 'fleece joggers sport comfortable warm genki activewear',
+        keywords: 'fleece joggers fit comfortable warm genki activewear',
         sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL†'],
         images: [
           'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602526613839-0.png', 
@@ -2435,7 +2500,7 @@
       {
         id: 'genki-tour-beanie',
         title: 'GENKI Tour Beanie',
-        price: '$25.00 ',
+        price: '$30.00 ',
         badge: 'Tour',
         categories: 'Accessories',
         keywords: 'beanie tour genki warm comfortable winter knit hat',
@@ -2508,7 +2573,7 @@
       {
         id: 'genki-sakura-hoodie',
         title: 'Sakura Heavy Hoodie',
-        price: '$40.00 ',
+        price: '$75.00 ',
          surcharges: {
             '2XL†': 2.00,
             '3XL†': 3.00,
@@ -2557,7 +2622,7 @@
       {
         id: 'genki-skull-hoodie',
         title: 'Skull Hoodie',
-        price: '$40.00 ',
+        price: '$65.00 ',
           surcharges: {
               '2XL†': 2.00,
               '3XL†': 3.00,
@@ -2565,6 +2630,7 @@
               '5XL†': 6.00 // Added based on your screenshot
           },
         badge: '',
+        urgencyTag: 'Upgrading',
         categories: 'Tops',
         keywords: 'hoodie heavy skull genki thick warm comfortable japanese flower',
         sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†', '5XL†'],
@@ -2618,7 +2684,7 @@
       {
         id: 'genki-esquire-jacket',
         title: 'Esquire Packable Jacket',
-        price: '$45.00 ',
+        price: '$85.00 ',
         surcharges: {
           '2XL†': 6.00
         },
@@ -2670,7 +2736,7 @@
       { 
         id: 'acd-kancho-hancho-shirt',
         title: '[ACD] Kancho Hancho Button Up Shirt',
-        price: '$50.00 ',
+        price: '$70.00 ',
         surcharges: {
           '2XL†': 2.00,
           '3XL†': 3.00,
@@ -2701,7 +2767,7 @@
       {
         id: 'genki-rainman-reverse-tee',
         title: 'Rainman Reverse Graphic Tee',
-        price: '$30.00 ',
+        price: '$40.00 ',
         badge: '',
         categories: 'Tops',
         keywords: 't-shirt rainman graphic genki reverse',
@@ -2759,7 +2825,7 @@
       {
         id: 'genki-sakura-duffel-bag',
         title: 'Sakura Duffel Bag',
-        price: '$40.00 ',
+        price: '$115.00 ',
         badge: '',
         categories: 'Accessories',
         keywords: 'duffel bag sakura genki floral',
@@ -2780,7 +2846,7 @@
       {
         id: 'genki-two-faced-hoodie',
         title: 'Two Faced Hoodie',
-        price: '$54.00 ',
+        price: '$85.00 ',
         badge: '',
         categories: 'Tops',
         keywords: 'hoodie two-faced genki unique design',
@@ -2809,7 +2875,7 @@
       {
         id: 'genki-shinobi-beanie',
         title: 'Genki Village Shinobi Beanie',
-        price: '$25.00 ',
+        price: '$30.00 ',
       badge: '',
         categories: 'Accessories',
         keywords: 'beanie shinobi ninja naruto genki warm comfortable knit hat',
@@ -2852,6 +2918,17 @@
 
       
     ];
+
+    const URGENCY_TAG_VALUES = new Set(['Archiving', 'Vaulting', 'Upgrading', '']);
+    function normalizeUrgencyTag(value) {
+      const raw = value == null ? '' : String(value).trim();
+      if (!raw) return '';
+      const canonical = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+      return URGENCY_TAG_VALUES.has(canonical) ? canonical : '';
+    }
+    PRODUCTS.forEach((product) => {
+      product.urgencyTag = normalizeUrgencyTag(product.urgencyTag);
+    });
     
     // 2. Hero Text Animation (GENKI <-> 元気)
     // 2. Hero Text Animation (GENKI <-> 元気) — FADE VERSION (keep name morphText)
@@ -2895,11 +2972,97 @@ setTimeout(morphText, pauseDuration);
     
     // 3. Dynamic Navbar Visibility/Style on Scroll
     // Home page uses progressive transparent->opaque header; other routes pin a compact header.
-    const header = document.getElementById('main-header');
+       const header = document.getElementById('main-header');
+    const appContainer = document.getElementById('app-container');
     const innerNavDiv = document.getElementById('nav-inner');
     const logoContainer = document.getElementById('logo-container');
     const homeLink = document.getElementById('home-link'); // Added reference
-    const scrollThreshold = 120; // px where navbar is fully compacted
+    const announcementBar = document.getElementById('announcement-bar');
+    const scrollThreshold = 10; // px where navbar is fully compacted
+    const HEADER_OFFSET_TRIM = 0; // Keep full header+ticker clearance on non-home pages
+
+    function initAnnouncementTicker() {
+      const marquee = document.querySelector('#announcement-bar .announcement-marquee');
+      if (!marquee) return;
+      const runs = marquee.querySelectorAll('.announcement-run');
+      if (!runs.length) return;
+      const primaryRun = runs[0];
+      const primaryHTML = primaryRun.innerHTML;
+
+      // Use a continuous JS ticker to avoid any visible reset/snap at loop boundaries.
+      let runWidth = 0;
+      let offset = 0;
+      let lastTs = 0;
+      let rafId = 0;
+      let isPaused = false;
+      const pxPerSecond = 70;
+
+      const applyOffset = () => {
+        marquee.style.transform = `translate3d(${-offset}px, 0, 0)`;
+      };
+
+      const rebuildRunsForViewport = () => {
+        marquee.innerHTML = '';
+
+        const measureRun = document.createElement('div');
+        measureRun.className = 'announcement-run';
+        measureRun.style.position = 'absolute';
+        measureRun.style.visibility = 'hidden';
+        measureRun.style.pointerEvents = 'none';
+        measureRun.style.whiteSpace = 'nowrap';
+        measureRun.innerHTML = primaryHTML;
+        marquee.appendChild(measureRun);
+        const measuredWidth = measureRun.getBoundingClientRect().width || measureRun.scrollWidth || 0;
+        measureRun.remove();
+
+        if (!measuredWidth) return 0;
+
+        const viewportWidth = (announcementBar && announcementBar.clientWidth) ? announcementBar.clientWidth : window.innerWidth;
+        const copies = Math.max(3, Math.ceil((viewportWidth / measuredWidth) + 2));
+        for (let i = 0; i < copies; i += 1) {
+          const run = document.createElement('div');
+          run.className = 'announcement-run';
+          run.innerHTML = primaryHTML;
+          if (i > 0) run.setAttribute('aria-hidden', 'true');
+          marquee.appendChild(run);
+        }
+        return measuredWidth;
+      };
+
+      const updateTickerMetrics = () => {
+        const nextWidth = rebuildRunsForViewport();
+        if (!nextWidth) return;
+        if (runWidth > 0) {
+          offset = (offset / runWidth) * nextWidth;
+        }
+        runWidth = nextWidth;
+        offset = ((offset % runWidth) + runWidth) % runWidth;
+        applyOffset();
+      };
+
+      const tick = (ts) => {
+        if (!lastTs) lastTs = ts;
+        const dt = (ts - lastTs) / 1000;
+        lastTs = ts;
+        if (!isPaused && runWidth > 0) {
+          offset = (offset + (pxPerSecond * dt)) % runWidth;
+          applyOffset();
+        }
+        rafId = requestAnimationFrame(tick);
+      };
+
+      updateTickerMetrics();
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(tick);
+      marquee.addEventListener('mouseenter', () => { isPaused = true; });
+      marquee.addEventListener('mouseleave', () => { isPaused = false; });
+      window.addEventListener('resize', updateTickerMetrics);
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(updateTickerMetrics).catch(() => {});
+      }
+      window.addEventListener('load', updateTickerMetrics, { once: true });
+    }
+    initAnnouncementTicker();
 
     let ticking = false;
     function updateNavbar(scrollY) {
@@ -2912,14 +3075,19 @@ setTimeout(morphText, pauseDuration);
       header.style.backgroundColor = `rgba(0,0,0,${(progress * 0.9).toFixed(2)})`;
       header.style.backdropFilter = `blur(${(progress * 6).toFixed(1)}px)`;
 
-      // compact: reduce vertical padding from 24px -> ~12px
-      const startPad = 24; // px (py-6 approx)
-      const endPad = 10; // px when compact
+      // compact: reduce vertical padding from 18px -> 8px
+      const startPad = 18;
+      const endPad = 8;
       const pad = startPad - (startPad - endPad) * progress;
       innerNavDiv.style.padding = `${pad.toFixed(1)}px .3rem`;
 
       // logo becomes visible as we scroll (0 at top -> 1 when compacted)
       logoContainer.style.opacity = progress.toFixed(2);
+      if (announcementBar) {
+        announcementBar.style.opacity = progress.toFixed(2);
+        announcementBar.style.transform = `translateY(${(-6 + (progress * 6)).toFixed(1)}px)`;
+        announcementBar.style.pointerEvents = progress < 0.1 ? 'none' : 'auto';
+      }
       
       // CRITICAL FIX: Logo clickability. Only unclickable when hidden (i.e., progress is near zero)
       if (progress < 0.1) {
@@ -2937,6 +3105,35 @@ setTimeout(morphText, pauseDuration);
         ticking = false;
       });
     }
+    function applyAppTopOffset(pageId) {
+      if (!appContainer || !header) return;
+      if (pageId === 'home-page') {
+        appContainer.style.paddingTop = '0px';
+        return;
+      }
+      appContainer.style.paddingTop = `${Math.max(0, header.offsetHeight - HEADER_OFFSET_TRIM)}px`;
+    }
+    function applyCurrentRouteOffset() {
+      const currentBaseHash = (window.location.hash || '#home').split('?')[0].split('/')[0];
+      const onHome = !currentBaseHash || currentBaseHash === '#home';
+      applyAppTopOffset(onHome ? 'home-page' : 'not-home');
+    }
+    function syncRouteOffset() {
+      applyCurrentRouteOffset();
+      requestAnimationFrame(() => {
+        applyCurrentRouteOffset();
+        setTimeout(applyCurrentRouteOffset, 120);
+        setTimeout(applyCurrentRouteOffset, 360);
+      });
+    }
+    window.addEventListener('resize', applyCurrentRouteOffset);
+    window.addEventListener('load', syncRouteOffset, { once: true });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(syncRouteOffset).catch(() => {});
+    }
+    [header, innerNavDiv, announcementBar].forEach((el) => {
+      el?.addEventListener('transitionend', applyCurrentRouteOffset);
+    });
     
     // 4. Search + Auth/Wishlist/Account State
     // This block centralizes UI refs plus Supabase-driven user/session state.
@@ -3452,6 +3649,15 @@ setTimeout(morphText, pauseDuration);
       return '';
     }
 
+    function renderUrgencyTagBadge(product, tone = 'overlay') {
+      const tag = normalizeUrgencyTag(product?.urgencyTag);
+      if (!tag) return '';
+      const toneClass = tone === 'inline'
+        ? 'border-red-400/60 text-red-200 bg-red-950/25'
+        : 'border-red-400/60 text-red-100 bg-red-950/45';
+      return `<span class="text-[10px] font-medium tracking-[0.18em] px-2 py-1 border ${toneClass}">${tag}</span>`;
+    }
+
     // Related ranking heuristic:
     // - strong weight for same primary category
     // - softer weight for close price point
@@ -3535,7 +3741,12 @@ setTimeout(morphText, pauseDuration);
           <div class="relative overflow-hidden">
             ${wishlistButtonMarkup(product.id)}
             <img src="${product.images[0]}" alt="${product.title}" class="w-full max-h-80 aspect-[4/5] object-contain bg-neutral-900" style="width:100%; height:auto;">
-            ${product.badge ? `<span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">${product.badge}</span>` : ''}
+            ${(product.badge || normalizeUrgencyTag(product.urgencyTag)) ? `
+              <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
+                ${product.badge ? `<span class="bg-blue-900 text-white text-xs px-2 py-1 font-medium">${product.badge}</span>` : ''}
+                ${renderUrgencyTagBadge(product)}
+              </div>
+            ` : ''}
           </div>
           <div class="p-4">
             <h3 class="font-semibold text-white mb-1">${product.title}</h3>
@@ -3751,7 +3962,10 @@ setTimeout(morphText, pauseDuration);
         card.innerHTML = `
           <div class="relative overflow-hidden">
             <img src="${image}" alt="${product.title}" class="w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
-            <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
+            <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
+              <span class="bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
+              ${renderUrgencyTagBadge(product)}
+            </div>
           </div>
           <div class="p-4 text-center">
             <h3 class="text-lg font-semibold text-white mb-1">${product.title}</h3>
@@ -3777,7 +3991,10 @@ setTimeout(morphText, pauseDuration);
         card.innerHTML = `
           <div class="relative overflow-hidden">
             <img src="${image}" alt="${product.title}" class="w-full h-80 object-contain bg-neutral-900" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
-            <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">NEW</span>
+            <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
+              <span class="bg-blue-900 text-white text-xs px-2 py-1 font-medium">NEW</span>
+              ${renderUrgencyTagBadge(product)}
+            </div>
           </div>
           <div class="p-4">
             <h3 class="font-semibold text-white mb-1">${product.title}</h3>
@@ -3828,6 +4045,7 @@ setTimeout(morphText, pauseDuration);
       const thumbsPrev = document.getElementById('product-thumbs-prev');
       const thumbsNext = document.getElementById('product-thumbs-next');
       const badge = document.getElementById('product-badge');
+      const urgencyBadge = document.getElementById('product-urgency-badge');
       const hoodieColorsContainer = document.getElementById('product-hoodie-colors');
       const skullColorsContainer = document.getElementById('product-skull-colors');
       const hoodieLabel = document.getElementById('product-hoodie-label');
@@ -3841,16 +4059,141 @@ setTimeout(morphText, pauseDuration);
       const sizesContainer = document.getElementById('product-sizes');
       const detailsList = document.getElementById('product-details-list');
       const mainImgWrapper = mainImg.parentElement;
+      const mainImgViewport = document.getElementById('product-main-image-viewport');
       const THUMBS_PER_PAGE = 3;
       let activeImageIndex = 0;
       let thumbWindowStart = 0;
       let currentGalleryImages = [];
+      const ZOOM_TAP_SCALE = 2;
+      const ZOOM_MAX = 3;
+      let zoomScale = 1;
+      let panX = 0;
+      let panY = 0;
+      let draggingZoom = false;
+      let movedWhileDragging = false;
+      let dragStartClientX = 0;
+      let dragStartClientY = 0;
+      let dragStartPanX = 0;
+      let dragStartPanY = 0;
+      let dragPointerId = null;
 
+      const clampZoomPan = () => {
+        const w = mainImg ? mainImg.clientWidth : 0;
+        const h = mainImg ? mainImg.clientHeight : 0;
+        const maxPanX = Math.max(0, ((zoomScale - 1) * w) / 2);
+        const maxPanY = Math.max(0, ((zoomScale - 1) * h) / 2);
+        panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+        panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+      };
+
+      const applyZoomTransform = () => {
+        clampZoomPan();
+        if (mainImg) {
+          mainImg.style.transform = `translate3d(${panX}px, ${panY}px, 0) scale(${zoomScale})`;
+          if (zoomScale > 1) {
+            mainImg.style.cursor = draggingZoom ? 'grabbing' : 'grab';
+          } else {
+            mainImg.style.cursor = 'zoom-in';
+          }
+        }
+      };
+
+      const resetMainImageZoom = (animate = true) => {
+        zoomScale = 1;
+        panX = 0;
+        panY = 0;
+        draggingZoom = false;
+        movedWhileDragging = false;
+        if (mainImg) {
+          mainImg.style.transition = animate ? 'transform 160ms ease' : 'none';
+          applyZoomTransform();
+          if (!animate) requestAnimationFrame(() => { mainImg.style.transition = 'transform 160ms ease'; });
+        }
+      };
+
+      const bindMainImageZoom = () => {
+        if (!mainImg || !mainImgViewport) return;
+        mainImg.onclick = (event) => {
+          if (movedWhileDragging) {
+            movedWhileDragging = false;
+            return;
+          }
+          if (zoomScale === 1) {
+            const rect = mainImg.getBoundingClientRect();
+            const clickOffsetX = event.clientX - rect.left - (rect.width / 2);
+            const clickOffsetY = event.clientY - rect.top - (rect.height / 2);
+            zoomScale = ZOOM_TAP_SCALE;
+            zoomScale = Math.min(ZOOM_MAX, Math.max(1, zoomScale));
+            panX = -clickOffsetX * (zoomScale - 1);
+            panY = -clickOffsetY * (zoomScale - 1);
+            mainImg.style.transition = 'transform 160ms ease';
+            applyZoomTransform();
+          } else {
+            resetMainImageZoom(true);
+          }
+        };
+
+        mainImg.onpointerdown = (event) => {
+          if (zoomScale <= 1) return;
+          draggingZoom = true;
+          movedWhileDragging = false;
+          dragPointerId = event.pointerId;
+          dragStartClientX = event.clientX;
+          dragStartClientY = event.clientY;
+          dragStartPanX = panX;
+          dragStartPanY = panY;
+          mainImg.style.transition = 'none';
+          mainImg.style.cursor = 'grabbing';
+          if (mainImg.setPointerCapture) {
+            try { mainImg.setPointerCapture(event.pointerId); } catch (_) {}
+          }
+          event.preventDefault();
+        };
+
+        mainImg.onpointermove = (event) => {
+          if (!draggingZoom || zoomScale <= 1 || event.pointerId !== dragPointerId) return;
+          const dx = event.clientX - dragStartClientX;
+          const dy = event.clientY - dragStartClientY;
+          if (Math.abs(dx) + Math.abs(dy) > 3) movedWhileDragging = true;
+          panX = dragStartPanX + dx;
+          panY = dragStartPanY + dy;
+          applyZoomTransform();
+          event.preventDefault();
+        };
+
+        const endZoomDrag = (event) => {
+          if (!draggingZoom || (event && event.pointerId !== dragPointerId)) return;
+          draggingZoom = false;
+          dragPointerId = null;
+          mainImg.style.transition = 'transform 80ms ease-out';
+          applyZoomTransform();
+          requestAnimationFrame(() => { mainImg.style.transition = 'transform 160ms ease'; });
+          if (event && mainImg.releasePointerCapture) {
+            try { mainImg.releasePointerCapture(event.pointerId); } catch (_) {}
+          }
+        };
+
+        mainImg.onpointerup = endZoomDrag;
+        mainImg.onpointercancel = endZoomDrag;
+        mainImg.onpointerleave = endZoomDrag;
+        mainImg.ondragstart = () => false;
+      };
+      bindMainImageZoom();
+      if (mainImgViewport) {
+        mainImgViewport.onmouseleave = () => {
+          if (zoomScale > 1 && draggingZoom) {
+            draggingZoom = false;
+            applyZoomTransform();
+          }
+        };
+      }
       const ensureBackprintBadge = () => {
         const existing = mainImgWrapper.querySelector('.backprint-badge');
         const backprintProductIds = new Set([
           'acd-organic-sweatshirt',
-          'genki-rainman-reverse-tee'
+          'genki-rainman-reverse-tee',
+          'ouroboros-sun-fade-fur-hoodie',
+          'acd-kancho-hancho-shirt',
         ]);
         const shouldShowBackprintBadge =
           backprintProductIds.has(data.id) &&
@@ -3874,16 +4217,23 @@ setTimeout(morphText, pauseDuration);
       if (skullLabel) skullLabel.textContent = data.secondaryOptionLabel || 'Skull';
       badge.textContent = data.badge || '';
       badge.style.display = data.badge ? 'inline-block' : 'none'; // Hide badge if empty
+      if (urgencyBadge) {
+        const tag = normalizeUrgencyTag(data.urgencyTag);
+        urgencyBadge.textContent = tag;
+        urgencyBadge.style.display = tag ? 'inline-block' : 'none';
+      }
 
       // Gallery renderer that honors color-specific image sets
       const syncActiveImage = () => {
         const total = currentGalleryImages.length;
         if (!total) {
+          resetMainImageZoom(false);
           if (thumbsPrev) thumbsPrev.disabled = true;
           if (thumbsNext) thumbsNext.disabled = true;
           return;
         }
         activeImageIndex = Math.max(0, Math.min(activeImageIndex, total - 1));
+        resetMainImageZoom(false);
         mainImg.src = currentGalleryImages[activeImageIndex];
         if (activeImageIndex < thumbWindowStart || activeImageIndex >= thumbWindowStart + THUMBS_PER_PAGE) {
           thumbWindowStart = Math.floor(activeImageIndex / THUMBS_PER_PAGE) * THUMBS_PER_PAGE;
@@ -4379,20 +4729,28 @@ setTimeout(morphText, pauseDuration);
       if (pageId === 'home-page') {
         // On Home Page: Enable scroll effects, set initial transparency, clickability handled by updateNavbar.
         updateNavbar(window.scrollY);
+        applyAppTopOffset(pageId);
         window.addEventListener('scroll', onScroll); // Ensure scroll listener is active
       } else {
         // On Other Pages: Fixed header (opaque/compacted), logo always visible, logo link always clickable.
         header.style.backgroundColor = 'rgba(0,0,0,0.9)';
         header.style.backdropFilter = 'blur(4px)';
-        innerNavDiv.style.padding = '12px 1rem';
+        innerNavDiv.style.padding = '8px .9rem';
         logoContainer.style.opacity = '1';
-        
+        if (announcementBar) {
+          announcementBar.style.opacity = '1';
+          announcementBar.style.transform = 'translateY(0)';
+          announcementBar.style.pointerEvents = 'auto';
+        }
+
         // Logo must always be clickable on fixed pages
         if (homeLink) homeLink.style.pointerEvents = 'auto'; 
 
         // Temporarily disable the scroll listener when not on home page
         window.removeEventListener('scroll', onScroll); 
       }
+      applyAppTopOffset(pageId);
+      syncRouteOffset();
 
       // --- Page Specific Rendering ---
 
