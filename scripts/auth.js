@@ -287,7 +287,7 @@ const authState = {
   setAccountViewSignedIn(true);
   await loadProfileForAccount();
   await loadOrdersForAccount();
-}
+};
 
   // ── Bind controls (called once on init) ─────────────────────
   function bindAuthControls() {
