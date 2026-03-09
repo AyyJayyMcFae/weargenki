@@ -3575,11 +3575,21 @@ setTimeout(morphText, pauseDuration);
         }
       });
       authState.supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-        authState.user = session?.user || null;
-        await loadWishlistFromSupabase();
-        updateAuthUi();
-      });
-      await refreshAuthState();
+  authState.user = session?.user || null;
+  await loadWishlistFromSupabase();
+  updateAuthUi();
+
+  if (_event === 'SIGNED_IN' && session?.user) {
+    await fetch('https://formsubmit.co/ayyjayy.genki@gmail.com', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: session.user.email,
+        _subject: 'New Genki Account Created'
+      })
+    });
+  }
+});
     }
 
     function setAccountProfileStatus(message = '', isError = false) {
