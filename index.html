@@ -232,6 +232,20 @@
       padding-right: 2.2rem;
       padding-left: .6rem;
     }
+    .announcement-item[data-href] {
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .announcement-item[data-href]:hover {
+      color: rgba(255,255,255,1);
+    }
+    .announcement-item[data-href]:focus-visible {
+      outline: 1px solid rgba(255,255,255,.55);
+      outline-offset: 2px;
+    }
+    .announcement-run[aria-hidden="true"] .announcement-item {
+      pointer-events: none;
+    }
     .announcement-divider {
       width: 6px;
       height: 6px;
@@ -280,13 +294,13 @@
     <div id="announcement-bar" class="announcement-bar">
       <div class="announcement-marquee" aria-label="Store announcements">
         <div class="announcement-run">
-          <span class="announcement-item">Tag @WearGenki to be featured</span>
+          <span class="announcement-item" data-href="#lookbook-main">Tag @WearGenki to be featured</span>
           <span class="announcement-divider" aria-hidden="true"></span>
-          <span class="announcement-item">Weekly Updates and Monthly Drops</span>
+          <span class="announcement-item" data-action="open-newsletter">Weekly Updates and Monthly Drops</span>
           <span class="announcement-divider" aria-hidden="true"></span>
-          <span class="announcement-item">Free Shipping on Orders Over $100</span>
+          <span class="announcement-item" data-href="#shop">Free Shipping on Orders Over $100</span>
           <span class="announcement-divider" aria-hidden="true"></span>
-          <span class="announcement-item">Mind Our Dust</span>
+          <span class="announcement-item" data-href="" data-target="_blank">Mind Our Dust</span>
           <span class="announcement-divider" aria-hidden="true"></span>
         </div>
         
@@ -744,7 +758,7 @@
           <div class="space-y-2">
             <p class="text-xs uppercase tracking-[0.35em] text-white/60">Checkout</p>
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Review Your Order</h1>
-            <p class="text-yellow-400 leading-relaxed">Genki is officially live. If you run into any checkout errors, Submit an order request and we will be in touch with a payment link.</p>
+            <p class="text-yellow-400 leading-relaxed">Genki is officially live. Not ready to checkout yet? Submit an order and we'll hold it for you. Pay when you're ready.</p>
           </div>
           <a href="#shop" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Continue shopping</a>
         </div>
@@ -790,9 +804,11 @@
                 <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div>
               </div>
               <textarea id="sq-notes" type="text" placeholder="Extra Notes (optional)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <button id="square-pay-later" class="w-full py-3 border border-white/20 text-white font-bold tracking-widest hover:border-white transition">Submit Request</button>
+              <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
                 <button id="square-pay" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Pay Now</button>
+                <p class="text-xs uppercase tracking-[0.25em] text-white/60 whitespace-nowrap">or</p>
+                <button id="square-pay-later" class="w-full py-3 border border-white/20 text-white font-bold tracking-widest hover:border-white transition">Submit Request</button>
+                
               </div>
               <p class="text-xs text-gray-500">Pay Now captures payment securely. Submit Request does not place a paid order.</p>
 
@@ -803,6 +819,21 @@
           </section>
         </div>
         </div>
+      </div>
+    </div>
+    <div id="newsletter-modal" class="hidden fixed inset-0 z-[85] bg-black/90 p-4 sm:p-6 overflow-y-auto">
+      <div id="newsletter-modal-panel" class="max-w-xl mx-auto bg-[#0d0d0d] border border-white/15 p-5 sm:p-6 relative mt-12 sm:mt-20">
+        <button id="newsletter-close" type="button" aria-label="Close newsletter signup" class="absolute top-3 right-3 w-10 h-10 border border-white/25 text-white/80 hover:text-white hover:border-white transition flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+        <p class="text-xs uppercase tracking-[0.35em] text-white/60">Newsletter</p>
+        <h2 class="text-3xl font-extrabold tracking-tight mt-2">Weekly Updates + Monthly Drops</h2>
+        <p class="text-sm text-gray-300 mt-3">Get launch reminders, restock notes, and drop-day alerts.</p>
+        <form id="newsletter-form" class="mt-5 space-y-3">
+          <input id="newsletter-email" type="email" required placeholder="Email address" class="w-full bg-neutral-800 border border-white/10 p-3 text-white" />
+          <button id="newsletter-submit" type="submit" class="w-full py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Sign me up</button>
+        </form>
+        <p id="newsletter-status" class="text-xs text-gray-400 mt-3 hidden"></p>
       </div>
     </div>
 
@@ -891,7 +922,7 @@
           <div>
             <p class="text-xs uppercase tracking-[0.35em] text-white/60">Lookbook</p>
             <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">People & Fits</h1>
-            <p class="text-gray-400 max-w-2xl mt-2">Submissions from the GENKI community plus in-house looks we shoot for fun.</p>
+            <p class="text-gray-400 max-w-2xl mt-2">Submissions from the GENKI community plus in-house looks we shoot for fun. Tag @WearGenki on social media to be featured — or submit your photos directly. Either way, get involved.</p>
           </div>
           <a href="#home" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Back</a>
         </div>
@@ -3034,6 +3065,70 @@ setTimeout(morphText, pauseDuration);
       if (!runs.length) return;
       const primaryRun = runs[0];
       const primaryHTML = primaryRun.innerHTML;
+      const makeItemsInteractive = (runEl, interactive) => {
+        if (!runEl) return;
+        runEl.querySelectorAll('.announcement-item[data-href], .announcement-item[data-action]').forEach((item) => {
+          if (interactive) {
+            if (item.tagName !== 'A') {
+              item.setAttribute('role', 'link');
+              item.tabIndex = 0;
+            }
+            item.removeAttribute('aria-hidden');
+          } else {
+            item.removeAttribute('role');
+            item.tabIndex = -1;
+            item.setAttribute('aria-hidden', 'true');
+          }
+        });
+        runEl.querySelectorAll('a.announcement-item[href]').forEach((item) => {
+          if (interactive) {
+            item.removeAttribute('tabindex');
+            item.removeAttribute('aria-hidden');
+          } else {
+            item.tabIndex = -1;
+            item.setAttribute('aria-hidden', 'true');
+          }
+        });
+      };
+
+      const activateAnnouncementItem = (item) => {
+        if (!item || item.closest('.announcement-run[aria-hidden="true"]')) return;
+        const action = (item.getAttribute('data-action') || '').trim();
+        if (action === 'open-newsletter') {
+          window.openNewsletterModal?.();
+          return;
+        }
+        const href = (item.getAttribute('data-href') || '').trim();
+        if (!href) return;
+        const target = (item.getAttribute('data-target') || '').trim();
+        if (target === '_blank') {
+          window.open(href, '_blank', 'noopener');
+          return;
+        }
+        if (href.startsWith('#')) {
+          window.location.hash = href;
+          return;
+        }
+        window.location.href = href;
+      };
+
+      makeItemsInteractive(primaryRun, true);
+      if (!marquee.dataset.announcementLinkBound) {
+        marquee.addEventListener('click', (event) => {
+          const item = event.target.closest('.announcement-item[data-href], .announcement-item[data-action]');
+          if (!item) return;
+          event.preventDefault();
+          activateAnnouncementItem(item);
+        });
+        marquee.addEventListener('keydown', (event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') return;
+          const item = event.target.closest('.announcement-item[data-href], .announcement-item[data-action]');
+          if (!item) return;
+          event.preventDefault();
+          activateAnnouncementItem(item);
+        });
+        marquee.dataset.announcementLinkBound = '1';
+      }
 
       // Use a continuous JS ticker to avoid any visible reset/snap at loop boundaries.
       let runWidth = 0;
@@ -3070,6 +3165,7 @@ setTimeout(morphText, pauseDuration);
           run.className = 'announcement-run';
           run.innerHTML = primaryHTML;
           if (i > 0) run.setAttribute('aria-hidden', 'true');
+          makeItemsInteractive(run, i === 0);
           marquee.appendChild(run);
         }
         return measuredWidth;
@@ -4429,7 +4525,7 @@ setTimeout(morphText, pauseDuration);
           hoodies.forEach((h, i) => {
             const btn = document.createElement('button');
             btn.title = h.name;
-            btn.className = `w-8 h-8 ${h.color || 'bg-white'} border-2 border-transparent hover:border-white transition`;
+            btn.className = `w-8 h-8 ${h.color || 'bg-white'} border-2 border-white/20 hover:border-white transition`;
             if (i === activeHoodie) btn.classList.add('border-white');
             btn.addEventListener('click', () => {
               activeHoodie = i;
@@ -4449,7 +4545,7 @@ setTimeout(morphText, pauseDuration);
           data.skullOptions.forEach((s, i) => {
             const btn = document.createElement('button');
             btn.title = s.name;
-            btn.className = `w-8 h-8 ${s.color || 'bg-white'} border-2 border-transparent hover:border-white transition`;
+            btn.className = `w-8 h-8 ${s.color || 'bg-white'} border-2 border-white/20 hover:border-white transition`;
             if (i === activeSkull) btn.classList.add('border-white');
             btn.addEventListener('click', () => {
               activeSkull = i;
@@ -4488,7 +4584,7 @@ setTimeout(morphText, pauseDuration);
           data.hoodieColors.forEach((h, i) => {
             const btn = document.createElement('button');
             btn.title = h.name;
-            btn.className = `w-8 h-8 ${h.color || 'bg-white'} border-2 border-transparent hover:border-white transition`;
+            btn.className = `w-8 h-8 ${h.color || 'bg-white'} border-2 border-white/20 hover:border-white transition`;
             if (i === activeHoodie) btn.classList.add('border-white');
             btn.addEventListener('click', () => {
               activeHoodie = i;
@@ -4512,7 +4608,7 @@ setTimeout(morphText, pauseDuration);
         data.colors.forEach((c, i) => {
           const btn = document.createElement('button');
           btn.title = c.name;
-          btn.className = `w-8 h-8 ${c.color} border-2 border-transparent hover:border-white transition`;
+          btn.className = `w-8 h-8 ${c.color} border-2 border-white/20 hover:border-white transition`;
           if (i === 0) btn.classList.add('border-white');
           btn.addEventListener('click', () => { 
             hoodieName.textContent = c.name; 
@@ -5012,6 +5108,53 @@ setTimeout(morphText, pauseDuration);
     if (event.target === checkoutModal) window.closeCheckoutModal();
    });
    checkoutModalPanel?.addEventListener('click', (event) => event.stopPropagation());
+
+   // Newsletter modal controls (opened from announcement ticker).
+   const newsletterModal = document.getElementById('newsletter-modal');
+   const newsletterModalPanel = document.getElementById('newsletter-modal-panel');
+   const newsletterCloseButton = document.getElementById('newsletter-close');
+   const newsletterForm = document.getElementById('newsletter-form');
+   const newsletterEmail = document.getElementById('newsletter-email');
+   const newsletterStatus = document.getElementById('newsletter-status');
+   const handleNewsletterEscape = (event) => {
+    if (event.key === 'Escape') window.closeNewsletterModal();
+   };
+   window.openNewsletterModal = function() {
+    if (!newsletterModal) return;
+    newsletterModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleNewsletterEscape);
+    if (newsletterStatus) {
+      newsletterStatus.classList.add('hidden');
+      newsletterStatus.textContent = '';
+    }
+    if (newsletterEmail) {
+      requestAnimationFrame(() => newsletterEmail.focus());
+    }
+   };
+   window.closeNewsletterModal = function() {
+    if (!newsletterModal) return;
+    newsletterModal.classList.add('hidden');
+    if (checkoutModal && checkoutModal.classList.contains('hidden')) {
+      document.body.style.overflow = '';
+    }
+    document.removeEventListener('keydown', handleNewsletterEscape);
+   };
+   newsletterCloseButton?.addEventListener('click', window.closeNewsletterModal);
+   newsletterModal?.addEventListener('click', (event) => {
+    if (event.target === newsletterModal) window.closeNewsletterModal();
+   });
+   newsletterModalPanel?.addEventListener('click', (event) => event.stopPropagation());
+   newsletterForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const emailValue = (newsletterEmail?.value || '').trim();
+    if (!emailValue) return;
+    if (newsletterStatus) {
+      newsletterStatus.textContent = `Thanks. ${emailValue} is queued for newsletter updates.`;
+      newsletterStatus.classList.remove('hidden');
+    }
+    newsletterForm.reset();
+   });
 
 
 
