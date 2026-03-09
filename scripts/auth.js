@@ -265,12 +265,7 @@ const authState = {
   await loadProfileForAccount();
   await loadOrdersForAccount();
 };
- 
 
-  setAccountViewSignedIn(true);
-  await loadProfileForAccount();
-  await loadOrdersForAccount();
-};
 
   // ── Bind controls (called once on init) ─────────────────────
   function bindAuthControls() {
