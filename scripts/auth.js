@@ -81,7 +81,7 @@ const authState = {
 
     const hash = (window.location.hash || '#home').split('?')[0];
     if (hash === '#wishlist') window.renderWishlistPage?.();
-    if (hash === '#account') window.renderAccountPage?.();
+    if (hash === '#account') window.?.();
     window.updateProductWishlistButton?.();
   };
 
@@ -237,22 +237,31 @@ const authState = {
   }
 
   window.renderAccountPage = async function () {
-    if (!authState.supabaseClient) { setAccountViewSignedIn(false); return; }
-    if (!authState.user) {
-      const { data } = await authState.supabaseClient.auth.getSession();
-      authState.user = data?.session?.user || null;
-    }
-    if (!authState.user) {
-      setAccountViewSignedIn(false);
-      const list = document.getElementById('account-orders-list');
-      if (list) list.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>';
-      setAccountProfileStatus('');
-      return;
-    }
-    setAccountViewSignedIn(true);
-    await loadProfileForAccount();
-    await loadOrdersForAccount();
-  };
+  if (!authState.supabaseClient) { setAccountViewSignedIn(false); return; }
+  
+  // Show a neutral loading state instead of signed-out while we wait
+  const gate = document.getElementById('account-auth-gate');
+  const content = document.getElementById('account-content');
+  if (gate) gate.classList.add('hidden');
+  if (content) content.classList.add('hidden');
+
+  if (!authState.user) {
+    const { data } = await authState.supabaseClient.auth.getSession();
+    authState.user = data?.session?.user || null;
+  }
+
+  if (!authState.user) {
+    setAccountViewSignedIn(false);
+    const list = document.getElementById('account-orders-list');
+    if (list) list.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>';
+    setAccountProfileStatus('');
+    return;
+  }
+
+  setAccountViewSignedIn(true);
+  await loadProfileForAccount();
+  await loadOrdersForAccount();
+};
 
   // ── Bind controls (called once on init) ─────────────────────
   function bindAuthControls() {
