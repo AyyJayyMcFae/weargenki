@@ -9,7 +9,7 @@ const authState = {
   supabaseClient: null,
 };
 
-(function () {
+( async function () {
   const localConfig = window.__GENKI_CONFIG__ || {};
   const SUPABASE_URL = localConfig.SUPABASE_URL || 'REPLACE_WITH_SUPABASE_URL';
   const SUPABASE_ANON_KEY = localConfig.SUPABASE_ANON_KEY || 'REPLACE_WITH_SUPABASE_ANON_KEY';
