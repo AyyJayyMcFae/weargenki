@@ -7,12 +7,13 @@ const outFile = path.join(root, 'genki-config.js');
 const keyMap = {
   SUPABASE_URL: 'PUBLIC_SUPABASE_URL',
   SUPABASE_ANON_KEY: 'PUBLIC_SUPABASE_ANON_KEY',
+  SITE_URL: 'PUBLIC_SITE_URL',
   SQUARE_APP_ID: 'PUBLIC_SQUARE_APP_ID',
   SQUARE_LOCATION_ID: 'PUBLIC_SQUARE_LOCATION_ID'
 };
 
 const requiredConfigKeys = ['SUPABASE_URL', 'SUPABASE_ANON_KEY'];
-const optionalConfigKeys = ['SQUARE_APP_ID', 'SQUARE_LOCATION_ID'];
+const optionalConfigKeys = ['SITE_URL', 'SQUARE_APP_ID', 'SQUARE_LOCATION_ID'];
 
 const readVar = (name) => (process.env[name] || '').trim();
 const config = {};
