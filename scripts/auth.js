@@ -133,10 +133,12 @@ const authState = {
   };
 
   // ── Account page ─────────────────────────────────────────────
-  function setAccountViewSignedIn(signedIn) {
-    document.getElementById('account-auth-gate')?.classList.toggle('hidden', signedIn);
-    document.getElementById('account-content')?.classList.toggle('hidden', !signedIn);
-  }
+ function setAccountViewSignedIn(signedIn) {
+  const gate = document.getElementById('account-auth-gate');
+  const content = document.getElementById('account-content');
+  if (gate) gate.classList.toggle('hidden', signedIn);
+  if (content) content.classList.toggle('hidden', !signedIn);
+}
 
   function setAccountProfileStatus(msg = '', isError = false) {
     const el = document.getElementById('account-profile-status');
