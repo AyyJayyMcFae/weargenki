@@ -296,11 +296,17 @@
         <div class="announcement-run">
           <span class="announcement-item" data-href="#lookbook-main">Tag @WearGenki to be featured</span>
           <span class="announcement-divider" aria-hidden="true"></span>
-          <span class="announcement-item" data-action="open-newsletter">Weekly Updates and Monthly Drops</span>
+
+
+          <span class="announcement-item" data-action="open-newsletter" style="cursor:pointer">Weekly Updates and Monthly Drops</span>
           <span class="announcement-divider" aria-hidden="true"></span>
+
+
           <span class="announcement-item" data-href="#shop">Free Shipping on Orders Over $100</span>
           <span class="announcement-divider" aria-hidden="true"></span>
-          <span class="announcement-item" data-href="" data-target="_blank">Mind Our Dust</span>
+
+
+          <span class="announcement-item">Mind Our Dust</span>
           <span class="announcement-divider" aria-hidden="true"></span>
         </div>
         
@@ -5186,16 +5192,33 @@ setTimeout(morphText, pauseDuration);
     if (event.target === newsletterModal) window.closeNewsletterModal();
    });
    newsletterModalPanel?.addEventListener('click', (event) => event.stopPropagation());
-   newsletterForm?.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const emailValue = (newsletterEmail?.value || '').trim();
-    if (!emailValue) return;
-    if (newsletterStatus) {
-      newsletterStatus.textContent = `Thanks. ${emailValue} is queued for newsletter updates.`;
-      newsletterStatus.classList.remove('hidden');
+newsletterForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const emailValue = (newsletterEmail?.value || '').trim();
+  if (!emailValue) return;
+
+  if (authState.supabaseClient) {
+    const { error } = await authState.supabaseClient
+      .from('newsletter_subscribers')
+      .insert([{ email: emailValue }]);
+
+    if (error && error.code !== '23505') {
+      // 23505 = unique violation (already subscribed)
+      if (newsletterStatus) {
+        newsletterStatus.textContent = 'Something went wrong. Try again.';
+        newsletterStatus.classList.remove('hidden');
+      }
+      newsletterForm.reset();
+      return;
     }
-    newsletterForm.reset();
-   });
+  }
+
+  if (newsletterStatus) {
+    newsletterStatus.textContent = `Thanks. ${emailValue} is queued for newsletter updates.`;
+    newsletterStatus.classList.remove('hidden');
+  }
+  newsletterForm.reset();
+});
 
 
 
