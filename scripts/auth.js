@@ -81,7 +81,7 @@ const authState = {
 
     const hash = (window.location.hash || '#home').split('?')[0];
     if (hash === '#wishlist') window.renderWishlistPage?.();
-    if (hash === '#account') window.?.();
+    if (hash === '#account') window.renderAccountPage?.();
     window.updateProductWishlistButton?.();
   };
 
