@@ -265,24 +265,7 @@ const authState = {
   await loadProfileForAccount();
   await loadOrdersForAccount();
 };
-  // Show a neutral loading state instead of signed-out while we wait
-  const gate = document.getElementById('account-auth-gate');
-  const content = document.getElementById('account-content');
-  if (gate) gate.classList.add('hidden');
-  if (content) content.classList.add('hidden');
-
-  if (!authState.user) {
-    const { data } = await authState.supabaseClient.auth.getSession();
-    authState.user = data?.session?.user || null;
-  }
-
-  if (!authState.user) {
-    setAccountViewSignedIn(false);
-    const list = document.getElementById('account-orders-list');
-    if (list) list.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>';
-    setAccountProfileStatus('');
-    return;
-  }
+ 
 
   setAccountViewSignedIn(true);
   await loadProfileForAccount();
