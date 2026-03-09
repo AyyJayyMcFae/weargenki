@@ -202,16 +202,56 @@ window.renderWishlistPage = function () {
 };
 
 // ── Featured carousel (home page) ────────────────────────────
-const FEATURED_RULE = 'sketch';
+const FEATURED_RULE = ['kinetic'];
 const FEATURED_FALLBACK_IDS = ['genki-esquire-jacket', 'acd-kancho-hancho-shirt', 'genki-sakura-hoodie', 'acd-neko-pastel-cap', 'genki-america-snapback'];
+const FEATURED_MATCH_MODE = 'any';
+
+function parseFeaturedRuleTokens(ruleInput) {
+  const raw = Array.isArray(ruleInput) ? ruleInput.join(' ') : String(ruleInput || '');
+  const tokens = (raw.toLowerCase().match(/"[^"]+"|'[^']+'|[^\s,|]+/g) || [])
+    .map((token) => token.replace(/^["']|["']$/g, '').trim())
+    .filter(Boolean);
+  const include = [];
+  const exclude = [];
+  tokens.forEach((token) => {
+    if (token.startsWith('-') && token.length > 1) exclude.push(token.slice(1));
+    else include.push(token);
+  });
+  return { include, exclude };
+}
+
+function getFeaturedHaystack(product) {
+  return [
+    product?.id,
+    product?.title,
+    product?.badge,
+    product?.urgencyTag,
+    product?.keywords,
+    product?.category,
+    Array.isArray(product?.categories) ? product.categories.join(' ') : product?.categories,
+    Array.isArray(product?.colors) ? product.colors.map((c) => c?.name || '').join(' ') : ''
+  ].join(' ').toLowerCase();
+}
 
 function getFeaturedProducts(limit = 5) {
-  const rule = String(FEATURED_RULE || '').toLowerCase();
-  const wantsSketch = /\b(sketch|acd)\b/i.test(rule);
-  let filtered = PRODUCTS.filter((p) => {
-    if (!wantsSketch) return true;
-    return /sketch|acd/i.test(`${p.badge || ''} ${p.keywords || ''}`);
-  });
+  const { include, exclude } = parseFeaturedRuleTokens(FEATURED_RULE);
+  const scored = PRODUCTS.map((product) => {
+    const haystack = getFeaturedHaystack(product);
+    const urgencyTag = String(product?.urgencyTag || '').trim().toLowerCase();
+    const hasExcluded = exclude.some((term) => {
+      if (term === 'has:urgencytag' || term === 'urgencytag:*') return Boolean(urgencyTag);
+      return haystack.includes(term);
+    });
+    if (hasExcluded) return null;
+    const hitCount = include.reduce((count, term) => {
+      if (term === 'has:urgencytag' || term === 'urgencytag:*') return count + (urgencyTag ? 1 : 0);
+      return count + (haystack.includes(term) ? 1 : 0);
+    }, 0);
+    const includePass = !include.length || (FEATURED_MATCH_MODE === 'all' ? hitCount === include.length : hitCount > 0);
+    if (!includePass) return null;
+    return { product, score: hitCount };
+  }).filter(Boolean);
+  let filtered = scored.sort((a, b) => b.score - a.score).map((item) => item.product);
   if (!filtered.length) {
     const byId = new Map(PRODUCTS.map((p) => [p.id, p]));
     filtered = FEATURED_FALLBACK_IDS.map((id) => byId.get(id)).filter(Boolean);
@@ -248,6 +288,11 @@ function renderNewArrivalsFromProducts() {
     container.appendChild(card);
   });
 }
+
+window.refreshFeaturedProducts = renderNewArrivalsFromProducts;
+document.addEventListener('DOMContentLoaded', () => {
+  renderNewArrivalsFromProducts();
+});
 
 // ── New arrivals page ─────────────────────────────────────────
 const NEW_ARRIVALS_LIMIT = 8;
