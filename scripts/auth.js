@@ -9,7 +9,7 @@ const authState = {
   supabaseClient: null,
 };
 
-( async function () {
+(function () {
   const localConfig = window.__GENKI_CONFIG__ || {};
   const SUPABASE_URL = localConfig.SUPABASE_URL || 'REPLACE_WITH_SUPABASE_URL';
   const SUPABASE_ANON_KEY = localConfig.SUPABASE_ANON_KEY || 'REPLACE_WITH_SUPABASE_ANON_KEY';
@@ -19,6 +19,7 @@ const authState = {
   const PROFILE_TABLE = 'profiles';
   const ORDERS_TABLE = 'orders';
   const ORDER_ITEMS_TABLE = 'order_items';
+  const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ayyjayy.genki@gmail.com';
 
   // ── Helpers ──────────────────────────────────────────────────
   const escapeHtml = (v = '') =>
@@ -46,6 +47,34 @@ const authState = {
   function getUserChipLabel(user) {
     const source = (user?.user_metadata?.full_name || user?.email || 'Guest').trim();
     return source.length > 22 ? `${source.slice(0, 22)}...` : source;
+  }
+
+  function buildFormSubmitAjaxUrl(actionUrl) {
+    const marker = 'https://formsubmit.co/';
+    if (!actionUrl?.startsWith(marker)) return '';
+    return `https://formsubmit.co/ajax/${actionUrl.slice(marker.length)}`;
+  }
+
+  async function submitNewsletterFormSubmit(email) {
+    const ajaxUrl = buildFormSubmitAjaxUrl(FORMSUBMIT_ENDPOINT);
+    if (!ajaxUrl || !email) return false;
+    try {
+      const resp = await fetch(ajaxUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: 'Newsletter signup',
+          _template: 'table',
+          _captcha: 'false',
+          email,
+          source: 'newsletter-modal',
+          submitted_at: new Date().toISOString(),
+        }),
+      });
+      if (!resp.ok) return false;
+      const data = await resp.json().catch(() => ({}));
+      return !!(data.success || data.message || data.status);
+    } catch (_) { return false; }
   }
 
   // ── Wishlist icon SVG ────────────────────────────────────────
@@ -133,12 +162,10 @@ const authState = {
   };
 
   // ── Account page ─────────────────────────────────────────────
- function setAccountViewSignedIn(signedIn) {
-  const gate = document.getElementById('account-auth-gate');
-  const content = document.getElementById('account-content');
-  if (gate) gate.classList.toggle('hidden', signedIn);
-  if (content) content.classList.toggle('hidden', !signedIn);
-}
+  function setAccountViewSignedIn(signedIn) {
+    document.getElementById('account-auth-gate')?.classList.toggle('hidden', signedIn);
+    document.getElementById('account-content')?.classList.toggle('hidden', !signedIn);
+  }
 
   function setAccountProfileStatus(msg = '', isError = false) {
     const el = document.getElementById('account-profile-status');
@@ -239,35 +266,22 @@ const authState = {
   }
 
   window.renderAccountPage = async function () {
-  if (!authState.supabaseClient) {
-    // Don't touch the panels — init hasn't run yet, just bail silently
-    return;
-  }
-
-  // Hide both while we wait for session check
-  const gate = document.getElementById('account-auth-gate');
-  const content = document.getElementById('account-content');
-  if (gate) gate.classList.add('hidden');
-  if (content) content.classList.add('hidden');
-
-  if (!authState.user) {
-    const { data } = await authState.supabaseClient.auth.getSession();
-    authState.user = data?.session?.user || null;
-  }
-
-  if (!authState.user) {
-    setAccountViewSignedIn(false);
-    const list = document.getElementById('account-orders-list');
-    if (list) list.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>';
-    setAccountProfileStatus('');
-    return;
-  }
-
-  setAccountViewSignedIn(true);
-  await loadProfileForAccount();
-  await loadOrdersForAccount();
-};
-
+    if (!authState.supabaseClient) { setAccountViewSignedIn(false); return; }
+    if (!authState.user) {
+      const { data } = await authState.supabaseClient.auth.getSession();
+      authState.user = data?.session?.user || null;
+    }
+    if (!authState.user) {
+      setAccountViewSignedIn(false);
+      const list = document.getElementById('account-orders-list');
+      if (list) list.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>';
+      setAccountProfileStatus('');
+      return;
+    }
+    setAccountViewSignedIn(true);
+    await loadProfileForAccount();
+    await loadOrdersForAccount();
+  };
 
   // ── Bind controls (called once on init) ─────────────────────
   function bindAuthControls() {
@@ -305,7 +319,13 @@ const authState = {
           form.reset(); return;
         }
       }
-      if (status) { status.textContent = `Thanks. ${email} is queued for newsletter updates.`; status.classList.remove('hidden'); }
+      const formSubmitOk = await submitNewsletterFormSubmit(email);
+      if (status) {
+        status.textContent = formSubmitOk
+          ? `Thanks. ${email} is queued for newsletter updates.`
+          : `Thanks. ${email} is saved, but email alert failed this time.`;
+        status.classList.remove('hidden');
+      }
       form.reset();
     });
     form.dataset.bound = '1';
