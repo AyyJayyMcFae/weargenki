@@ -357,7 +357,7 @@
   // ── Boot ──────────────────────────────────────────────────────
 // ── Boot ──────────────────────────────────────────────────────
 window.onload = async function () {
-  window.initTicker?.();
+  initAnnouncementTicker();
   await window.initSupabaseWishlist();
   route();
 };
