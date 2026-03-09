@@ -358,9 +358,8 @@
   newsletterModalPanel?.addEventListener('click', (e) => e.stopPropagation());
 
   // ── Boot ──────────────────────────────────────────────────────
-  window.onload = function () {
-    initAnnouncementTicker();
-    route();
-    window.initSupabaseWishlist();
-  };
+  window.onload = async function () {
+  await window.initSupabaseWishlist();
+  route();
+};
 })();
