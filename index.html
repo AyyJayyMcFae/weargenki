@@ -3440,6 +3440,9 @@ setTimeout(morphText, pauseDuration);
       authState.user = data?.session?.user || null;
       await loadWishlistFromSupabase();
       updateAuthUi();
+      if ((window.location.hash || '').split('?')[0] === '#account') {
+  renderAccountPage();
+}
     }
 
     async function signInWithGoogle() {
