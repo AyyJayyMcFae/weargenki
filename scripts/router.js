@@ -268,8 +268,6 @@
         }
       }
 
-    
-
       const inCategory = (p, cat) => {
         const cl = cat.toLowerCase();
         if (Array.isArray(p.categories)) return p.categories.some((c) => String(c).toLowerCase() === cl);
@@ -298,6 +296,7 @@
     }
 
     if (pageId === 'wishlist-page') window.renderWishlistPage();
+    if (pageId === 'account-page') window.renderAccountPage();
     if (pageId === 'lookbook-main-page') renderLookbookMain();
     if (pageId === 'product-page') renderProduct(baseHash.replace('#', ''));
     if (pageId === 'lookbook-item-page') renderLook(baseHash.replace('#', ''));
@@ -334,7 +333,32 @@
   const newsletterModal = document.getElementById('newsletter-modal');
   const newsletterModalPanel = document.getElementById('newsletter-modal-panel');
   const newsletterCloseButton = document.getElementById('newsletter-close');
+  const newsletterFab = document.getElementById('newsletter-fab');
+  const newsletterFabOpenButton = document.getElementById('newsletter-fab-open');
+  const newsletterFabDismissButton = document.getElementById('newsletter-fab-dismiss');
+  const NEWSLETTER_PROMPT_KEY = 'genki_newsletter_prompt_state';
   const handleNewsletterEscape = (e) => { if (e.key === 'Escape') window.closeNewsletterModal(); };
+
+  function getNewsletterPromptState() {
+    try { return localStorage.getItem(NEWSLETTER_PROMPT_KEY) || ''; } catch (_) { return ''; }
+  }
+
+  function setNewsletterPromptState(value) {
+    try { localStorage.setItem(NEWSLETTER_PROMPT_KEY, value); } catch (_) { /* noop */ }
+  }
+
+  function syncNewsletterPromptVisibility() {
+    if (!newsletterFab) return;
+    const state = getNewsletterPromptState();
+    const modalOpen = newsletterModal && !newsletterModal.classList.contains('hidden');
+    const shouldShow = !modalOpen && state !== 'dismissed' && state !== 'signed-up';
+    newsletterFab.classList.toggle('hidden', !shouldShow);
+  }
+
+  window.dismissNewsletterPrompt = function (reason = 'dismissed') {
+    setNewsletterPromptState(reason || 'dismissed');
+    syncNewsletterPromptVisibility();
+  };
 
   window.openNewsletterModal = function () {
     if (!newsletterModal) return;
@@ -343,22 +367,26 @@
     document.addEventListener('keydown', handleNewsletterEscape);
     document.getElementById('newsletter-status')?.classList.add('hidden');
     requestAnimationFrame(() => document.getElementById('newsletter-email')?.focus());
+    syncNewsletterPromptVisibility();
   };
   window.closeNewsletterModal = function () {
     if (!newsletterModal) return;
     newsletterModal.classList.add('hidden');
     if (!checkoutModal || checkoutModal.classList.contains('hidden')) document.body.style.overflow = '';
     document.removeEventListener('keydown', handleNewsletterEscape);
+    syncNewsletterPromptVisibility();
   };
   newsletterCloseButton?.addEventListener('click', window.closeNewsletterModal);
   newsletterModal?.addEventListener('click', (e) => { if (e.target === newsletterModal) window.closeNewsletterModal(); });
   newsletterModalPanel?.addEventListener('click', (e) => e.stopPropagation());
+  newsletterFabOpenButton?.addEventListener('click', window.openNewsletterModal);
+  newsletterFabDismissButton?.addEventListener('click', () => window.dismissNewsletterPrompt('dismissed'));
 
   // ── Boot ──────────────────────────────────────────────────────
-// ── Boot ──────────────────────────────────────────────────────
-window.onload = async function () {
-  initAnnouncementTicker();
-  await window.initSupabaseWishlist();
-  route();
-};
+  window.onload = function () {
+    initAnnouncementTicker();
+    route();
+    window.initSupabaseWishlist();
+    syncNewsletterPromptVisibility();
+  };
 })();

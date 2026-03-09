@@ -326,6 +326,7 @@ const authState = {
           : `Thanks. ${email} is saved, but email alert failed this time.`;
         status.classList.remove('hidden');
       }
+      window.dismissNewsletterPrompt?.('signed-up');
       form.reset();
     });
     form.dataset.bound = '1';
