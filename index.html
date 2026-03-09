@@ -272,7 +272,7 @@
         <div class="announcement-run">
           <span class="announcement-item">Tag @WearGenki to be featured</span>
           <span class="announcement-divider" aria-hidden="true"></span>
-          <span class="announcement-item">New drops weekly</span>
+          <span class="announcement-item">Weekly Updates and Monthly Drops</span>
           <span class="announcement-divider" aria-hidden="true"></span>
           <span class="announcement-item">Free Shipping on Orders Over $100</span>
           <span class="announcement-divider" aria-hidden="true"></span>
@@ -928,7 +928,7 @@
             <div class="border-b border-white/10 pb-6">
               <div class="flex items-center gap-2">
                 <span id="product-badge" class="text-xs font-medium uppercase tracking-widest text-white border border-white/50 px-1 py-0.5 inline-block">New Arrival</span>
-                <span id="product-urgency-badge" class="text-xs font-medium tracking-widest text-white border border-red-400/60 px-1 py-0.5 hidden">Archiving</span>
+                <span id="product-urgency-badge" class="text-xs font-medium tracking-widest text-white border border-amber-400/60 px-1 py-0.5 hidden">Archiving</span>
               </div>
               <h1 id="product-title" class="text-4xl md:text-5xl font-extrabold mt-1 mb-2"></h1>
               <p id="product-price" class="text-3xl font-light text-white"></p>
@@ -1746,6 +1746,105 @@
     // Every catalog view (home featured, shop grid, PDP, related items) reads from this array.
     const PRODUCTS = [
 
+      // --- NEW PRODUCT: Sigilism Boxy Tank ---
+      {id: 'sigilism-boxy-tank',
+       title: 'Sigilism Boxy Tank',
+       price: '$35.00 ',
+       badge: 'NEW',
+       categories: ['Tops'],
+       keywords: 'sigilism boxy tank sleeveless shirt graphic tank top',
+       sizes: ['S', 'M', 'L', 'XL', '2XL'],
+       surcharges: {  },
+       images: [
+         'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839813/Sigilism_Boxy_Tank_Black_Front_f4tb2e.png',
+         'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839817/Sigilism_Boxy_Tank_Black_Back_fsf5om.png',
+         'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839820/Sigilism_Boxy_Tank_Black_Collar_plh6gu.png',
+       ],
+       colors: [
+          {name: 'Black', color: 'bg-black',
+            images:[],
+          },
+          {name: 'Grey', color:'bg-gray-500',
+            images: [
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839830/Sigilism_Boxy_Tank_Grey_Front_dn1glq.png',
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839828/Sigilism_Boxy_Tank_Grey_Back_qimu7g.png'
+            ],
+          },
+       ],
+       details: [
+         'Relaxed boxy fit with dropped armholes.',
+         'Soft, breathable cotton fabric.',
+         'Striking sigil graphic on the front.'
+       ]
+
+      },
+
+      // --- NEW PRODUCT: Rainman Button-Up Jersey ---
+      { id: 'rainman-jersey',
+        title: 'Rainman Button-Up Jersey',
+        price: '$60.00 ',
+        badge: 'NEW',
+        categories: ['Tops'],
+        keywords: 'rainman buttonup button up jersey baseball jersey athletic shirt',
+        sizes: ['S', 'M', 'L', 'XL'],
+        surcharges: { '2XL†': 3 },
+        images: [
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837873/Rainman_Jersey_Red_Front_nqs8rl.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837877/Rainman_Jersey_Red_Back_bw0srx.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837890/Rainman_Jersey_Red_Buttons_gope0m.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772838162/Rainman_Jersey_Red_Hem_ghwenb.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837904/Rainman_Jersey_Red_Bunch_ynareq.png'
+        ],
+        colors: [
+          {name: 'Red', color: 'bg-red-800',
+            images: [],
+          },
+          {name: 'Black', color: 'bg-black',
+            images: [
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772838168/Rainman_Jersey_Black_Front_h9yu1c.png',
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772838167/Rainman_Jersey_Black_back_zfqyzu.png'
+            ],
+          },
+          {name: 'Rain Blue', color: 'bg-blue-200',
+            images: [
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772838326/Rainman_Jersey_blue_Front_hwvf4h.png',
+              'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772838326/Rainman_Jersey_blue_Back_j5qiou.png'
+            ],
+
+          },
+        ],
+        details: [
+          'Breathable mesh fabric for all-day comfort.',
+          'Bold "RAINMAN" lettering on the back.',
+          'Ribbed collar and armholes for a classic look.'
+        ]
+      },
+
+      // --- NEW PRODUCT: Vintage Washed Distressed Jeans
+      { id: 'vintage-washed-distressed-jeans',
+        title: 'Vintage Washed Distressed Jeans',
+        price: '$60.00 ',
+        badge: 'NEW',
+        categories: ['Bottoms', 'Denim'],
+        keywords: 'vintage washed distressed jeans denim pants',
+        sizes: ['S', 'M', 'L', 'XL'],
+        surcharges: { '2XL†': 5 },
+        images: [
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772834385/VW_Distressed_Jeans_dcuyf6.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772834388/VW_Distressed_Jeans_B_iskfyl.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772834396/Vintage_Wash_Distressed_Denim_Jeans-gallery-3_sztoeh.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772834903/Vintage_Wash_Distressed_Denim_Jeans-gallery-4_o8n3an.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772834915/Vintage_Wash_Distressed_Denim_Jeans-gallery-7_j5rqx4.png'
+        ],
+        colors: [],
+        details: [
+          'Classic straight-leg jeans with a vintage wash.',
+          'Distressed detailing for a worn-in look.',
+          'Durable denim with a comfortable fit.'
+        ],
+        
+      },
+
       // --- NEW PRODUCT: Genki Fit Perfomance ShortSkirt ---
       { id: 'genki-fit-performance-shortskirt',
         title: 'Genki Fit Performance ShortSkirt',
@@ -1799,7 +1898,10 @@
           'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582743/Ouroboro_Sun_Fade_Fur_Hoodie_F_oarton.png',
           'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582749/Ouroboro_Sun_Fade_Fur_Hoodie_Hood_g3tzz5.png',
           'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582746/Ouroboro_Sun_Fade_Fur_Hoodie_Sleeve_oxmkm3.png',
-          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582751/Ouroboro_Sun_Fade_Fur_Hoodie_Bunch_qijrur.png'
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772582751/Ouroboro_Sun_Fade_Fur_Hoodie_Bunch_qijrur.png',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839816/Sigilism_Boxy_Tank_Black_Sleeve_byp6im.png;',
+          'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839818/Sigilism_Boxy_Tank_Black_Bunch_jaaohg.png'
+          
         ],
         colors: [],
         details: [
@@ -1849,7 +1951,7 @@
       // --- NEW PRODUCT: Vintage Washed Jeans
       {
         id: 'vintage-washed-heavyweight-jeans',
-        title: 'Vintage Washed Jeans',
+        title: 'Vintage Washed Heavyweight Jeans',
         price: '$85.00 ',
         badge: 'NEW',
         categories: 'Bottoms',
@@ -1960,6 +2062,7 @@
         title: 'Miki Cards Kiss-Cut Stickers',
         price: '$5.00 ',
         badge: '',
+        urgencyTag: 'Archiving',
         categories: 'Accessories',
         keywords: 'genki cards kiss-cut stickers decal',
         images: [
@@ -2251,73 +2354,6 @@
         
       },
 
-
-      // --- NEW PRODUCT: Genki Rainman Heavy T-shirt ---
-      {
-        id: 'genki-rainman-heavy-shirt',
-        title: "Rainman Heavy T-shirt",
-        price: "$30.00 ",
-        badge: '',
-        categories: 'Tops',
-        keywords: 'tshirt Unfinished heavy kanji loud artwork ali can\'t draw',
-        sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†'],
-        surcharges: {
-            '2XL†': 2.00,
-            '3XL†': 3.00,
-            '4XL†': 5.00
-        },
-        images: [
-          'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337217700-1.png', 
-          'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337217700-2.png',
-          'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337217700-0.png',
-        ],
-        colors: [
-          { name: 'Moss', color: 'bg-brand-Moss',
-            images: [
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337217700-1.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337217700-2.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337217700-0.png'
-            ]
-           },
-           { name: 'Black', color: 'bg-black',
-            images: [
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215114-1.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215114-2.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215114-0.png'
-            ]
-           },
-          
-          { name: 'Navy', color: 'bg-slate-800',
-            images: [
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215181-1.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215181-2.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215181-0.png'
-            ]
-           },
-          { name: 'Graphite', color: 'bg-neutral-700' ,
-            images: [
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337221264-3.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337221264-2.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337221264-0.png'
-            ]
-          },
-          { name: 'Watermelon', color: 'bg-rose-400',
-            images: [
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215191-1.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215191-2.png',
-              'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173602337215191-0.png'
-            ]
-           },
-        ],
-        details: [
-          'Organic cotton material for sustainability.',
-          'Unfinished fit, suitable for all.',
-          'Features the "Ali Can\'t Draw" Sketch #014 graphic.',
-          'Ribbed cuffs and hem.'
-        ]
-        
-      },
-
       // --- NEW PRODUCT: Genki Fit Fitted T-shirt ---
       {
         id: 'genki-fit-fitted-tee',
@@ -2428,6 +2464,7 @@
         title: '[ACD] 4 AM Vibes Heavy Tee',
         price: '$45.00 ',
         badge: '[ACD] Sketch',
+        urgencyTag: 'Upgrading',
         categories: 'Tops',
         keywords: 'heavy tee 4 am vibes acd sketch comfortable durable artwork ali can\'t draw',
         sizes: ['S', 'M', 'L', 'XL', '2XL†'],
@@ -2743,6 +2780,7 @@
           '6XL†': 7.00
         },
         badge: '[ACD] Sketch',
+        urgencyTag: 'Archiving',
         categories: 'Tops',
         keywords: 'button-up shirt kancho hancho acd sketch casual lightweight artwork ali can\'t draw',
         sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†', '5XL†', '6XL†'],
@@ -3651,8 +3689,8 @@ setTimeout(morphText, pauseDuration);
       const tag = normalizeUrgencyTag(product?.urgencyTag);
       if (!tag) return '';
       const toneClass = tone === 'inline'
-        ? 'border-red-400/60 text-red-200 bg-red-950/25'
-        : 'border-red-400/60 text-red-100 bg-red-950/45';
+        ? 'border-amber-400/60 text-white bg-red-950/25'
+        : 'border-amber-400/60 text-white bg-red-950/45';
       return `<span class="text-[10px] font-medium tracking-[0.18em] px-2 py-1 border ${toneClass}">${tag}</span>`;
     }
 
@@ -4904,4 +4942,4 @@ setTimeout(morphText, pauseDuration);
 
    </script>
 </body>
-</html> 
+</html>
