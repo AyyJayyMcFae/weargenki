@@ -3721,18 +3721,26 @@ setTimeout(morphText, pauseDuration);
 
     // Account route renderer: shows gate when signed out, profile+orders when signed in.
     async function renderAccountPage() {
-      if (!authState.user) {
-        setAccountViewSignedIn(false);
-        if (accountOrdersList) {
-          accountOrdersList.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>';
-        }
-        setAccountProfileStatus('');
-        return;
-      }
-      setAccountViewSignedIn(true);
-      await loadProfileForAccount();
-      await loadOrdersForAccount();
+  if (!authState.supabaseClient) {
+    setAccountViewSignedIn(false);
+    return;
+  }
+  if (!authState.user) {
+    const { data } = await authState.supabaseClient.auth.getSession();
+    authState.user = data?.session?.user || null;
+  }
+  if (!authState.user) {
+    setAccountViewSignedIn(false);
+    if (accountOrdersList) {
+      accountOrdersList.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>';
     }
+    setAccountProfileStatus('');
+    return;
+  }
+  setAccountViewSignedIn(true);
+  await loadProfileForAccount();
+  await loadOrdersForAccount();
+}
 
     /**
      * Toggles the visibility of the search input field.
