@@ -268,10 +268,7 @@
         }
       }
 
-      if (pageId === 'account-page') {
-  if (authState.supabaseClient) window.renderAccountPage();
-  // else refreshAuthState will handle it once init completes
-}
+    
 
       const inCategory = (p, cat) => {
         const cl = cat.toLowerCase();
