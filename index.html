@@ -3098,7 +3098,7 @@ setTimeout(morphText, pauseDuration);
       };
 
       const activateAnnouncementItem = (item) => {
-        if (!item || item.closest('.announcement-run[aria-hidden="true"]')) return;
+        if (!item) return;
         const action = (item.getAttribute('data-action') || '').trim();
         if (action === 'open-newsletter') {
           window.openNewsletterModal?.();
@@ -5235,3 +5235,4 @@ newsletterForm?.addEventListener('submit', async (event) => {
    </script>
 </body>
 </html>
+
