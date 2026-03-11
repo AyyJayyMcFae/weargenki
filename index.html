@@ -96,6 +96,28 @@
          0 0 18px rgba(255, 255, 255, 0.08);
       filter: contrast(1.15) saturate(1.25);
     }
+
+   #milestone-title.is-glitch {
+  animation: hero-glitch 0.36s steps(3, end) 2;
+  text-shadow:
+    -3px 0 rgba(0, 255, 255, 0.65),
+     3px 0 rgba(255, 0, 85, 0.6),
+     0 0 18px rgba(255, 255, 255, 0.08);
+  filter: contrast(1.15) saturate(1.25);
+}
+
+#milestone-title.is-out {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+#milestone-title.is-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
     @keyframes hero-glitch {
       0% { transform: translate(0, 0) skewX(0deg); clip-path: inset(0 0 0 0); opacity: 1; }
       12% { transform: translate(-1px, 0) skewX(0.8deg); clip-path: inset(6% 0 58% 0); }
@@ -306,6 +328,7 @@
     </div>
   </header>
 
+  
 
   <!-- MAIN CONTENT CONTAINER (SPA) -->
   <main id="app-container" class="pt-0 flex-1">
@@ -337,6 +360,189 @@
       </div>
     </section>
 
+    
+<!-- ============================================================
+     GENKI — Community Milestone Bar
+     Drop this section anywhere in index.html.
+     Requires: scripts/milestone.js (add to script load order)
+     To update sales count: edit CURRENT_SALES in milestone.js
+     ============================================================ -->
+
+<section id="milestone-section" style="
+  background: #0a0a0a;
+  padding: 64px 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Courier New', Courier, monospace;
+">
+
+  <div style="max-width: 860px; margin: 0 auto;">
+
+    <!-- Header -->
+   <h2 id="milestone-title" style="
+  color: #fff;
+  font-size: clamp(22px, 4vw, 32px);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
+  font-weight: 700;
+">KISTANISTAS</h2>
+<span style="
+  display: block;
+  color: #fff;
+  font-size: clamp(22px, 4vw, 32px);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+">— THE VANGUARD RISES</span>
+
+    <!-- Bar container -->
+    <div id="milestone-bar-wrap" style="
+      position: relative;
+      height: 4px;
+      background: rgba(255,255,255,0.07);
+      margin-bottom: 0;
+    ">
+      <!-- Filled progress -->
+      <div id="milestone-fill" style="
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        background: #fff;
+        width: 0%;
+        transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      "></div>
+
+      <!-- Tier tick marks -->
+      <div style="position: absolute; left: 25%; top: 50%; transform: translate(-50%, -50%); width: 1px; height: 12px; background: rgba(255,255,255,0.2);"></div>
+      <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 1px; height: 12px; background: rgba(255,255,255,0.2);"></div>
+      <div style="position: absolute; left: 75%; top: 50%; transform: translate(-50%, -50%); width: 1px; height: 12px; background: rgba(255,255,255,0.2);"></div>
+    </div>
+
+    <!-- Tier labels -->
+    <div style="
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      position: relative;
+    ">
+      <!-- Tier 1 -->
+      <div id="tier-1" class="milestone-tier" style="width: 25%; padding-right: 16px;">
+        <p class="tier-num" style="
+          font-size: 10px;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.55);
+          text-transform: uppercase;
+          margin: 0 0 4px 0;
+        ">25 Sales</p>
+        <p class="tier-reward" style="
+          font-size: 11px;
+          letter-spacing: 0.1em;
+         color: rgba(255,255,255,0.75);
+          margin: 0;
+          line-height: 1.5;
+        ">Free delivery for all newsletter subscribers</p>
+      </div>
+
+      <!-- Tier 2 -->
+      <div id="tier-2" class="milestone-tier" style="width: 25%; padding-right: 16px; text-align: center;">
+        <p class="tier-num" style="
+          font-size: 10px;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.55);
+          text-transform: uppercase;
+          margin: 0 0 4px 0;
+        ">50 Sales</p>
+        <p class="tier-reward" style="
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          color: rgba(255,255,255,0.75);
+          margin: 0;
+          line-height: 1.5;
+        ">Free product — winner drawn from newsletter</p>
+      </div>
+
+      <!-- Tier 3 -->
+      <div id="tier-3" class="milestone-tier" style="width: 25%; padding-right: 16px; text-align: center;">
+        <p class="tier-num" style="
+          font-size: 10px;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.55);
+          text-transform: uppercase;
+          margin: 0 0 4px 0;
+        ">75 Sales</p>
+        <p class="tier-reward" style="
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          color: rgba(255,255,255,0.75);
+          margin: 0;
+          line-height: 1.5;
+        ">Full outfit — yours, on us</p>
+      </div>
+
+      <!-- Tier 4 -->
+      <div id="tier-4" class="milestone-tier" style="width: 25%; text-align: right;">
+        <p class="tier-num" style="
+          font-size: 10px;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.55);
+          text-transform: uppercase;
+          margin: 0 0 4px 0;
+        ">100 Sales</p>
+        <p class="tier-reward" style="
+          font-size: 11px;
+          letter-spacing: 0.1em;
+        color: rgba(255,255,255,0.75);
+          margin: 0;
+          line-height: 1.5;
+        ">Free shipping for life — Genki Vanguard</p>
+      </div>
+    </div>
+
+    <!-- Counter + CTA -->
+    <div style="
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 32px;
+    ">
+      <div>
+        <span id="milestone-count" style="
+          font-size: clamp(32px, 6vw, 52px);
+          font-weight: 700;
+          color: #fff;
+          letter-spacing: -0.02em;
+          line-height: 1;
+        ">0</span>
+        <span style="
+          font-size: 13px;
+          color: rgba(255,255,255,0.3);
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          margin-left: 10px;
+        ">/ 100 sales</span>
+      </div>
+      <a href="#" onclick="window.openNewsletterModal?.(); return false;" style="
+        display: inline-block;
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+        font-size: 10px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        padding: 14px 28px;
+        text-decoration: none;
+        transition: border-color 0.2s, background 0.2s;
+      "
+      onmouseover="this.style.borderColor='#fff'; this.style.background='rgba(255,255,255,0.05)'"
+      onmouseout="this.style.borderColor='rgba(255,255,255,0.3)'; this.style.background='transparent'"
+      >Join the Newsletter</a>
+    </div>
+
+  </div>
+</section>
 
       <!-- NEW ITEMS -->
       <section id="new-arrivals-section" class="py-20 md:py-24 bg-[#0d0d0d]">
@@ -418,6 +624,8 @@
           </div>
         </div>
       </section>
+
+      
       
       <!-- 1.3 LOOKBOOK TILE WALL (Full Width Content) -->
       <section class="py-20 md:py-24 bg-[#0d0d0d]">
@@ -1128,6 +1336,7 @@
   <script src="./scripts/ticker.js"></script>
   <script src="./scripts/auth.js"></script>
   <script src="./scripts/ui.js"></script>
+  <script src="./scripts/milestone.js"></script>
   <script src="./scripts/router.js"></script>
 
 </body>
