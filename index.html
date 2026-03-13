@@ -440,7 +440,7 @@
          color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">Free shipping for all newsletter subscribers</p>
+        ">Free delivery for all newsletter subscribers</p>
       </div>
 
       <!-- Tier 2 -->
@@ -458,7 +458,7 @@
           color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Free product — winner drawn from newsletter</p>
       </div>
 
       <!-- Tier 3 -->
@@ -476,7 +476,7 @@
           color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Full outfit — yours, on us</p>
       </div>
 
       <!-- Tier 4 -->
@@ -494,7 +494,7 @@
         color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Free shipping for life — Genki Vanguard</p>
       </div>
     </div>
 
@@ -960,70 +960,111 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
         </button>
         <div class="px-0 max-w-6xl mx-auto space-y-8">
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <div class="space-y-2">
-            <p class="text-xs uppercase tracking-[0.35em] text-white/60">Checkout</p>
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Review Your Order</h1>
-            <p class="text-yellow-400 leading-relaxed">Genki is officially live. Not ready to checkout yet? Submit an order and we'll hold it for you. Pay when you're ready.</p>
+          <div id="checkout-step-shipping" class="space-y-8">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="space-y-2">
+                <p class="text-xs uppercase tracking-[0.35em] text-white/60">Checkout</p>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Review Your Order</h1>
+                <p class="text-yellow-400 leading-relaxed">Genki is officially live. Not ready to checkout yet? Submit an order and we'll hold it for you. Pay when you're ready.</p>
+              </div>
+              <a href="#shop" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Continue shopping</a>
+            </div>
+
+            <div class="grid gap-8 lg:grid-cols-12">
+              <section class="lg:col-span-7 space-y-4">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-xl font-semibold tracking-wide">Your cart</h2>
+                  <span class="text-xs text-gray-400 uppercase tracking-[0.3em]">Items</span>
+                </div>
+                <div id="cart-items" class="space-y-4"></div>
+                <div class="border-t border-white/10 pt-4 flex items-center justify-between">
+                  <span class="text-sm text-gray-400">Subtotal</span>
+                  <span id="cart-subtotal" class="text-lg font-bold">$0.00</span>
+                </div>
+              </section>
+
+              <section id="checkout-form" class="lg:col-span-5 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+                <h2 class="text-xl font-semibold tracking-wide">Shipping Details</h2>
+                <p class="text-xs text-gray-400">Continue to payment to add your card and promo code.</p>
+                <div class="space-y-3">
+                  <input id="sq-name" type="text" placeholder="Full name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <input id="sq-email" type="email" placeholder="Email" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <div class="flex flex-col gap-3 sm:flex-row">
+                    <input id="sq-address" type="text" placeholder="Shipping address" class="w-full flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-address-2" type="text" placeholder="Apt, suite (optional)" class="w-full flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
+                  </div>
+                  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <input id="sq-city" type="text" placeholder="City" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-state" type="text" placeholder="State" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-zip" type="text" placeholder="ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  </div>
+                  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <input id="sq-country" type="text" placeholder="Country" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-phone" type="tel" placeholder="Phone number" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  </div>
+                  <textarea id="sq-notes" type="text" placeholder="Extra Notes (optional)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
+                  <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                    <button id="checkout-continue" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Continue to Payment</button>
+                    <p class="text-xs uppercase tracking-[0.25em] text-white/60 whitespace-nowrap">or</p>
+                    <button id="square-pay-later" class="w-full py-3 border border-white/20 text-white font-bold tracking-widest hover:border-white transition">Submit Request</button>
+                  </div>
+                  <p class="text-xs text-gray-500">Submit Request does not place a paid order.</p>
+                  <p id="checkout-error" class="text-sm text-red-400 hidden"></p>
+                </div>
+              </section>
+            </div>
           </div>
-          <a href="#shop" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Continue shopping</a>
-        </div>
 
-        <div class="grid gap-8 lg:grid-cols-12">
-          <section class="lg:col-span-7 space-y-4">
-            <div class="flex items-center justify-between">
-              <h2 class="text-xl font-semibold tracking-wide">Your cart</h2>
-              <span class="text-xs text-gray-400 uppercase tracking-[0.3em]">Items</span>
+          <div id="checkout-step-payment" class="hidden space-y-8">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="space-y-2">
+                <p class="text-xs uppercase tracking-[0.35em] text-white/60">Payment</p>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Add Payment Details</h1>
+                <p class="text-gray-400 leading-relaxed">Promo codes, shipping, and final total are shown here.</p>
+              </div>
+              <button id="checkout-back" type="button" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Back to shipping</button>
             </div>
-            <div id="cart-items" class="space-y-4"></div>
-            <div class="border-t border-white/10 pt-4 flex items-center justify-between">
-              <span class="text-sm text-gray-400">Subtotal</span>
-              <span id="cart-subtotal" class="text-lg font-bold">$0.00</span>
-            </div>
-          </section>
 
-          <section id="checkout-form" class="lg:col-span-5 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
-            <h2 class="text-xl font-semibold tracking-wide">Shipping Details</h2>
-            <p class="text-xs text-gray-400"></p>
-            <!-- <p id="square-test-note" class="text-xs text-yellow-400 hidden">Order request mode: If you choose to share manual payment details, your order can be canceled with your cancel code within 12 hours.
-            </p> -->
-            <div class="space-y-3">
-              <input id="sq-name" type="text" placeholder="Full name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-              <input id="sq-email" type="email" placeholder="Email" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-              <div class="flex flex-col gap-3 sm:flex-row">
-                <input id="sq-address" type="text" placeholder="Shipping address" class="w-full flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
-                <input id="sq-address-2" type="text" placeholder="Apt, suite (optional)" class="w-full flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
-              </div>
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <input id="sq-city" type="text" placeholder="City" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-                <input id="sq-state" type="text" placeholder="State" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-                <input id="sq-zip" type="text" placeholder="ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-              </div>
-              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <input id="sq-country" type="text" placeholder="Country" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-                <input id="sq-phone" type="tel" placeholder="Phone number" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-              </div>
-              <div class="space-y-2 border border-white/10 p-3">
-                <p class="text-xs uppercase tracking-[0.3em] text-white/60">Card details</p>
-                <input id="sq-cardholder-name" type="text" placeholder="Cardholder name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
-                <input id="sq-billing-zip" type="text" placeholder="Billing ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-gray-400" />
-                <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div>
-              </div>
-              <textarea id="sq-notes" type="text" placeholder="Extra Notes (optional)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
-              <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-                <button id="square-pay" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Pay Now</button>
-                <p class="text-xs uppercase tracking-[0.25em] text-white/60 whitespace-nowrap">or</p>
-                <button id="square-pay-later" class="w-full py-3 border border-white/20 text-white font-bold tracking-widest hover:border-white transition">Submit Request</button>
-                
-              </div>
-              <p class="text-xs text-gray-500">Pay Now captures payment securely. Submit Request does not place a paid order.</p>
-
+            <div class="grid gap-8 lg:grid-cols-12">
               
 
-              <p id="square-error" class="text-sm text-red-400 hidden"></p>
+              <section class="lg:col-span-5 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+                <h2 class="text-xl font-semibold tracking-wide">Order Summary</h2>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between text-sm text-gray-400">
+                    <span>Subtotal</span>
+                    <span id="payment-subtotal" class="text-white font-semibold">$0.00</span>
+                  </div>
+                  <div class="flex items-center justify-between text-sm text-gray-400">
+                    <span>Shipping</span>
+                    <span id="payment-shipping" class="text-white font-semibold">$0.00</span>
+                  </div>
+                  <div class="border-t border-white/10 pt-3 flex items-center justify-between text-lg font-semibold">
+                    <span>Total</span>
+                    <span id="payment-total">$0.00</span>
+                  </div>
+                </div>
+              </section>
+              <section class="lg:col-span-7 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+                <h2 class="text-xl font-semibold tracking-wide">Payment & Promo</h2>
+                <div class="space-y-3">
+                  <div>
+                    <label class="text-xs uppercase tracking-[0.3em] text-white/60">Promo code</label>
+                    <input id="sq-promo" type="text" placeholder="Enter promo code (optional)" class="mt-2 w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  </div>
+                  <div class="space-y-2 border border-white/10 p-3">
+                    <p class="text-xs uppercase tracking-[0.3em] text-white/60">Card details</p>
+                    <input id="sq-cardholder-name" type="text" placeholder="Cardholder name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-billing-zip" type="text" placeholder="Billing ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-gray-400" />
+                    <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div>
+                  </div>
+                  <button id="square-pay" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Pay Now</button>
+                  <p class="text-xs text-gray-500">Pay Now captures payment securely.</p>
+                  <p id="square-error" class="text-sm text-red-400 hidden"></p>
+                </div>
+              </section>
             </div>
-          </section>
-        </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1280,6 +1321,8 @@
     <input type="hidden" name="_template" value="table" />
     <input type="hidden" name="_captcha" value="false" />
     <input type="hidden" name="_next" />
+    <input type="hidden" name="subtotal" />
+    <input type="hidden" name="shipping_cost" />
     <input type="hidden" name="total" />
     <input type="hidden" name="name" />
     <input type="hidden" name="email" />
@@ -1287,6 +1330,7 @@
     <input type="hidden" name="shipping_details" />
     <input type="hidden" name="notes" />
     <input type="hidden" name="items" />
+    <input type="hidden" name="promo_code" />
     <input type="hidden" name="cancel_code" />
     <input type="hidden" name="cancel_window_hours" />
   </form>
@@ -1342,4 +1386,3 @@
 </body>
 
 </html>
-
