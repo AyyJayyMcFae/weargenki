@@ -7,6 +7,7 @@
   const localConfig = window.__GENKI_CONFIG__ || {};
   const SQUARE_APP_ID = localConfig.SQUARE_APP_ID || 'REPLACE_WITH_YOUR_SQUARE_APP_ID';
   const SQUARE_LOCATION_ID = localConfig.SQUARE_LOCATION_ID || 'REPLACE_WITH_YOUR_SQUARE_LOCATION_ID';
+  const SHIPPING_RATE = Number(localConfig.SHIPPING_RATE ?? 0.08);
 
   const STORAGE_KEY = 'genki_cart_v1';
   const LAST_ORDER_KEY = 'genki_last_order_v1';
@@ -17,6 +18,7 @@
   let squareCard = null;
   let squareSdkPromise = null;
   let refreshPayNowButtonState = () => {};
+  let refreshContinueButtonState = () => {};
 
   const $ = (sel) => document.querySelector(sel);
 
@@ -77,6 +79,8 @@
     save(); render();
   }
   function subtotal() { return state.items.reduce((s, it) => s + it.priceCents * it.qty, 0); }
+  function shipping() { return Math.round(subtotal() * (Number.isFinite(SHIPPING_RATE) ? SHIPPING_RATE : 0)); }
+  function total() { return subtotal() + shipping(); }
 
   function buildItemsText(items) {
     return (items || []).map((it) => {
@@ -107,6 +111,8 @@
       if (input) input.value = value || '';
     };
     set('_next', `${window.location.origin}${window.location.pathname}#checkout-success`);
+    set('subtotal', money(payload.subtotal));
+    set('shipping_cost', money(payload.shipping));
     set('total', money(payload.amount));
     set('name', payload.buyer?.name || '');
     set('email', payload.buyer?.email || '');
@@ -114,6 +120,7 @@
     set('shipping_details', payload.buyer?.shippingDetails || payload.buyer?.address || '');
     set('notes', payload.buyer?.notes || '');
     set('items', buildItemsText(payload.items));
+    set('promo_code', payload.promoCode || '');
     set('cancel_code', payload.cancelCode || '');
     set('cancel_window_hours', payload.cancelWindowHours ? String(payload.cancelWindowHours) : '');
     try {
@@ -158,6 +165,9 @@
     const list = $('#cart-items');
     const sub = $('#cart-subtotal');
     const badge = $('#cart-count');
+    const paymentSubtotal = $('#payment-subtotal');
+    const paymentShipping = $('#payment-shipping');
+    const paymentTotal = $('#payment-total');
 
     if (list) {
       list.innerHTML = '';
@@ -190,10 +200,17 @@
       }
     }
 
-    if (sub) sub.textContent = money(subtotal());
+    const subVal = subtotal();
+    const shipVal = shipping();
+    const totalVal = total();
+    if (sub) sub.textContent = money(subVal);
+    if (paymentSubtotal) paymentSubtotal.textContent = money(subVal);
+    if (paymentShipping) paymentShipping.textContent = money(shipVal);
+    if (paymentTotal) paymentTotal.textContent = money(totalVal);
     const count = state.items.reduce((n, it) => n + it.qty, 0);
     if (badge) badge.textContent = count;
     refreshPayNowButtonState();
+    refreshContinueButtonState();
   }
 
   function nudgeCartIcon() {
@@ -275,20 +292,28 @@
     const notes = g('sq-notes');
     const cardholderName = g('sq-cardholder-name');
     const billingZip = g('sq-billing-zip');
+    const promoCode = g('sq-promo');
     const address = [address1, address2, city, stateVal, zip, country].filter(Boolean).join(', ');
     return {
       name, email, phone, address1, address, shippingDetails: address, notes,
       cancelCode: generateCancelCode(),
       addressParts: { line1: address1, line2: address2, city, state: stateVal, zip, country },
       manualPayment: { cardholderName, billingZip },
+      promoCode,
     };
   }
 
   // ── Pay Now readiness ────────────────────────────────────────
+  const isShippingReady = () => {
+    if (!state.items.length) return false;
+    const g = (id) => (document.getElementById(id)?.value || '').trim();
+    return !!(g('sq-name') && g('sq-email') && g('sq-address') && g('sq-city') && g('sq-state') && g('sq-zip'));
+  };
+
   const isPayNowReady = () => {
     if (isTestMode() || !state.items.length) return false;
     const g = (id) => (document.getElementById(id)?.value || '').trim();
-    return !!(g('sq-name') && g('sq-email') && g('sq-address') && g('sq-city') && g('sq-state') && g('sq-zip') && g('sq-cardholder-name') && g('sq-billing-zip'));
+    return !!(isShippingReady() && g('sq-cardholder-name') && g('sq-billing-zip'));
   };
 
   // ── Success message ──────────────────────────────────────────
@@ -337,6 +362,44 @@
       });
     }
 
+    // Step toggles
+    const stepShipping = $('#checkout-step-shipping');
+    const stepPayment = $('#checkout-step-payment');
+    const continueBtn = $('#checkout-continue');
+    const backBtn = $('#checkout-back');
+    const checkoutError = $('#checkout-error');
+
+    const setCheckoutError = (msg = '') => {
+      if (!checkoutError) return;
+      checkoutError.textContent = msg;
+      checkoutError.classList.toggle('hidden', !msg);
+    };
+
+    const showShippingStep = () => {
+      stepShipping?.classList.remove('hidden');
+      stepPayment?.classList.add('hidden');
+      setCheckoutError('');
+    };
+
+    const showPaymentStep = () => {
+      stepShipping?.classList.add('hidden');
+      stepPayment?.classList.remove('hidden');
+      setCheckoutError('');
+      document.getElementById('checkout-modal-panel')?.scrollIntoView({ block: 'start' });
+    };
+
+    continueBtn?.addEventListener('click', () => {
+      if (!isShippingReady()) {
+        setCheckoutError('Please add your name, email, and full shipping address.');
+        return;
+      }
+      showPaymentStep();
+    });
+
+    backBtn?.addEventListener('click', showShippingStep);
+
+    showShippingStep();
+
     // Square Pay Now inputs
     const squarePay = document.getElementById('square-pay');
     const squarePayLater = document.getElementById('square-pay-later');
@@ -356,6 +419,18 @@
       squarePay.classList.toggle('cursor-not-allowed', !enabled);
     };
     refreshPayNowButtonState = updatePayNowState;
+
+    const updateContinueState = () => {
+      if (!continueBtn) return;
+      const enabled = isShippingReady();
+      continueBtn.disabled = !enabled;
+      continueBtn.classList.toggle('opacity-50', !enabled);
+      continueBtn.classList.toggle('cursor-not-allowed', !enabled);
+    };
+    refreshContinueButtonState = updateContinueState;
+
+    ['sq-name', 'sq-email', 'sq-address', 'sq-address-2', 'sq-city', 'sq-state', 'sq-zip', 'sq-country', 'sq-phone']
+      .forEach((id) => document.getElementById(id)?.addEventListener('input', updateContinueState));
 
     ['sq-name', 'sq-email', 'sq-address', 'sq-city', 'sq-state', 'sq-zip', 'sq-cardholder-name', 'sq-billing-zip']
       .forEach((id) => document.getElementById(id)?.addEventListener('input', updatePayNowState));
@@ -383,7 +458,7 @@
     const handleSquarePay = async () => {
       setSquareError('');
       if (isTestMode()) { setSquareError('Pay Now is disabled until Square is configured.'); return; }
-      const { name, email, address1, address, cancelCode, addressParts, phone, manualPayment } = buildPayload();
+      const { name, email, address1, address, cancelCode, addressParts, phone, manualPayment, promoCode } = buildPayload();
       if (!state.items.length) { setSquareError('Your cart is empty.'); return; }
       if (!name || !email || !address1 || !addressParts.city || !addressParts.state || !addressParts.zip) {
         setSquareError('Please add your name, email, and full shipping address.'); return;
@@ -393,7 +468,16 @@
         await ensureSquareCard();
         const tokenResult = await squareCard.tokenize();
         if (tokenResult.status !== 'OK') throw new Error(tokenResult.errors?.[0]?.message || 'Card could not be processed.');
-        const payload = { amount: subtotal(), buyer: { name, email, phone, address, addressParts, manualPayment }, items: state.items, cancelCode, cancelWindowHours: CANCEL_WINDOW_HOURS };
+        const payload = {
+          amount: total(),
+          subtotal: subtotal(),
+          shipping: shipping(),
+          buyer: { name, email, phone, address, addressParts, manualPayment },
+          items: state.items,
+          cancelCode,
+          cancelWindowHours: CANCEL_WINDOW_HOURS,
+          promoCode,
+        };
         const resp = await fetch('/api/square-payment', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -419,12 +503,21 @@
     // Pay Later handler
     const handlePayLater = async () => {
       setSquareError('');
-      const { name, email, address1, address, cancelCode, addressParts, phone, manualPayment } = buildPayload();
+      const { name, email, address1, address, cancelCode, addressParts, phone, manualPayment, promoCode } = buildPayload();
       if (!state.items.length) { setSquareError('Your cart is empty.'); return; }
       if (!name || !email || !address1 || !addressParts.city || !addressParts.state || !addressParts.zip) {
         setSquareError('Please add your name, email, and full shipping address.'); return;
       }
-      const payload = { amount: subtotal(), buyer: { name, email, phone, address, addressParts, manualPayment }, items: state.items, cancelCode, cancelWindowHours: CANCEL_WINDOW_HOURS };
+      const payload = {
+        amount: total(),
+        subtotal: subtotal(),
+        shipping: shipping(),
+        buyer: { name, email, phone, address, addressParts, manualPayment },
+        items: state.items,
+        cancelCode,
+        cancelWindowHours: CANCEL_WINDOW_HOURS,
+        promoCode,
+      };
       const sent = await submitOrderSlipForm(payload);
       if (!sent) { setSquareError('Could not submit order request. Please try again.'); return; }
       saveLastOrder({ cancelCode, email, createdAt: Date.now(), paymentStatus: 'pending' });
@@ -474,6 +567,7 @@
     });
 
     updatePayNowState();
+    updateContinueState();
 
     // Prepare Square card UI
     if (!isTestMode()) {
