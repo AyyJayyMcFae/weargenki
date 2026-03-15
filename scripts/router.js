@@ -383,10 +383,10 @@
   newsletterFabDismissButton?.addEventListener('click', () => window.dismissNewsletterPrompt('dismissed'));
 
   // ── Boot ──────────────────────────────────────────────────────
-  window.onload = function () {
-    initAnnouncementTicker();
-    route();
-    window.initSupabaseWishlist();
-    syncNewsletterPromptVisibility();
-  };
+  window.onload = async function () {
+  initAnnouncementTicker();
+  await window.initSupabaseWishlist(); // ← wait for session first
+  route();                              // ← then render
+  syncNewsletterPromptVisibility();
+};
 })();
