@@ -6,6 +6,7 @@
 const authState = {
   user: null,
   wishlistIds: new Set(),
+  inVanguard: false,
   supabaseClient: null,
 };
 
@@ -156,6 +157,7 @@ const authState = {
     if (!authState.supabaseClient) { authState.user = null; authState.wishlistIds = new Set(); window.updateAuthUi(); return; }
     const { data } = await authState.supabaseClient.auth.getSession();
     authState.user = data?.session?.user || null;
+if (!authState.user) authState.isVanguard = false;
     await loadWishlistFromSupabase();
     window.updateAuthUi();
     if ((window.location.hash || '').split('?')[0] === '#account') window.renderAccountPage?.();
@@ -186,7 +188,7 @@ const authState = {
     if (nameEl) nameEl.value = authState.user.user_metadata?.full_name || '';
     if (phoneEl) phoneEl.value = '';
     if (marketingEl) marketingEl.checked = false;
-    const { data, error } = await authState.supabaseClient.from(PROFILE_TABLE).select('full_name, phone, marketing_opt_in').eq('user_id', authState.user.id).maybeSingle();
+    const { data, error } = await authState.supabaseClient.from(PROFILE_TABLE).select('full_name, phone, marketing_opt_in, is_vanguard').eq('user_id', authState.user.id).maybeSingle();
     if (error && error.code !== 'PGRST116') { setAccountProfileStatus(`Could not load profile: ${error.message}`, true); return; }
     if (data) {
       if (nameEl) nameEl.value = data.full_name || nameEl.value || '';

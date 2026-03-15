@@ -65,12 +65,16 @@
 
   // ── Cart operations ──────────────────────────────────────────
   function add(item) {
-    const key = `${item.id}|${item.color || ''}|${item.size || ''}`;
-    const existing = state.items.find((x) => `${x.id}|${x.color || ''}|${x.size || ''}` === key);
-    if (existing) { existing.qty += item.qty || 1; }
-    else { state.items.push(Object.assign({ qty: 1 }, item)); }
-    save(); render();
+  if (item.vanguard && !authState.isVanguard) {
+    alert('This item is exclusive to Genki Vanguard members.');
+    return;
   }
+  const key = `${item.id}|${item.color || ''}|${item.size || ''}`;
+  const existing = state.items.find((x) => `${x.id}|${x.color || ''}|${x.size || ''}` === key);
+  if (existing) { existing.qty += item.qty || 1; }
+  else { state.items.push(Object.assign({ qty: 1 }, item)); }
+  save(); render();
+}
   function remove(index) { state.items.splice(index, 1); save(); render(); }
   function updateQty(index, delta) {
     const it = state.items[index];
