@@ -6,7 +6,7 @@
 const authState = {
   user: null,
   wishlistIds: new Set(),
-  inVanguard: false,
+  isVanguard: false,
   supabaseClient: null,
 };
 
@@ -194,6 +194,8 @@ if (!authState.user) authState.isVanguard = false;
       if (nameEl) nameEl.value = data.full_name || nameEl.value || '';
       if (phoneEl) phoneEl.value = data.phone || '';
       if (marketingEl) marketingEl.checked = !!data.marketing_opt_in;
+      authState.isVanguard = !!data.is_vanguard;
+
     }
     setAccountProfileStatus('');
   }
