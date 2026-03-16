@@ -4,14 +4,14 @@
 // =============================================================
 
 function initAnnouncementTicker() {
-  if (window.__tickerRunning) return;
-  window.__tickerRunning = true;
   const announcementBar = document.getElementById('announcement-bar');
   const marquee = document.querySelector('#announcement-bar .announcement-marquee');
   if (!marquee) return;
 
   const runs = marquee.querySelectorAll('.announcement-run');
   if (!runs.length) return;
+  if (window.__tickerRunning) return;
+  window.__tickerRunning = true;
 
   const primaryHTML = runs[0].innerHTML;
 
@@ -86,7 +86,14 @@ function initAnnouncementTicker() {
     const measuredWidth = measureRun.getBoundingClientRect().width || measureRun.scrollWidth || 0;
     measureRun.remove();
 
-    if (!measuredWidth) return 0;
+    if (!measuredWidth) {
+      const run = document.createElement('div');
+      run.className = 'announcement-run';
+      run.innerHTML = primaryHTML;
+      makeItemsInteractive(run, true);
+      marquee.appendChild(run);
+      return 0;
+    }
 
     const viewportWidth = announcementBar?.clientWidth || window.innerWidth;
     const copies = Math.max(3, Math.ceil(viewportWidth / measuredWidth) + 2);
