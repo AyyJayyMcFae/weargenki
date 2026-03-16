@@ -385,18 +385,11 @@
 
   // ── Boot ──────────────────────────────────────────────────────
   async function bootApp() {
-    initAnnouncementTicker();
-    const authInit = window.initSupabaseWishlist?.();
-    route();
-    syncNewsletterPromptVisibility();
-    try { await authInit; } catch (_) { /* noop */ }
-    window.updateAuthUi?.();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootApp, { once: true });
-  } else {
-    bootApp();
-  }
+  initAnnouncementTicker();
+  await window.initSupabaseWishlist?.();  // ← wait for auth first
+  route();                                 // ← then render
+  syncNewsletterPromptVisibility();
+  window.updateAuthUi?.();
+}
 })();
 
