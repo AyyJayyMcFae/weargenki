@@ -113,6 +113,10 @@ const authState = {
     const hash = (window.location.hash || '#home').split('?')[0];
     if (hash === '#wishlist') window.renderWishlistPage?.();
     if (hash === '#account') setTimeout(() => window.renderAccountPage?.(), 0);
+    if (isAccountPageVisible()) {
+      setAccountViewSignedIn(!!user);
+      if (user) setTimeout(() => window.renderAccountPage?.(), 0);
+    }
     window.updateProductWishlistButton?.();
   };
 
@@ -174,6 +178,11 @@ if (!authState.user) authState.isVanguard = false;
   if (gate) gate.style.display = signedIn ? 'none' : 'block';
   if (content) content.style.display = signedIn ? 'grid' : 'none';
 }
+
+  function isAccountPageVisible() {
+    const page = document.getElementById('account-page');
+    return !!(page && page.style.display !== 'none');
+  }
 
   function setAccountProfileStatus(msg = '', isError = false) {
     const el = document.getElementById('account-profile-status');
