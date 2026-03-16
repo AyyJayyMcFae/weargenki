@@ -4,6 +4,8 @@
 // =============================================================
 
 function initAnnouncementTicker() {
+  if (window.__tickerRunning) return;
+  window.__tickerRunning = true;
   const announcementBar = document.getElementById('announcement-bar');
   const marquee = document.querySelector('#announcement-bar .announcement-marquee');
   if (!marquee) return;
