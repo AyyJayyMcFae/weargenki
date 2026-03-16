@@ -383,10 +383,18 @@
   newsletterFabDismissButton?.addEventListener('click', () => window.dismissNewsletterPrompt('dismissed'));
 
   // ── Boot ──────────────────────────────────────────────────────
-  window.onload = async function () {
-  initAnnouncementTicker();
-  await window.initSupabaseWishlist(); // ← wait for session first
-  route();                              // ← then render
-  syncNewsletterPromptVisibility();
-};
+  async function bootApp() {
+    initAnnouncementTicker();
+    const authInit = window.initSupabaseWishlist?.();
+    route();
+    syncNewsletterPromptVisibility();
+    try { await authInit; } catch (_) { /* noop */ }
+    window.updateAuthUi?.();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootApp, { once: true });
+  } else {
+    bootApp();
+  }
 })();
