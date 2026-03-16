@@ -340,7 +340,13 @@ if (!authState.user) authState.isVanguard = false;
   bindNewsletterForm();
   if (!hasSupabaseConfig() || !window.supabase?.createClient) { window.updateAuthUi(); return; }
   authState.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: window.localStorage,
+      storageKey: 'genki-auth',
+    },
   });
   authState.supabaseClient.auth.onAuthStateChange(async (_event, session) => {
   console.log(_event, session?.user?.email);
@@ -360,3 +366,4 @@ if (!authState.user) authState.isVanguard = false;
   await window.refreshAuthState();
 };
 })();
+
