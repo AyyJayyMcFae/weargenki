@@ -333,6 +333,7 @@ if (!authState.user) authState.isVanguard = false;
 
   // ── Init ─────────────────────────────────────────────────────
   window.initSupabaseWishlist = async function () {
+    console.log(_event, session?.user?.email);
     bindAuthControls();
     bindNewsletterForm();
     if (!hasSupabaseConfig() || !window.supabase?.createClient) { window.updateAuthUi(); return; }
