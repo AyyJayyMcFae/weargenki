@@ -1,362 +1,1388 @@
-// =============================================================
-// auth.js — Supabase auth, wishlist, and account page logic
-// Depends on: genki-config.js, supabase-js CDN
-// =============================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GENKI - Wear Genki</title>
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Use Inter font family -->
+  <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/dzhvdoifb/image/upload/v1772417097/Kanji_Boxed_z35cw0.png">
+  <link rel="shortcut icon" href="https://res.cloudinary.com/dzhvdoifb/image/upload/v1767129720/blueGlitch_sddxpb.png?v=2">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dzhvdoifb/image/upload/v1767129720/blueGlitch_sddxpb.png?v=2">
 
-const authState = {
-  user: null,
-  wishlistIds: new Set(),
-  isVanguard: false,
-  supabaseClient: null,
-};
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHq6O3b+6b0Z9VV8+5v4y5j1l5/1p5Q5K5j5V5Q5K5j5V5Q5K5j5V5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0d0d0d">
 
-(function () {
-  const localConfig = window.__GENKI_CONFIG__ || {};
-  const SUPABASE_URL = localConfig.SUPABASE_URL || 'REPLACE_WITH_SUPABASE_URL';
-  const SUPABASE_ANON_KEY = localConfig.SUPABASE_ANON_KEY || 'REPLACE_WITH_SUPABASE_ANON_KEY';
-  const SITE_URL = (localConfig.SITE_URL || '').trim();
+  <meta property="og:title" content="GENKI – Streetwear Label">
+  <meta property="og:description" content="Limited-run streetwear built for real life.">
+  <meta property="og:image" content="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp">
+  <meta property="og:url" content="https://weargenki.vercel.app/">
+  <meta property="og:type" content="website">
 
-  const WISHLIST_TABLE = 'wishlists';
-  const PROFILE_TABLE = 'profiles';
-  const ORDERS_TABLE = 'orders';
-  const ORDER_ITEMS_TABLE = 'order_items';
-  const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ayyjayy.genki@gmail.com';
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GENKI – Streetwear Label">
+  <meta name="twitter:description" content="Limited-run streetwear built for real life.">
+  <meta name="twitter:image" content="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp">
 
-  // ── Helpers ──────────────────────────────────────────────────
-  const escapeHtml = (v = '') =>
-    String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+<script>
+ tailwind.config = {
+  theme: {
+   extend: {
+    colors: {
+     brand: {
+      neon: '#8BFF5B',
+      ink: '#0a0a0f',
+      fatigue: '#5b4f36',
+      dusty: '#e49182',
+      navy: '#1a2a4a',
+      maroon: '#4a1010',
+      charcoal: '#38302a',
+      moss: '#70745b',
+      army: '#323f34',
+      
+     },
+    },
+   },
+  },
+ };
+</script>
 
-  const formatDate = (iso) => {
-    if (!iso) return 'Unknown date';
-    const d = new Date(iso);
-    return isNaN(d) ? 'Unknown date' : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  };
 
-  const formatMoney = (cents, currency = 'USD') =>
-    new Intl.NumberFormat(undefined, { style: 'currency', currency }).format((Number(cents) || 0) / 100);
-
-  function hasSupabaseConfig() {
-    return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.startsWith('REPLACE_') && !SUPABASE_ANON_KEY.startsWith('REPLACE_'));
-  }
-
-  function resolveAuthRedirectTo() {
-    const fallback = `${window.location.origin}${window.location.pathname}`;
-    if (!SITE_URL) return fallback;
-    try { return new URL(window.location.pathname, SITE_URL).toString(); } catch (_) { return fallback; }
-  }
-
-  function getUserChipLabel(user) {
-    const source = (user?.user_metadata?.full_name || user?.email || 'Guest').trim();
-    return source.length > 22 ? `${source.slice(0, 22)}...` : source;
-  }
-
-  function buildFormSubmitAjaxUrl(actionUrl) {
-    const marker = 'https://formsubmit.co/';
-    if (!actionUrl?.startsWith(marker)) return '';
-    return `https://formsubmit.co/ajax/${actionUrl.slice(marker.length)}`;
-  }
-
-  async function submitNewsletterFormSubmit(email) {
-    const ajaxUrl = buildFormSubmitAjaxUrl(FORMSUBMIT_ENDPOINT);
-    if (!ajaxUrl || !email) return false;
-    try {
-      const resp = await fetch(ajaxUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          _subject: 'Newsletter signup',
-          _template: 'table',
-          _captcha: 'false',
-          email,
-          source: 'newsletter-modal',
-          submitted_at: new Date().toISOString(),
-        }),
-      });
-      if (!resp.ok) return false;
-      const data = await resp.json().catch(() => ({}));
-      return !!(data.success || data.message || data.status);
-    } catch (_) { return false; }
-  }
-
-  // ── Wishlist icon SVG ────────────────────────────────────────
-  function renderWishlistIconSvg(filled) {
-    return filled
-      ? '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>'
-      : '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>';
-  }
-
-  window.wishlistButtonMarkup = function (productId) {
-    const wished = authState.wishlistIds.has(productId);
-    const label = wished ? 'Remove from wishlist' : 'Add to wishlist';
-    const tone = wished ? 'text-red-400 border-red-400/70 bg-black/60' : 'text-white border-white/30 bg-black/60';
-    return `<button type="button" data-wishlist-toggle="${productId}" aria-label="${label}" class="wishlist-toggle absolute top-3 left-3 w-9 h-9 border ${tone} flex items-center justify-center hover:border-white transition z-10">${renderWishlistIconSvg(wished)}</button>`;
-  };
-
-  // ── UI sync ──────────────────────────────────────────────────
-  window.updateAuthUi = function () {
-    const user = authState.user;
-    console.log('updateAuthUi called, user:', user?.email, 'hash:', window.location.hash);
-    const authChip = document.getElementById('auth-chip');
-    const authButton = document.getElementById('auth-button');
-    const wishlistCount = document.getElementById('wishlist-count');
-    const wishlistPageCopy = document.getElementById('wishlist-page-copy');
-    const accountPageCopy = document.getElementById('account-page-copy');
-    const accountSignOutButton = document.getElementById('account-signout-button');
-
-    if (authChip) authChip.textContent = getUserChipLabel(user);
-    if (authButton) { authButton.setAttribute('aria-label', user ? 'Account' : 'Login'); }
-    if (wishlistCount) wishlistCount.textContent = String(authState.wishlistIds.size);
-    if (wishlistPageCopy) wishlistPageCopy.textContent = user ? 'Saved items are attached to your account.' : 'Sign in with Google to save products to your wishlist.';
-    if (accountPageCopy) accountPageCopy.textContent = user ? 'Manage your profile and review your order history.' : 'Sign in to manage your profile and view order history.';
-    if (accountSignOutButton) accountSignOutButton.classList.toggle('hidden', !user);
-
-    const hash = (window.location.hash || '#home').split('?')[0];
-    if (hash === '#wishlist') window.renderWishlistPage?.();
-    if (hash === '#account') setTimeout(() => window.renderAccountPage?.(), 0);
-    window.updateProductWishlistButton?.();
-  };
-
-  // ── Wishlist ─────────────────────────────────────────────────
-  async function loadWishlistFromSupabase() {
-    if (!authState.supabaseClient || !authState.user) { authState.wishlistIds = new Set(); return; }
-    const { data, error } = await authState.supabaseClient.from(WISHLIST_TABLE).select('product_id').eq('user_id', authState.user.id);
-    if (error) { console.error('Wishlist load failed:', error); return; }
-    authState.wishlistIds = new Set((data || []).map((r) => r.product_id).filter(Boolean));
-  }
-
-  window.toggleWishlistProduct = async function (productId) {
-    if (!authState.supabaseClient || !authState.user) { await signInWithGoogle(); return false; }
-    const alreadySaved = authState.wishlistIds.has(productId);
-    if (alreadySaved) {
-      const { error } = await authState.supabaseClient.from(WISHLIST_TABLE).delete().eq('user_id', authState.user.id).eq('product_id', productId);
-      if (error) { console.error('Wishlist remove failed:', error); return false; }
-      authState.wishlistIds.delete(productId);
-    } else {
-      const { error } = await authState.supabaseClient.from(WISHLIST_TABLE).insert([{ user_id: authState.user.id, product_id: productId }]);
-      if (error && error.code !== '23505') { console.error('Wishlist save failed:', error); return false; }
-      authState.wishlistIds.add(productId);
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+    html { font-size: 100%; }
+    @media (min-width: 1024px) {
+      html { font-size: 90%; }
     }
-    window.updateAuthUi();
-    return true;
-  };
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d0d0d; /* Dark background for streetwear aesthetic */
+      color: #f7f7f7;
+      scroll-behavior: smooth;
+      margin: 0; /* remove default body margin so hero sits at the top */
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Custom height for the full viewport hero section */
+    .hero-height { min-height: 100vh; }
+    /* Utility class for routing - initially hidden by default */
+    .page-content { display: none; }
+    /* Fallback: Show home page if JS fails */
+    #home-page { display: block; }
+    /* Non-home pages are already pushed down by fixed-header offset logic. */
+    /* Remove extra top padding from Tailwind `py-24` to prevent large gaps. */
+    #app-container > .page-content:not(#home-page) { padding-top: 10px !important; }
 
-  // ── Auth actions ─────────────────────────────────────────────
-  async function signInWithGoogle() {
-    if (!authState.supabaseClient) { alert('Add SUPABASE_URL and SUPABASE_ANON_KEY in genki-config.js first.'); return; }
-    const { error } = await authState.supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: resolveAuthRedirectTo() } });
-    if (error) alert(error.message || 'Unable to start Google sign-in.');
-  }
+    /* ---- CLEAN HERO ANIMATION (replaces character scramble) ---- */
+    #hero-title {
+      font-family: 'Inter', 'Noto Sans JP', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif,;
+      letter-spacing: .15em;
+      text-shadow: 0 4px 40px rgba(255,255,255,.08);
+      transition: opacity .6s ease, transform .6s ease;
+      will-change: opacity, transform, letter-spacing;
+    }
+    /* fade/slide out */
+    #hero-title.is-out { opacity: 0; transform: translateY(10px); letter-spacing: .25em; }
+    /* subtle entrance pop */
+    #hero-title.is-in { opacity: 1; transform: translateY(0); letter-spacing: .15em; }
+    #hero-title.is-glitch {
+      animation: hero-glitch 0.36s steps(3, end) 2;
+      text-shadow:
+        -3px 0 rgba(0, 255, 255, 0.65),
+         3px 0 rgba(255, 0, 85, 0.6),
+         0 0 18px rgba(255, 255, 255, 0.08);
+      filter: contrast(1.15) saturate(1.25);
+    }
 
-  async function signOutUser() {
-    if (!authState.supabaseClient) return;
-    const { error } = await authState.supabaseClient.auth.signOut();
-    if (error) { alert(error.message || 'Sign-out failed.'); return; }
-    if ((window.location.hash || '#home').split('?')[0] === '#account') window.location.hash = '#home';
-  }
-
-  window.refreshAuthState = async function () {
-    if (!authState.supabaseClient) { authState.user = null; authState.wishlistIds = new Set(); window.updateAuthUi(); return; }
-    const { data } = await authState.supabaseClient.auth.getSession();
-    authState.user = data?.session?.user || null;
-if (!authState.user) authState.isVanguard = false;
-    await loadWishlistFromSupabase();
-    window.updateAuthUi();
-    if ((window.location.hash || '').split('?')[0] === '#account') window.renderAccountPage?.();
-  };
-
-  // ── Account page ─────────────────────────────────────────────
-  function setAccountViewSignedIn(signedIn) {
-  const gate = document.getElementById('account-auth-gate');
-  const content = document.getElementById('account-content');
-  if (gate) gate.style.display = signedIn ? 'none' : 'block';
-  if (content) content.style.display = signedIn ? 'grid' : 'none';
+   #milestone-title.is-glitch {
+  animation: hero-glitch 0.36s steps(3, end) 2;
+  text-shadow:
+    -3px 0 rgba(0, 255, 255, 0.65),
+     3px 0 rgba(255, 0, 85, 0.6),
+     0 0 18px rgba(255, 255, 255, 0.08);
+  filter: contrast(1.15) saturate(1.25);
 }
 
-  function setAccountProfileStatus(msg = '', isError = false) {
-    const el = document.getElementById('account-profile-status');
-    if (!el) return;
-    el.textContent = msg;
-    el.classList.toggle('text-red-400', !!(msg && isError));
-    el.classList.toggle('text-green-400', !!(msg && !isError));
-    el.classList.toggle('text-gray-400', !msg);
-  }
+#milestone-title.is-out {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.3s, transform 0.3s;
+}
 
-  async function loadProfileForAccount() {
-    if (!authState.supabaseClient || !authState.user) return;
-    const emailEl = document.getElementById('account-email');
-    const nameEl = document.getElementById('account-full-name');
-    const phoneEl = document.getElementById('account-phone');
-    const marketingEl = document.getElementById('account-marketing-opt-in');
-    if (emailEl) emailEl.value = authState.user.email || '';
-    if (nameEl) nameEl.value = authState.user.user_metadata?.full_name || '';
-    if (phoneEl) phoneEl.value = '';
-    if (marketingEl) marketingEl.checked = false;
-    const { data, error } = await authState.supabaseClient.from(PROFILE_TABLE).select('full_name, phone, marketing_opt_in, is_vanguard').eq('user_id', authState.user.id).maybeSingle();
-    if (error && error.code !== 'PGRST116') { setAccountProfileStatus(`Could not load profile: ${error.message}`, true); return; }
-    if (data) {
-      if (nameEl) nameEl.value = data.full_name || nameEl.value || '';
-      if (phoneEl) phoneEl.value = data.phone || '';
-      if (marketingEl) marketingEl.checked = !!data.marketing_opt_in;
-      authState.isVanguard = !!data.is_vanguard;
+#milestone-title.is-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
 
+    @keyframes hero-glitch {
+      0% { transform: translate(0, 0) skewX(0deg); clip-path: inset(0 0 0 0); opacity: 1; }
+      12% { transform: translate(-1px, 0) skewX(0.8deg); clip-path: inset(6% 0 58% 0); }
+      24% { transform: translate(1px, 0) skewX(-0.8deg); clip-path: inset(48% 0 20% 0); }
+      38% { transform: translate(0, 0) skewX(0.4deg); clip-path: inset(26% 0 38% 0); }
+      52% { transform: translate(1px, 0) skewX(-0.6deg); clip-path: inset(70% 0 10% 0); }
+      66% { transform: translate(-1px, 0) skewX(0.6deg); clip-path: inset(18% 0 50% 0); opacity: 0.92; }
+      82% { transform: translate(0, 0) skewX(-0.3deg); clip-path: inset(40% 0 28% 0); }
+      100% { transform: translate(0, 0) skewX(0deg); clip-path: inset(0 0 0 0); opacity: 1; }
     }
-    setAccountProfileStatus('');
-  }
 
-  async function saveProfileFromForm() {
-    if (!authState.supabaseClient || !authState.user) { setAccountProfileStatus('Sign in first.', true); return; }
-    const nameEl = document.getElementById('account-full-name');
-    const phoneEl = document.getElementById('account-phone');
-    const marketingEl = document.getElementById('account-marketing-opt-in');
-    const payload = {
-      user_id: authState.user.id,
-      full_name: (nameEl?.value || '').trim() || null,
-      phone: (phoneEl?.value || '').trim() || null,
-      marketing_opt_in: !!marketingEl?.checked,
-      updated_at: new Date().toISOString(),
-    };
-    const { error } = await authState.supabaseClient.from(PROFILE_TABLE).upsert(payload, { onConflict: 'user_id' });
-    if (error) { setAccountProfileStatus(`Could not save: ${error.message}`, true); return; }
-    if (payload.full_name) authState.user = { ...authState.user, user_metadata: { ...authState.user.user_metadata, full_name: payload.full_name } };
-    window.updateAuthUi();
-    setAccountProfileStatus('Profile saved.', false);
-  }
+    /* --- Search Bar Visibility Fix --- */
+    #search-input-container {
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);  
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: width 0.3s ease-out, opacity 0.3s ease-out;
+    display: flex;
+    align-items: center;
+   }
+    #search-input-container.active { width: 280px; opacity: 1; pointer-events: auto; }
+    #search-input-container input { padding-right: 40px; }
+  /* Cart summary list */
+    .cart-line { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .qty-btn { width: 28px; height: 28px; border: 1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; }
+    .price-sm { color: #cfcfcf; }
+    @keyframes cart-pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,.35); }
+      70% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+    .cart-attention { animation: cart-pulse .7s ease-out; }
 
-  function renderOrdersList(orders = [], itemMap = new Map()) {
-    const list = document.getElementById('account-orders-list');
-    if (!list) return;
-    if (!orders.length) { list.innerHTML = '<p class="text-sm text-gray-400">No orders yet.</p>'; return; }
-    list.innerHTML = '';
-    orders.forEach((order) => {
-      const wrap = document.createElement('article');
-      wrap.className = 'border border-white/10 p-4 bg-black/20';
-      const items = itemMap.get(order.id) || [];
-      const itemLines = items.length
-        ? items.map((line) => {
-          const title = escapeHtml(line.product_title || line.product_id || 'Item');
-          const opts = [line.color, line.size].filter(Boolean).map(escapeHtml).join(' / ');
-          return `<li class="text-sm text-gray-300">${title}${opts ? ` (${opts})` : ''} x${line.qty || 1} <span class="text-gray-500">${formatMoney(line.price_cents, order.currency)}</span></li>`;
-        }).join('')
-        : '<li class="text-sm text-gray-500">No line items found.</li>';
-      wrap.innerHTML = `
-        <div class="flex items-center justify-between gap-3 mb-2">
-          <p class="text-sm uppercase tracking-[0.2em] text-gray-400">Order ${escapeHtml(order.order_number || String(order.id))}</p>
-          <p class="text-sm text-gray-400">${formatDate(order.created_at)}</p>
+    /* --- Lookbook: edge-to-edge collage vibe --- */
+    .look-ribbon {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 0 0 6px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+    }
+    .look-ribbon-item {
+      position: relative;
+      flex: 0 0 auto;
+      width: min(72vw, 460px);
+      height: clamp(220px, 48vw, 520px);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1);
+      scroll-snap-align: start;
+    }
+    .look-ribbon-item.wide { width: min(88vw, 640px); }
+    .look-ribbon-item.tall { height: clamp(280px, 64vw, 640px); }
+    .look-ribbon-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .45s ease, filter .45s ease;
+      filter: saturate(1.08) contrast(1.03);
+    }
+    .look-ribbon-item:hover img { transform: scale(1.04); filter: saturate(1.14) contrast(1.08); }
+    .look-ribbon-shift { margin-top: 12px; transform: translateX(-7vw); width: calc(100% + 7vw); }
+    .look-main-collage { column-count: 1; column-gap: 10px; }
+    .look-main-card {
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 10px;
+      break-inside: avoid;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #050505;
+    }
+    .look-main-card img {
+      width: 100%;
+      object-fit: cover;
+      transition: transform .4s ease, filter .4s ease;
+    }
+    .look-main-card:hover img { transform: scale(1.035); filter: brightness(1.06) contrast(1.06); }
+
+    /* Product image nav controls: larger hit area to reduce misclicks. */
+    .product-gallery-nav-btn::before {
+      content: "";
+      position: absolute;
+      inset: -10px;
+    }
+    @media (pointer: coarse) {
+      .product-gallery-nav-btn::before { inset: -14px; }
+    }
+    @media (min-width: 768px) {
+      .look-main-collage { column-count: 2; column-gap: 12px; }
+      .look-ribbon-shift { margin-top: 16px; transform: translateX(-10vw); width: calc(100% + 10vw); }
+    }
+    @media (min-width: 1200px) {
+      .look-main-collage { column-count: 3; column-gap: 14px; }
+    }
+    @media (min-width: 1600px) {
+      .look-main-collage { column-count: 4; column-gap: 14px; }
+    }
+
+    /* Announcement ticker under fixed nav */
+    #announcement-bar {
+      width: 100%;
+      height: 28px;
+      border-top: 1px solid rgba(255,255,255,.1);
+      background: rgba(0,0,0,.9);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .announcement-marquee {
+      display: flex;
+      width: max-content;
+      will-change: transform;
+    }
+    .announcement-run {
+      display: flex;
+      align-items: center;
+      height: 28px;
+      white-space: nowrap;
+    }
+    .announcement-item {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .28em;
+      color: rgba(255,255,255,.82);
+      padding-right: 2.2rem;
+      padding-left: .6rem;
+    }
+    .announcement-item[data-href] {
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .announcement-item[data-href]:hover {
+      color: rgba(255,255,255,1);
+    }
+    .announcement-item[data-href]:focus-visible {
+      outline: 1px solid rgba(255,255,255,.55);
+      outline-offset: 2px;
+    }
+   
+    .announcement-divider {
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,.42);
+      margin-right: 2.2rem;
+      flex: 0 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Overlay Navbar -->
+  <header id="main-header" class="fixed top-0 left-0 w-full z-50 pointer-events-auto transition-all duration-300">
+    <div id="nav-inner" class="w-full px-4 sm:px-6 lg:px-8 py-6 flex justify-between items-center transition-all duration-300">
+      <div id="logo-container" class="opacity-0 transition-opacity duration-300">
+        <a href="#home" id="home-link" class="text-xl font-bold tracking-widest text-white">GENKI / 元気</a>
+      </div>
+      <nav class="flex space-x-4 items-center">
+        <!-- Search -->
+        <div id="search-toggle-container" class="relative">
+          <button id="search-toggle-button" aria-label="Search" class="p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10 z-10" onclick="toggleSearchInput(event)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+          <div id="search-input-container" class="bg-neutral-800 shadow-xl border border-white/10">
+            <input type="text" id="header-search-input" placeholder="Search products..." class="w-full h-10 p-2 bg-transparent text-white text-sm focus:outline-none">
+            <button aria-label="Submit Search" class="absolute right-0 top-0 h-full w-10 text-white/70 hover:text-white transition" onclick="performSearchAndRoute()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><line x1="21" y1="21" x2="16.65" y2="16.65"></line><circle cx="11" cy="11" r="8"></circle></svg>
+            </button>
+          </div>
         </div>
-        <div class="flex items-center justify-between gap-3 mb-3">
-          <p class="text-sm text-gray-300">Status: <span class="uppercase tracking-[0.15em]">${escapeHtml(order.status || 'pending')}</span></p>
-          <p class="text-sm text-white font-semibold">${formatMoney(order.total_cents, order.currency)}</p>
+        <button id="auth-button" aria-label="Login" class="p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span id="auth-chip" class="hidden md:inline text-[10px] uppercase tracking-[0.2em]">Guest</span>
+        </button>
+        <button id="wishlist-nav-button" aria-label="Wishlist" class="relative p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+          <span id="wishlist-count" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+        <button id="cart-toggle" aria-label="Shopping Bag" class="relative p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span id="cart-count" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+      </nav>
+    </div>
+    <div id="announcement-bar" class="announcement-bar">
+      <div class="announcement-marquee" aria-label="Store announcements">
+        <div class="announcement-run">
+          <span class="announcement-item" data-href="#lookbook-main">Tag @WearGenki to be featured</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item" data-action="open-newsletter">Weekly Updates and Monthly Drops</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item" data-href="#shop">Free Shipping on Orders Over $100</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item" data-href="" data-target="_blank">Mind Our Dust</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
         </div>
-        <ul class="space-y-1">${itemLines}</ul>`;
-      list.appendChild(wrap);
-    });
-  }
+        
+      </div>
+    </div>
+  </header>
 
-  async function loadOrdersForAccount() {
-    const list = document.getElementById('account-orders-list');
-    if (!list) return;
-    if (!authState.supabaseClient || !authState.user) { list.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>'; return; }
-    list.innerHTML = '<p class="text-sm text-gray-400">Loading orders...</p>';
-    const { data: orders, error } = await authState.supabaseClient.from(ORDERS_TABLE).select('id, order_number, status, total_cents, currency, created_at').eq('user_id', authState.user.id).order('created_at', { ascending: false });
-    if (error) { list.innerHTML = '<p class="text-sm text-red-400">Could not load orders.</p>'; return; }
-    const orderIds = (orders || []).map((o) => o.id);
-    let itemMap = new Map();
-    if (orderIds.length) {
-      const { data: items } = await authState.supabaseClient.from(ORDER_ITEMS_TABLE).select('order_id, product_id, product_title, qty, price_cents, size, color').in('order_id', orderIds);
-      itemMap = (items || []).reduce((acc, item) => {
-        if (!acc.has(item.order_id)) acc.set(item.order_id, []);
-        acc.get(item.order_id).push(item);
-        return acc;
-      }, new Map());
-    }
-    renderOrdersList(orders || [], itemMap);
-  }
+  
 
-  window.renderAccountPage = async function () {
-    if (!authState.user) {
-      setAccountViewSignedIn(false);
-      const list = document.getElementById('account-orders-list');
-      if (list) list.innerHTML = '<p class="text-sm text-gray-400">Sign in to view order history.</p>';
-      setAccountProfileStatus('');
-      return;
-    }
-    setAccountViewSignedIn(true);
-    await loadProfileForAccount();
-    await loadOrdersForAccount();
-  };
+  <!-- MAIN CONTENT CONTAINER (SPA) -->
+  <main id="app-container" class="pt-0 flex-1">
+    <!-- 1. HOME PAGE (Hero & Featured) -->
+  <div id="home-page" class="page-content">
+    <!-- Hero Section -->
+     <!-- Hero background layer -->
+<div class="absolute inset-0 -z-10 pointer-events-none">
+ <img
+  src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp"
+  alt=""
+  class="w-full h-full object-cover"
+  loading="eager"
+ />
+ <!-- Contrast safety overlay -->
+ <div class="absolute inset-0 bg-black/60"></div>
+</div>
 
-  // ── Bind controls (called once on init) ─────────────────────
-  function bindAuthControls() {
-    const bind = (id, handler) => {
-      const el = document.getElementById(id);
-      if (el && !el.dataset.bound) { el.addEventListener('click', handler); el.dataset.bound = '1'; }
-    };
-    bind('auth-button', () => { window.location.hash = '#account'; });
-    bind('wishlist-nav-button', () => { window.location.hash = '#wishlist'; });
-    bind('account-signin-button', signInWithGoogle);
-    bind('account-signout-button', signOutUser);
-    bind('account-refresh-orders', loadOrdersForAccount);
+    <section class="hero-height flex flex-col justify-center items-center relative px-6 text-center">
+      
 
-    const profileForm = document.getElementById('account-profile-form');
-    if (profileForm && !profileForm.dataset.bound) {
-      profileForm.addEventListener('submit', (e) => { e.preventDefault(); saveProfileFromForm(); });
-      profileForm.dataset.bound = '1';
-    }
-  }
+      <h1 id="hero-title" class="text-6xl sm:text-8xl md:text-[12rem] lg:text-[16rem] leading-none tracking-tighter uppercase mb-4">
+        <!-- Text Injected by JS -->
+      </h1>
+      <p class="text-[10px] md:text-xs tracking-[0.3em] uppercase opacity-60"><!-- Season 00: Urban Dystopia -->Live lively</p>
+      
+      <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce cursor-pointer" onclick="document.getElementById('new-arrivals-section').scrollIntoView({behavior:'smooth'})">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+      </div>
+    </section>
 
-  // ── Newsletter modal submit ──────────────────────────────────
-  function bindNewsletterForm() {
-    const form = document.getElementById('newsletter-form');
-    const emailEl = document.getElementById('newsletter-email');
-    const status = document.getElementById('newsletter-status');
-    if (!form || form.dataset.bound) return;
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = (emailEl?.value || '').trim();
-      if (!email) return;
-      if (authState.supabaseClient) {
-        const { error } = await authState.supabaseClient.from('newsletter_subscribers').insert([{ email }]);
-        if (error && error.code !== '23505') {
-          if (status) { status.textContent = 'Something went wrong. Try again.'; status.classList.remove('hidden'); }
-          form.reset(); return;
-        }
-      }
-      const formSubmitOk = await submitNewsletterFormSubmit(email);
-      if (status) {
-        status.textContent = formSubmitOk
-          ? `Thanks. ${email} is queued for newsletter updates.`
-          : `Thanks. ${email} is saved, but email alert failed this time.`;
-        status.classList.remove('hidden');
-      }
-      window.dismissNewsletterPrompt?.('signed-up');
-      form.reset();
-    });
-    form.dataset.bound = '1';
-  }
+    
+<!-- ============================================================
+     GENKI — Community Milestone Bar
+     Drop this section anywhere in index.html.
+     Requires: scripts/milestone.js (add to script load order)
+     To update sales count: edit CURRENT_SALES in milestone.js
+     ============================================================ -->
 
-  // ── Init ─────────────────────────────────────────────────────
-  window.initSupabaseWishlist = async function () {
-  bindAuthControls();
-  bindNewsletterForm();
-  if (!hasSupabaseConfig() || !window.supabase?.createClient) { window.updateAuthUi(); return; }
-  authState.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-  });
-  authState.supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-  console.log(_event, session?.user?.email);
-  authState.user = session?.user || null;
-  if (!authState.user) authState.isVanguard = false;
-  await loadWishlistFromSupabase();
-  window.updateAuthUi();
-  if (_event === 'SIGNED_IN' && session?.user) {
-    await fetch('https://formsubmit.co/ayyjayy.genki@gmail.com', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: session.user.email, _subject: 'New Genki Account Created' }),
-    });
-  }
-  if (_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION' || _event === 'TOKEN_REFRESHED') window.updateAuthUi();
-});
-  await window.refreshAuthState();
-};
-})();
+<section id="milestone-section" style="
+  background: #0a0a0a;
+  padding: 64px 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Courier New', Courier, monospace;
+">
+
+  <div style="max-width: 860px; margin: 0 auto;">
+
+    <!-- Header -->
+   <h2 id="milestone-title" style="
+  color: #fff;
+  font-size: clamp(22px, 4vw, 32px);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
+  font-weight: 700;
+">KISTANISTAS</h2>
+<span style="
+  display: block;
+  color: #fff;
+  font-size: clamp(22px, 4vw, 32px);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 700;
+">— THE VANGUARD RISES</span>
+
+    <!-- Bar container -->
+    <div id="milestone-bar-wrap" style="
+      position: relative;
+      height: 4px;
+      background: rgba(255,255,255,0.07);
+      margin-bottom: 0;
+    ">
+      <!-- Filled progress -->
+      <div id="milestone-fill" style="
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        background: #fff;
+        width: 0%;
+        transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      "></div>
+
+      <!-- Tier tick marks -->
+      <div style="position: absolute; left: 25%; top: 50%; transform: translate(-50%, -50%); width: 1px; height: 12px; background: rgba(255,255,255,0.2);"></div>
+      <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 1px; height: 12px; background: rgba(255,255,255,0.2);"></div>
+      <div style="position: absolute; left: 75%; top: 50%; transform: translate(-50%, -50%); width: 1px; height: 12px; background: rgba(255,255,255,0.2);"></div>
+    </div>
+
+    <!-- Tier labels -->
+    <div style="
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      position: relative;
+    ">
+      <!-- Tier 1 -->
+      <div id="tier-1" class="milestone-tier" style="width: 25%; padding-right: 16px;">
+        <p class="tier-num" style="
+          font-size: 10px;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.55);
+          text-transform: uppercase;
+          margin: 0 0 4px 0;
+        ">25 Sales</p>
+        <p class="tier-reward" style="
+          font-size: 11px;
+          letter-spacing: 0.1em;
+         color: rgba(255,255,255,0.75);
+          margin: 0;
+          line-height: 1.5;
+        ">Free delivery for all newsletter subscribers</p>
+      </div>
+
+      <!-- Tier 2 -->
+      <div id="tier-2" class="milestone-tier" style="width: 25%; padding-right: 16px; text-align: center;">
+        <p class="tier-num" style="
+          font-size: 10px;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.55);
+          text-transform: uppercase;
+          margin: 0 0 4px 0;
+        ">50 Sales</p>
+        <p class="tier-reward" style="
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          color: rgba(255,255,255,0.75);
+          margin: 0;
+          line-height: 1.5;
+        ">Free product — winner drawn from newsletter</p>
+      </div>
+
+      <!-- Tier 3 -->
+      <div id="tier-3" class="milestone-tier" style="width: 25%; padding-right: 16px; text-align: center;">
+        <p class="tier-num" style="
+          font-size: 10px;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.55);
+          text-transform: uppercase;
+          margin: 0 0 4px 0;
+        ">75 Sales</p>
+        <p class="tier-reward" style="
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          color: rgba(255,255,255,0.75);
+          margin: 0;
+          line-height: 1.5;
+        ">Full outfit — yours, on us</p>
+      </div>
+
+      <!-- Tier 4 -->
+      <div id="tier-4" class="milestone-tier" style="width: 25%; text-align: right;">
+        <p class="tier-num" style="
+          font-size: 10px;
+          letter-spacing: 0.25em;
+          color: rgba(255,255,255,0.55);
+          text-transform: uppercase;
+          margin: 0 0 4px 0;
+        ">100 Sales</p>
+        <p class="tier-reward" style="
+          font-size: 11px;
+          letter-spacing: 0.1em;
+        color: rgba(255,255,255,0.75);
+          margin: 0;
+          line-height: 1.5;
+        ">Free shipping for life — Genki Vanguard</p>
+      </div>
+    </div>
+
+    <!-- Counter + CTA -->
+    <div style="
+      margin-top: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 32px;
+    ">
+      <div>
+        <span id="milestone-count" style="
+          font-size: clamp(32px, 6vw, 52px);
+          font-weight: 700;
+          color: #fff;
+          letter-spacing: -0.02em;
+          line-height: 1;
+        ">0</span>
+        <span style="
+          font-size: 13px;
+          color: rgba(255,255,255,0.3);
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          margin-left: 10px;
+        ">/ 100 sales</span>
+      </div>
+      <a href="#" onclick="window.openNewsletterModal?.(); return false;" style="
+        display: inline-block;
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+        font-size: 10px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        padding: 14px 28px;
+        text-decoration: none;
+        transition: border-color 0.2s, background 0.2s;
+      "
+      onmouseover="this.style.borderColor='#fff'; this.style.background='rgba(255,255,255,0.05)'"
+      onmouseout="this.style.borderColor='rgba(255,255,255,0.3)'; this.style.background='transparent'"
+      >Join the Newsletter</a>
+    </div>
+
+  </div>
+</section>
+
+      <!-- NEW ITEMS -->
+      <section id="new-arrivals-section" class="py-20 md:py-24 bg-[#0d0d0d]">
+        <div class="px-4 sm:px-6 lg:px-8">
+          <h2 class="text-3xl md:text-4xl font-bold mb-10 text-white border-b border-white/10 pb-4">FEATURED</h2>
+          <div id="new-items-carousel" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6 overflow-hidden">
+            <!-- Cards kept identical to your original -->
+            <div class="bg-transparent overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 border border-white/10 cursor-pointer" onclick="window.location.hash='#genki-esquire-jacket'">
+              <div class="relative overflow-hidden">
+                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176681305211008-2.png" alt="Genki Esquire Packable Jacket" class="w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Genki+Esquire+Packable+Jacket'">
+                <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
+              </div>
+              <div class="p-4 text-center">
+                <h3 class="text-lg font-semibold text-white mb-1">Genki Esquire Packable Jacket</h3>
+                <p class="text-sm text-gray-400 mb-3">$40.00</p>
+                <div class="flex justify-center space-x-2">
+                  <div class="w-4 h-4 bg-black border border-white/50" title="Black"></div>
+                  <div class="w-4 h-4 bg-gray-500 border border-gray-600" title="Grey"></div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-transparent overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 border border-white/10 cursor-pointer" onclick="window.location.hash='#acd-kancho-hancho-shirt'">
+              <div class="relative overflow-hidden">
+                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-1.png" alt="[ACD] Kancho Hancho Button Up Shirt" class="w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/1a1a1a/ffffff?text=Cropped+Hoodie'">
+               <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
+              </div>
+              <div class="p-4 text-center">
+                <h3 class="text-lg font-semibold text-white mb-1">[ACD] Kancho Hancho Button Up Shirt</h3>
+                <p class="text-sm text-gray-400 mb-3">$50.00</p>
+              </div>
+            </div>
+            <div class="bg-transparent overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 border border-white/10 cursor-pointer" onclick="window.location.hash='#genki-sakura-hoodie'">
+              <div class="relative overflow-hidden">
+                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17658626415530-0.png" alt="Genki Sakura Heavy Hoodie" class="w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/4a4a4a/ffffff?text=Sakura+Hoodie'">
+               <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
+              </div>
+              <div class="p-4 text-center">
+                <h3 class="text-lg font-semibold text-white mb-1">Genki Sakura Heavy Hoodie</h3>
+                <p class="text-sm text-gray-400 mb-3">$40.00</p>
+                <div class="flex justify-center space-x-2">
+                  <div class="w-4 h-4 bg-black border border-white/50" title="Black"></div>
+                  <div class="w-4 h-4 bg-pink-200 border border-white/50" title="Pink"></div>
+                  <div class="w-4 h-4 bg-red-950 border border-white/50" title="Maroon"></div>
+                  <div class="w-4 h-4 bg-emerald-950 border border-white/50" title="Forest Green"></div>
+                  <div class="w-4 h-4 bg-blue-300 border border-white/50" title="Blue"></div>
+              </div>
+              </div>
+            </div>
+            <div class="bg-transparent overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 hidden md:block border border-white/10 cursor-pointer" onclick="window.location.hash='#acd-neko-pastel-cap'">
+              <div class="relative overflow-hidden">
+                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176509539212418-2.png" alt="[ACD] Neko Pastel Baseball Cap" class="w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/d6d6d6/000000?text=Pastel+Neko+Cap'">
+               <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
+              </div>
+              <div class="p-4 text-center">
+                <h3 class="text-lg font-semibold text-white mb-1">[ACD] Neko Pastel Baseball Cap</h3>
+                <p class="text-sm text-gray-400 mb-3">$30.00</p>
+                <div class="flex justify-center space-x-2">
+                  <div class="w-4 h-4 bg-pink-50 border border-white/50" title="Pastel Pink"></div>
+                  <div class="w-4 h-4 bg-yellow-50 border border-white/50" title="Pastel Lemon"></div>
+                  <div class="w-4 h-4 bg-green-50 border border-white/50" title="Pastel Mint"></div>
+                  <div class="w-4 h-4 bg-blue-50 border border-white/50" title="Pastel Blue"></div>
+              </div>
+                </div>
+            </div>
+            <div class="bg-transparent overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 hidden xl:block border border-white/10 cursor-pointer" onclick="window.location.hash='#genki-america-snapback'">
+              <div class="relative overflow-hidden">
+                <img src="https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17617999204796-0.png" alt="[GENKI] Make America Genki Again Electric Blue Snapback" class="w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/0000ff/ffffff?text=Electric+Blue+Snapback'">
+               <span class="absolute top-3 right-3 bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
+              </div>
+              <div class="p-4 text-center">
+                <h3 class="text-lg font-semibold text-white mb-1">Make America Genki Again Snapback</h3>
+                <p class="text-sm text-gray-400 mb-3">$30.00</p>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mt-10 space-x-4">
+            <a href="#new" class="inline-block px-8 py-3 bg-neutral-600 text-white font-semibold uppercase tracking-widest text-sm border border-neutral-500 hover:bg-gray-200 hover:text-black transition duration-150">Shop New</a>
+            <a href="#shop" class="inline-block px-8 py-3 bg-neutral-600 text-white font-semibold uppercase tracking-widest text-sm border border-neutral-500 hover:bg-gray-200 hover:text-black transition duration-150">Shop All</a>
+          </div>
+        </div>
+      </section>
+
+      
+      
+      <!-- 1.3 LOOKBOOK TILE WALL (Full Width Content) -->
+      <section class="py-20 md:py-24 bg-[#0d0d0d]">
+        <div class="w-full px-0">
+            <h2 class="text-3xl md:text-4xl font-bold mb-10 text-white border-b border-white/10 pb-4 text-center">LOOKBOOK</h2>
+
+            <!-- Full-bleed photo wall: zero gap so images touch the edges; smaller gaps on md -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-0 md:gap-1">
+              <div class="col-span-2 row-span-2 overflow-hidden">
+                <a href="#lookbook-1"><img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp" alt="Lookbook Image 1" class="w-full h-full object-cover transition-transform duration-300 cursor-pointer" style="max-height:70vh;"></a>
+              </div>
+              <div class="col-span-2 overflow-hidden">
+                <a href="#lookbook-2"><img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748940/I0P8IHJ_oxbf46.webp" alt="Lookbook Image 2" class="w-full h-full object-cover transition-transform duration-300 cursor-pointer" style="max-height:40vh;"></a>
+              </div>
+              <div class="overflow-hidden">
+                <a href="#lookbook-3"><img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748935/0AA3u2l_iwzzvt.webp" alt="Lookbook Image 3" class="w-full h-full object-cover transition-transform duration-300 cursor-pointer"></a>
+              </div>
+              <div class="overflow-hidden">
+                <a href="#lookbook-4"><img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762752906/6EiT5o1_nhvhwf.webp" alt="Lookbook Image 4" class="w-full h-full object-cover transition-transform duration-300 cursor-pointer"></a>
+              </div>
+            </div>
+
+          <!-- Button is sharp -->
+          <div class="text-center mt-10">
+            <a href="#lookbook-main" class="inline-block px-8 py-3 bg-neutral-600 text-white font-semibold uppercase tracking-widest text-sm border border-neutral-500 hover:bg-gray-200 hover:text-black transition duration-150">View Full Lookbook</a>
+          </div>
+        </div>
+      </section>
+    </div>
+    
+    <!-- ============================================== -->
+    <!-- 2. SHOP NEW PAGE (Pure Grid) - All cards are sharp -->
+    <!-- ============================================== -->
+    <div id="new-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8">
+        <h2 class="text-5xl font-extrabold mb-12 text-white tracking-tighter">NEW ARRIVALS 2025 / Q4</h2>
+        
+        <!-- ACCENT CHANGE: border-red-600 -> border-white/20 -->
+        <p class="text-gray-400 mb-8 max-w-4xl border-l-4 border-white/20 pl-4">Introducing the latest drops from GENKI. Limited runs focused on technical fabrics, oversized fits, and distressed finishes. Everything here is fresh.</p>
+
+        <div id="new-page-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
+        <div class="text-center mt-10">
+          <a href="#shop" class="inline-block px-8 py-3 bg-neutral-600 text-white font-semibold uppercase tracking-widest text-sm border border-neutral-500 hover:bg-gray-200 hover:text-black transition duration-150">Shop All</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 3. SHOP ALL PAGE (Categorized View) - Now handles dynamic product rendering/search -->
+    <!-- ============================================== -->
+    <div id="shop-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8">
+        <h2 id="shop-title" class="text-5xl font-extrabold mb-12 text-white tracking-tighter">ALL PRODUCTS</h2>
+
+        <div class="flex flex-col md:flex-row gap-8">
+          <!-- Sidebar (Categories/Filters) - Now sharp -->
+          <aside id="shop-filters" class="w-full md:w-64 flex-shrink-0 bg-neutral-800/50 p-6 border border-white/10">
+            <button id="shop-filters-toggle" type="button" class="w-full md:hidden flex items-center justify-between border border-white/15 px-3 py-2 text-xs uppercase tracking-[0.2em] text-white/80 hover:text-white hover:border-white/40 transition" aria-expanded="false" aria-controls="shop-filters-panel">
+              <span>Categories & Filters</span>
+              <span id="shop-filters-toggle-copy">Show</span>
+            </button>
+            <div id="shop-filters-panel" class="hidden md:block mt-4 md:mt-0">
+              <h3 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">CATEGORIES</h3>
+              <ul class="space-y-2">
+                <!-- categories links are functional with filtering (Counts updated for new 10 products) -->
+                <li><a href="#shop/categories-all" class="text-white hover:text-white/70 transition block" data-categories="all" data-label="All Products">All Products</a></li>
+                <li><a href="#shop/categories-tops" class="text-white hover:text-white/70 transition block" data-categories="Tops" data-label="Tops">Tops</a></li>
+                <li><a href="#shop/categories-bottoms" class="text-white hover:text-white/70 transition block" data-categories="Bottoms" data-label="Bottoms">Bottoms</a></li>
+                <li><a href="#shop/categories-outerwear" class="text-white hover:text-white/70 transition block" data-categories="Outerwear" data-label="Outerwear">Outerwear</a></li>
+                <li><a href="#shop/categories-accessories" class="text-white hover:text-white/70 transition block" data-categories="Accessories" data-label="Accessories">Accessories</a></li>
+              </ul>
+              
+              <h3 class="text-xl font-bold mt-8 mb-4 border-b border-white/10 pb-2">FILTER</h3>
+              <div class="space-y-3 text-sm">
+                <div class="space-y-2">
+                  <label for="shop-sort-select" class="text-gray-300 uppercase tracking-[0.2em] text-[11px]">Sort</label>
+                  <select id="shop-sort-select" class="w-full bg-neutral-900 border border-white/15 p-2 text-white text-sm focus:outline-none focus:border-white/40">
+                    <option value="newest">Newest</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name-asc">Name: A to Z</option>
+                  </select>
+                </div>
+                <p class="text-gray-300">Basic Filters (Static for Demo)</p>
+                <label class="flex items-center text-gray-300">
+                  <input type="checkbox" class="form-checkbox text-white bg-gray-700 border-gray-600 mr-2 focus:ring-2 focus:ring-white">
+                  In Stock
+                </label>
+                <label class="flex items-center text-gray-500">
+                  <input type="checkbox" checked class="form-checkbox text-white bg-gray-700 border-gray-600 mr-2 focus:ring-2 focus:ring-white">
+                  On Sale
+                </label>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Product Grid (Main Content) - DYNAMICALLY POPULATED HERE -->
+         <!---->  <section class="flex-1">
+            <div id="shop-product-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              <!-- Products will be injected by JavaScript here -->
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div id="wishlist-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8">
+        <h2 class="text-5xl font-extrabold mb-6 text-white tracking-tighter">YOUR WISHLIST</h2>
+        <p id="wishlist-page-copy" class="text-gray-400 mb-8 max-w-3xl border-l-4 border-white/20 pl-4">Sign in with Google to save products to your wishlist.</p>
+        <section class="flex-1">
+          <div id="wishlist-product-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
+        </section>
+      </div>
+    </div>
+
+    <div id="account-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div class="flex items-start justify-between gap-4 mb-8">
+          <div>
+            <h2 class="text-5xl font-extrabold text-white tracking-tighter">MY ACCOUNT</h2>
+            <p id="account-page-copy" class="text-gray-400 mt-3">Sign in to manage your profile and view order history.</p>
+          </div>
+          <button id="account-signout-button" type="button" class="hidden px-5 py-2 border border-white/30 text-white text-xs uppercase tracking-[0.2em] hover:border-white transition">Sign Out</button>
+        </div>
+
+        <div id="account-auth-gate" class="border border-white/10 bg-neutral-900/50 p-6 text-center mb-8">
+          <p class="text-gray-300 mb-4">You need to sign in first.</p>
+          <button type="button" id="account-signin-button" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Sign in with Google</button>
+        </div>
+
+        <div id="account-content" class="hidden-account grid grid-cols-1 lg:grid-cols-3 gap-8" style="display:none;">
+          <section class="lg:col-span-1 border border-white/10 bg-neutral-900/40 p-6">
+            <h3 class="text-xl font-bold mb-4 border-b border-white/10 pb-2">Profile</h3>
+            <form id="account-profile-form" class="space-y-4">
+              <div>
+                <label for="account-email" class="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-2">Email</label>
+                <input id="account-email" type="email" readonly class="w-full bg-neutral-800 border border-white/10 p-2 text-gray-400" />
+              </div>
+              <div>
+                <label for="account-full-name" class="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-2">Full Name</label>
+                <input id="account-full-name" type="text" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+              </div>
+              <div>
+                <label for="account-phone" class="block text-xs uppercase tracking-[0.2em] text-gray-400 mb-2">Phone</label>
+                <input id="account-phone" type="tel" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+              </div>
+              <div>
+                <label class="inline-flex items-center gap-2 text-sm text-gray-300">
+                  <input id="account-marketing-opt-in" type="checkbox" class="form-checkbox text-white bg-neutral-800 border-white/20">
+                  Receive drop announcements
+                </label>
+              </div>
+              <button id="account-save-profile" type="submit" class="w-full py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Save Profile</button>
+              <p id="account-profile-status" class="text-xs text-gray-400 min-h-4"></p>
+            </form>
+          </section>
+
+          <section class="lg:col-span-2 border border-white/10 bg-neutral-900/40 p-6">
+            <div class="flex items-center justify-between gap-3 mb-4 border-b border-white/10 pb-2">
+              <h3 class="text-xl font-bold">Order History</h3>
+              <div class="flex items-center gap-2">
+                <a href="#cancel" class="px-3 py-2 border border-white/20 text-xs uppercase tracking-[0.2em] hover:border-white transition">Cancel Order</a>
+                <button id="account-refresh-orders" type="button" class="px-3 py-2 border border-white/20 text-xs uppercase tracking-[0.2em] hover:border-white transition">Refresh</button>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mb-3">Need to reverse a recent order? Use your 8-digit cancel code within 12 hours.</p>
+            <div id="account-orders-list" class="space-y-3">
+              <p class="text-sm text-gray-400">No orders yet.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 3b. ABOUT PAGE -->
+    <!-- ============================================== -->
+    <div id="about-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-10">
+        <div class="flex flex-col lg:flex-row gap-10 lg:items-center">
+          <div class="space-y-4">
+            <p class="text-xs uppercase tracking-[0.35em] text-white/60">About Genki</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Streetwear built for real life, not just the gram.</h1>
+            <p class="text-gray-300 leading-relaxed">GENKI is an independent label shaped by the cities we move through and the people who wear our stuff daily. We design practical, durable pieces with bold graphics and playful drops—then hand the mic to the community to show how it really lives.</p>
+            <div class="flex flex-wrap gap-3">
+              <a href="#shop" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Shop the collection</a>
+              <a href="#lookbook-main" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">See the lookbook</a>
+            </div>
+          </div>
+          <div class="relative flex-1">
+            <div class="absolute inset-4 bg-gradient-to-br from-white/10 via-white/5 to-transparent blur-3xl pointer-events-none"></div>
+            <img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748940/I0P8IHJ_oxbf46.webp" alt="GENKI look" class="relative w-full h-full object-cover border border-white/10 shadow-2xl">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Who we are</p>
+            <h3 class="text-xl font-semibold">Independent & community-led</h3>
+            <p class="text-gray-400 text-sm">Small team, big output. We drop limited runs and amplify photos from the people actually wearing them.</p>
+          </div>
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">What we make</p>
+            <h3 class="text-xl font-semibold">Utility with attitude</h3>
+            <p class="text-gray-400 text-sm">Oversized hoods, packable layers, graphic tees, and accessories built to survive late nights and early trains.</p>
+          </div>
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Why we do it</p>
+            <h3 class="text-xl font-semibold">Make life less beige</h3>
+            <p class="text-gray-400 text-sm">We’re here to add color and character to everyday fits—made to be worn hard, not kept in the closet.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="bg-neutral-900/60 border border-white/10 p-4 text-center">
+            <div class="text-3xl font-bold text-white">30+</div>
+            <p class="text-xs uppercase tracking-[0.2em] text-gray-400 mt-2">Unique SKUs</p>
+          </div>
+         
+          <div class="bg-neutral-900/60 border border-white/10 p-4 text-center">
+            <div class="text-3xl font-bold text-white">Community</div>
+            <p class="text-xs uppercase tracking-[0.2em] text-gray-400 mt-2">Lookbook first</p>
+          </div>
+          <div class="bg-neutral-900/60 border border-white/10 p-4 text-center">
+            <div class="text-3xl font-bold text-white">Made to last</div>
+            <p class="text-xs uppercase tracking-[0.2em] text-gray-400 mt-2">Stitch & fabric tested</p>
+          </div>
+        </div>
+
+        <div class="bg-neutral-900/50 border border-white/10 p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Community</p>
+            <h3 class="text-2xl font-bold mb-2">Send us your fits</h3>
+            <p class="text-gray-300 text-sm mb-3">We feature user shots in the lookbook. Tag us or drop a link and we’ll shout you out.</p>
+            <a href="#lookbook-main" class="text-sm underline underline-offset-4 hover:text-white transition">View the lookbook</a>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748929/2hW9VA8_nnfzy0.webp" alt="Look 1" class="h-28 w-full object-cover border border-white/10">
+            <img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748940/I0P8IHJ_oxbf46.webp" alt="Look 2" class="h-28 w-full object-cover border border-white/10">
+            <img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762752906/6EiT5o1_nhvhwf.webp" alt="Look 3" class="h-28 w-full object-cover border border-white/10">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 3c. COLLABS PAGE -->
+    <!-- ============================================== -->
+    <div id="collabs-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
+        <div class="flex flex-col lg:flex-row gap-8 lg:items-center">
+          <div class="space-y-4">
+            <p class="text-xs uppercase tracking-[0.35em] text-white/60">Collabs</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Let’s build something together.</h1>
+            <p class="text-gray-300 leading-relaxed">We collaborate with artists, bands, crews, and brands that share our love for bold graphics and functional gear. Limited drops, small runs, big impact.</p>
+            <div class="flex flex-wrap gap-3">
+              <a href="/cdn-cgi/l/email-protection#83e2fafae9e2fafaade4e6ede8eac3e4eee2eaefade0ecee" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Email <span class="__cf_email__" data-cfemail="204159594a4159590e47454e4b4960474d41494c0e434f4d">[email&#160;protected]</span></a>
+              <a href="#new" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">View recent drops</a>
+            </div>
+          </div>
+          <div class="relative flex-1">
+            <div class="absolute inset-4 bg-gradient-to-br from-white/10 via-white/5 to-transparent blur-3xl pointer-events-none"></div>
+            <img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748929/2hW9VA8_nnfzy0.webp" alt="Collab visual" class="relative w-full h-full object-cover border border-white/10 shadow-2xl">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Types</p>
+            <h3 class="text-xl font-semibold">Artist & band merch</h3>
+            <p class="text-gray-400 text-sm">Short-run tees, hoods, hats, and accessories with split revenue and shared promo.</p>
+          </div>
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Process</p>
+            <h3 class="text-xl font-semibold">Co-design sprints</h3>
+            <p class="text-gray-400 text-sm">We swap moodboards, prototypes, and samples fast—then drop limited capsules.</p>
+          </div>
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Distribution</p>
+            <h3 class="text-xl font-semibold">Shared spotlight</h3>
+            <p class="text-gray-400 text-sm">Featured in our shop, lookbook, and socials with your channels co-promoting.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 3d. CONTACT PAGE -->
+    <!-- ============================================== -->
+    <div id="contact-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
+        <div class="space-y-3">
+          <p class="text-xs uppercase tracking-[0.35em] text-white/60">Contact</p>
+          <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Hit us up.</h1>
+          <p class="text-gray-300 leading-relaxed">Questions, sizing help, wholesale, or press? Drop a line and we’ll get back fast.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-3">
+            <h3 class="text-xl font-semibold">General</h3>
+            <p class="text-gray-400 text-sm">Email: <a href="/cdn-cgi/l/email-protection#e4859d9d8e859d9dca83818a8f8da48389858d88ca878b89" class="underline underline-offset-4 hover:text-white"><span class="__cf_email__" data-cfemail="2f4e5656454e565601484a4144466f48424e4643014c4042">[email&#160;protected]</span></a></p>
+            <br>
+            <a href="https://www.instagram.com/weargenki/" class="text-gray-400 text-sm">DM: @WearGenki on IG</a>
+          <i class="fa fa-instagram" style="font-size:48px;color:red"></i>
+          </div>
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-3">
+            <h3 class="text-xl font-semibold">Collabs & Press</h3>
+            <p class="text-gray-400 text-sm"><a href="/cdn-cgi/l/email-protection#d7b6aeaebdb6aeaef9b0b2b9bcbe97b0bab6bebbf9b4b8bae8a4a2b5bdb2b4a3ea94b8bbbbb6b5" class="underline underline-offset-4 hover:text-white">Reach out to Collab</a></p>
+            <p class="text-gray-400 text-sm">Press kit on request.</p>
+          </div>
+        </div>
+
+        <div class="bg-neutral-900/50 border border-white/10 p-6 space-y-4">
+          <h3 class="text-xl font-semibold">Need help fast?</h3>
+          <p class="text-gray-300 text-sm">Check FAQs or ping us with your order number for returns/exchanges.</p>
+          <div class="flex flex-wrap gap-3">
+            <a href="#shop" class="px-5 py-3 bg-white text-black font-semibold uppercase tracking-widest text-xs hover:bg-gray-200 transition">Shop</a>
+            <a href="#lookbook-main" class="px-5 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-xs hover:border-white transition">Lookbook</a>
+            <a href="#cancel" class="px-5 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-xs hover:border-white transition">Cancel Order</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 3d. CHECKOUT PAGE -->
+    <!-- ============================================== -->
+    <div id="checkout-page" class="hidden fixed inset-0 z-[80] bg-black/95 p-3 sm:p-6 lg:p-10 overflow-y-auto">
+      <div id="checkout-modal-panel" class="max-w-6xl mx-auto bg-[#0d0d0d] border border-white/15 p-4 sm:p-6 lg:p-8 relative">
+        <button id="checkout-close" type="button" aria-label="Close checkout" class="absolute top-3 right-3 w-10 h-10 border border-white/25 text-white/80 hover:text-white hover:border-white transition flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+        <div class="px-0 max-w-6xl mx-auto space-y-8">
+          <div id="checkout-step-shipping" class="space-y-8">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="space-y-2">
+                <p class="text-xs uppercase tracking-[0.35em] text-white/60">Checkout</p>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Review Your Order</h1>
+                <p class="text-yellow-400 leading-relaxed">Genki is officially live. Not ready to checkout yet? Submit an order and we'll hold it for you. Pay when you're ready.</p>
+              </div>
+              <a href="#shop" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Continue shopping</a>
+            </div>
+
+            <div class="grid gap-8 lg:grid-cols-12">
+              <section class="lg:col-span-7 space-y-4">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-xl font-semibold tracking-wide">Your cart</h2>
+                  <span class="text-xs text-gray-400 uppercase tracking-[0.3em]">Items</span>
+                </div>
+                <div id="cart-items" class="space-y-4"></div>
+                <div class="border-t border-white/10 pt-4 flex items-center justify-between">
+                  <span class="text-sm text-gray-400">Subtotal</span>
+                  <span id="cart-subtotal" class="text-lg font-bold">$0.00</span>
+                </div>
+              </section>
+
+              <section id="checkout-form" class="lg:col-span-5 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+                <h2 class="text-xl font-semibold tracking-wide">Shipping Details</h2>
+                <p class="text-xs text-gray-400">Continue to payment to add your card and promo code.</p>
+                <div class="space-y-3">
+                  <input id="sq-name" type="text" placeholder="Full name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <input id="sq-email" type="email" placeholder="Email" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <div class="flex flex-col gap-3 sm:flex-row">
+                    <input id="sq-address" type="text" placeholder="Shipping address" class="w-full flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-address-2" type="text" placeholder="Apt, suite (optional)" class="w-full flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
+                  </div>
+                  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <input id="sq-city" type="text" placeholder="City" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-state" type="text" placeholder="State" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-zip" type="text" placeholder="ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  </div>
+                  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <input id="sq-country" type="text" placeholder="Country" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-phone" type="tel" placeholder="Phone number" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  </div>
+                  <textarea id="sq-notes" type="text" placeholder="Extra Notes (optional)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
+                  <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                    <button id="checkout-continue" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Continue to Payment</button>
+                    <p class="text-xs uppercase tracking-[0.25em] text-white/60 whitespace-nowrap">or</p>
+                    <button id="square-pay-later" class="w-full py-3 border border-white/20 text-white font-bold tracking-widest hover:border-white transition">Submit Request</button>
+                  </div>
+                  <p class="text-xs text-gray-500">Submit Request does not place a paid order.</p>
+                  <p id="checkout-error" class="text-sm text-red-400 hidden"></p>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div id="checkout-step-payment" class="hidden space-y-8">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="space-y-2">
+                <p class="text-xs uppercase tracking-[0.35em] text-white/60">Payment</p>
+                <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Add Payment Details</h1>
+                <p class="text-gray-400 leading-relaxed">Promo codes, shipping, and final total are shown here.</p>
+              </div>
+              <button id="checkout-back" type="button" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Back to shipping</button>
+            </div>
+
+            <div class="grid gap-8 lg:grid-cols-12">
+              
+
+              <section class="lg:col-span-5 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+                <h2 class="text-xl font-semibold tracking-wide">Order Summary</h2>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between text-sm text-gray-400">
+                    <span>Subtotal</span>
+                    <span id="payment-subtotal" class="text-white font-semibold">$0.00</span>
+                  </div>
+                  <div class="flex items-center justify-between text-sm text-gray-400">
+                    <span>Shipping</span>
+                    <span id="payment-shipping" class="text-white font-semibold">$0.00</span>
+                  </div>
+                  <div class="border-t border-white/10 pt-3 flex items-center justify-between text-lg font-semibold">
+                    <span>Total</span>
+                    <span id="payment-total">$0.00</span>
+                  </div>
+                </div>
+              </section>
+              <section class="lg:col-span-7 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+                <h2 class="text-xl font-semibold tracking-wide">Payment & Promo</h2>
+                <div class="space-y-3">
+                  <div>
+                    <label class="text-xs uppercase tracking-[0.3em] text-white/60">Promo code</label>
+                    <input id="sq-promo" type="text" placeholder="Enter promo code (optional)" class="mt-2 w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  </div>
+                  <div class="space-y-2 border border-white/10 p-3">
+                    <p class="text-xs uppercase tracking-[0.3em] text-white/60">Card details</p>
+                    <input id="sq-cardholder-name" type="text" placeholder="Cardholder name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <input id="sq-billing-zip" type="text" placeholder="Billing ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-gray-400" />
+                    <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div>
+                  </div>
+                  <button id="square-pay" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Pay Now</button>
+                  <p class="text-xs text-gray-500">Pay Now captures payment securely.</p>
+                  <p id="square-error" class="text-sm text-red-400 hidden"></p>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="newsletter-modal" class="hidden fixed inset-0 z-[85] bg-black/90 p-4 sm:p-6 overflow-y-auto">
+      <div id="newsletter-modal-panel" class="max-w-xl mx-auto bg-[#0d0d0d] border border-white/15 p-5 sm:p-6 relative mt-12 sm:mt-20">
+        <button id="newsletter-close" type="button" aria-label="Close newsletter signup" class="absolute top-3 right-3 w-10 h-10 border border-white/25 text-white/80 hover:text-white hover:border-white transition flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+        <p class="text-xs uppercase tracking-[0.35em] text-white/60">Newsletter</p>
+        <h2 class="text-3xl font-extrabold tracking-tight mt-2">Weekly Updates + Monthly Drops</h2>
+        <p class="text-sm text-gray-300 mt-3">Get launch reminders, restock notes, and drop-day alerts.</p>
+        <form id="newsletter-form" class="mt-5 space-y-3">
+          <input id="newsletter-email" type="email" required placeholder="Email address" class="w-full bg-neutral-800 border border-white/10 p-3 text-white" />
+          <button id="newsletter-submit" type="submit" class="w-full py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Sign me up</button>
+        </form>
+        <p id="newsletter-status" class="text-xs text-gray-400 mt-3 hidden"></p>
+      </div>
+    </div>
+    <div id="newsletter-fab" class="hidden fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] max-w-[22rem]">
+      <div class="border border-white/20 bg-black/90 backdrop-blur px-4 py-3 shadow-2xl">
+        <button id="newsletter-fab-dismiss" type="button" aria-label="Dismiss newsletter prompt" class="absolute -top-2 -right-2 w-7 h-7 border border-white/30 bg-black text-white/80 hover:text-white hover:border-white transition flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+        <p class="text-[10px] uppercase tracking-[0.28em] text-white/60">Newsletter</p>
+        <p class="text-sm text-gray-200 mt-1">Weekly updates and drop alerts.</p>
+        <button id="newsletter-fab-open" type="button" class="mt-3 w-full py-2.5 bg-white text-black font-semibold uppercase tracking-widest text-xs hover:bg-gray-200 transition">Sign Up</button>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 3e. CHECKOUT SUCCESS PAGE -->
+    <!-- ============================================== -->
+    <div id="checkout-success-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto text-center space-y-4">
+        <p class="text-xs uppercase tracking-[0.35em] text-white/60">Success</p>
+        <h1 id="checkout-success-title" class="text-4xl md:text-5xl font-extrabold tracking-tight">Order received</h1>
+        <p id="checkout-success-copy" class="text-gray-300 leading-relaxed">We'll process your order shortly. Check your email for the receipt.</p>
+        <p class="text-sm text-gray-400">Cancel code: <span id="checkout-cancel-code" class="text-white font-semibold tracking-widest">—</span></p>
+        <p class="text-xs text-gray-500">You can cancel this order within <span id="checkout-cancel-window">12</span> hours.</p>
+        <div class="bg-neutral-900/60 border border-white/10 p-4 text-left space-y-3">
+          <p class="text-xs uppercase tracking-[0.3em] text-white/60">Cancel Request</p>
+          <p class="text-xs text-gray-400">Submit your email and cancel code. This sends a cancellation request to our inbox.</p>
+          <input id="cancel-email" type="email" placeholder="Order email" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+          <input id="cancel-code-input" type="text" inputmode="numeric" maxlength="8" placeholder="8-digit cancel code" class="w-full bg-neutral-800 border border-white/10 p-2 text-white tracking-widest" />
+          <textarea id="cancel-reason" placeholder="Optional note (e.g., ordered by mistake)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
+          <button id="cancel-submit" class="w-full py-3 border border-white/20 text-white font-semibold uppercase tracking-widest text-xs hover:border-white transition">Submit Cancel Request</button>
+          <p id="cancel-submit-status" class="text-xs hidden"></p>
+        </div>
+        <div class="flex items-center justify-center gap-3">
+          <a href="#shop" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Back to shop</a>
+          
+          <a href="#home" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">Back Home</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 3f. CANCEL PAGE -->
+    <!-- ============================================== -->
+    <div id="cancel-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-6">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-[0.35em] text-white/60">Cancel</p>
+          <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Cancel an order request</h1>
+          <p class="text-gray-300">Enter the email used at checkout and your 8-digit cancel code. We will receive your cancel request by email.</p>
+          <p class="text-xs text-gray-500">Requests after the 12-hour window may not be eligible.</p>
+        </div>
+        <div class="bg-neutral-900/60 border border-white/10 p-4 text-left space-y-3">
+          <input id="cancel-page-email" type="email" placeholder="Order email" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+          <input id="cancel-page-code" type="text" inputmode="numeric" maxlength="8" placeholder="8-digit cancel code" class="w-full bg-neutral-800 border border-white/10 p-2 text-white tracking-widest" />
+          <textarea id="cancel-page-reason" placeholder="Optional note" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
+          <button id="cancel-page-submit" class="w-full py-3 border border-white/20 text-white font-semibold uppercase tracking-widest text-xs hover:border-white transition">Submit Cancel Request</button>
+          <p id="cancel-page-status" class="text-xs hidden"></p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="#shop" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Back to shop</a>
+          <a href="#contact" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">Need help?</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 4. LOOKBOOK ITEM PAGE (single look detail) -->
+    <div id="lookbook-item-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8">
+        <a href="#home" class="text-sm text-gray-400 hover:text-white mb-6 flex items-center transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="m15 18-6-6 6-6"></path></svg>
+          Back to Home
+        </a>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-4 items-start">
+          <div>
+            <img id="look-main-image" src="https://placehold.co/1200x1600/222222/cccccc?text=Look+Main" alt="Look Main" class="w-full object-cover shadow-xl border border-white/10">
+          </div>
+          <div class="space-y-6">
+            <h1 id="look-title" class="text-4xl md:text-5xl font-extrabold">Look Title</h1>
+            <p id="look-caption" class="text-gray-400">A short caption and styling notes for this look.</p>
+            <div>
+              <a id="look-linked-product" href="#" class="inline-block px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">View Product</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 4b. LOOKBOOK MAIN PAGE (Full gallery of user + brand photos) -->
+    <!-- ============================================== -->
+    <div id="lookbook-main-page" class="page-content py-24">
+      <div class="w-full space-y-8">
+        <div class="px-4 sm:px-6 lg:px-10 flex items-center justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.35em] text-white/60">Lookbook</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">People & Fits</h1>
+            <p class="text-gray-400 max-w-2xl mt-2">Submissions from the GENKI community plus in-house looks we shoot for fun. Tag @WearGenki on social media to be featured — or submit your photos directly. Either way, get involved.</p>
+          </div>
+          <a href="#home" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Back</a>
+        </div>
+
+        <div id="lookbook-main-grid" class="look-main-collage px-1 sm:px-2 lg:px-3">
+          <!-- Cards injected via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 5. PRODUCT DETAIL PAGE (Placeholder for any product click) -->
+    <!-- ============================================== -->
+    <div id="product-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <!-- ACCENT CHANGE: hover:text-red-600 -> hover:text-white -->
+        <a href="#shop" class="text-sm text-gray-400 hover:text-white mb-6 flex items-center transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="m15 18-6-6 6-6"></path></svg>
+          Back to All Products
+        </a>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-4">
+          <!-- Image Gallery (All images and containers are sharp) -->
+          <div class="space-y-4">
+            <div id="product-main-image-viewport" class="relative overflow-hidden bg-neutral-900 select-none touch-pan-y">
+              <img id="product-main-image" src="https://placehold.co/1200x1600/333333/ffffff?text=Oversized+Hoodie+%28Front%29" alt="Product Main Image" class="w-full shadow-xl border border-white/10" style="max-height:65vh; aspect-ratio: 4 / 5; object-fit: contain; width:100%; height:auto; transform-origin:center center; transform:translate3d(0,0,0) scale(1); transition:transform 160ms ease; will-change:transform; cursor:zoom-in;">
+              <button id="product-thumbs-prev" type="button" aria-label="Previous image" class="product-gallery-nav-btn absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center border border-white/25 bg-black/40 hover:border-white transition disabled:opacity-35 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button id="product-thumbs-next" type="button" aria-label="Next image" class="product-gallery-nav-btn absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center border border-white/25 bg-black/40 hover:border-white transition disabled:opacity-35 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <div class="space-y-2">
+              <p class="text-xs uppercase tracking-[0.25em] text-white/50">Gallery</p>
+              <div id="product-thumbs" class="grid grid-cols-3 gap-4">
+                <img data-index="0" class="product-thumb w-full h-32 object-cover border border-white/10 cursor-pointer hover:opacity-80 transition" src="https://placehold.co/600x600/444444/ffffff?text=Detail+1" alt="Thumb 1">
+                <img data-index="1" class="product-thumb w-full h-32 object-cover border border-white/10 cursor-pointer hover:opacity-80 transition" src="https://placehold.co/600x600/555555/ffffff?text=Detail+2" alt="Thumb 2">
+                <img data-index="2" class="product-thumb w-full h-32 object-cover border border-white/10 cursor-pointer hover:opacity-80 transition" src="https://placehold.co/600x600/666666/ffffff?text=Back+View" alt="Thumb 3">
+              </div>
+            </div>
+          </div>
+          <!-- Product Details -->
+          <div class="space-y-8">
+            <div class="border-b border-white/10 pb-6">
+              <div class="flex items-center gap-2">
+                <span id="product-badge" class="text-xs font-medium uppercase tracking-widest text-white border border-white/50 px-1 py-0.5 inline-block">New Arrival</span>
+                <span id="product-urgency-badge" class="text-xs font-medium tracking-widest text-white border border-amber-400/60 px-1 py-0.5 hidden">Archiving</span>
+              </div>
+              <h1 id="product-title" class="text-4xl md:text-5xl font-extrabold mt-1 mb-2"></h1>
+              <p id="product-price" class="text-3xl font-light text-white"></p>
+            </div>
+
+            <!-- Variant Selectors (Skull first, then Hoodie) -->
+            <div id="product-skull-block">
+              <p class="text-lg font-semibold mb-3"><span id="product-skull-label">Skull</span>: <span id="product-skull-name" class="text-white">-</span></p>
+              <div id="product-skull-colors" class="flex space-x-3">
+                <!-- Skull options injected when available -->
+              </div>
+            </div>
+            <div id="product-hoodie-block" class="mt-4">
+              <p class="text-lg font-semibold mb-3"><span id="product-hoodie-label">Color</span>: <span id="product-hoodie-name" class="text-white">-</span></p>
+              <div id="product-hoodie-colors" class="flex space-x-3">
+                <!-- Colors dynamically injected by JS -->
+              </div>
+            </div>
+
+            <!-- Size Selector (dynamic per product) -->
+            <div id="product-size-block">
+              <p class="text-lg font-semibold mb-3">Size: <span id="product-size-name" class="text-white">-</span></p>
+              <div id="product-sizes" class="grid grid-cols-4 gap-2 max-w-sm">
+                <!-- Sizes injected by JS -->
+              </div>
+              <a href="#size-guide" class="text-sm text-gray-500 mt-2 block hover:text-white transition">View Size Guide</a>
+            </div>
+            
+            <!-- Add to Cart Button is sharp -->
+            <button id="product-add-to-cart" class="w-full py-4 bg-white text-black font-extrabold uppercase tracking-widest text-lg hover:bg-gray-200 transition duration-150 shadow-2xl">ADD TO CART</button>
+            <button id="product-wishlist-toggle" class="mt-3 w-full py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition duration-150">ADD TO WISHLIST</button>
+
+            <!-- Description -->
+            <div>
+              <p class="text-lg font-semibold mb-3">Details & Fit</p>
+              <ul id="product-details-list" class="text-gray-400 text-sm space-y-2 list-disc list-inside">
+                <!-- details populated by JS -->
+              </ul>
+            </div>
+            <div class="pt-4 border-t border-white/10">
+              <p class="text-lg font-semibold mb-3">More Like This</p>
+              <div id="related-products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 5b. SIZE GUIDE PAGE -->
+    <!-- ============================================== -->
+    <div id="size-guide-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-8">
+        <div class="space-y-2">
+          <p class="text-xs uppercase tracking-[0.35em] text-white/60">Size Guide</p>
+          <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Fit & Measurements</h1>
+          <p class="text-gray-300">Use this guide to choose your best fit. If you prefer oversized styling, go one size up.</p>
+        </div>
+        <div class="overflow-x-auto border border-white/10">
+          <table class="w-full text-sm">
+            <thead class="bg-neutral-900/80">
+              <tr class="text-left">
+                <th class="p-3 border-b border-white/10">Size</th>
+                <th class="p-3 border-b border-white/10">Chest (in)</th>
+                <th class="p-3 border-b border-white/10">Length (in)</th>
+                <th class="p-3 border-b border-white/10">Sleeve (in)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-white/10"><td class="p-3">S</td><td class="p-3">34-36</td><td class="p-3">27</td><td class="p-3">24</td></tr>
+              <tr class="border-b border-white/10"><td class="p-3">M</td><td class="p-3">38-40</td><td class="p-3">28</td><td class="p-3">24.5</td></tr>
+              <tr class="border-b border-white/10"><td class="p-3">L</td><td class="p-3">42-44</td><td class="p-3">29</td><td class="p-3">25</td></tr>
+              <tr class="border-b border-white/10"><td class="p-3">XL</td><td class="p-3">46-48</td><td class="p-3">30</td><td class="p-3">25.5</td></tr>
+              <tr><td class="p-3">2XL</td><td class="p-3">50-52</td><td class="p-3">31</td><td class="p-3">26</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="#shop" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Back to shop</a>
+          <a href="#contact" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">Need sizing help?</a>
+        </div>
+      </div>
+    </div>
+
+
+  </main>
+
+   <!-- FormSubmit order slip (test mode, no payment) -->
+  <form id="order-slip-form" action="https://formsubmit.co/ayyjayy.genki@gmail.com" method="POST" class="hidden">
+    <input type="text" name="_honey" tabindex="-1" autocomplete="off" />
+    <input type="hidden" name="_subject" value="New order request (test)" />
+    <input type="hidden" name="_template" value="table" />
+    <input type="hidden" name="_captcha" value="false" />
+    <input type="hidden" name="_next" />
+    <input type="hidden" name="subtotal" />
+    <input type="hidden" name="shipping_cost" />
+    <input type="hidden" name="total" />
+    <input type="hidden" name="name" />
+    <input type="hidden" name="email" />
+    <input type="hidden" name="phone" />
+    <input type="hidden" name="shipping_details" />
+    <input type="hidden" name="notes" />
+    <input type="hidden" name="items" />
+    <input type="hidden" name="promo_code" />
+    <input type="hidden" name="cancel_code" />
+    <input type="hidden" name="cancel_window_hours" />
+  </form>
+  <form id="cancel-slip-form" action="https://formsubmit.co/ayyjayy.genki@gmail.com" method="POST" class="hidden">
+    <input type="text" name="_honey" tabindex="-1" autocomplete="off" />
+    <input type="hidden" name="_subject" value="Cancel request" />
+    <input type="hidden" name="_template" value="table" />
+    <input type="hidden" name="_captcha" value="false" />
+    <input type="hidden" name="cancel_code" />
+    <input type="hidden" name="email" />
+    <input type="hidden" name="reason" />
+    <input type="hidden" name="within_window" />
+    <input type="hidden" name="local_match" />
+    <input type="hidden" name="submitted_at" />
+  </form>
+ 
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="./genki-config.js"></script>
+  <script src="./.genki-secrets.js"></script>
+  
+
+  <!-- --- END MAIN CONTENT --- -->
+
+  <!-- FOOTER - FULL WIDTH -->
+  <footer class="bg-black border-t border-white/10 mt-auto py-10">
+    <div class="w-full px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+      <p class="text-xl font-bold tracking-widest mb-4">GENKI</p>
+      <div class="flex justify-center space-x-6 text-sm mb-6">
+        <!-- Footer links are now functional -->
+        <a href="#shop" class="hover:text-white transition">Shop</a>
+       
+        <a href="#about" class="hover:text-white transition">About</a>
+        <a href="#collabs" class="hover:text-white transition">Collabs</a>
+        <a href="#contact" class="hover:text-white transition">Contact</a>
+      </div>
+      <p class="text-xs">&copy; 2023 GENKI Streetwear. All rights reserved.</p>
+      <p class="text-xs mt-2">Designed and built by AyyJayyMcFae.</p>
+    </div>
+  </footer>
+
+
+    <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Genki Scripts (load order matters) -->
+  <script src="./scripts/products.js?v=1.0.04"></script>
+  <script src="./scripts/cart.js?v=1.0.04"></script>
+  <script src="./scripts/ticker.js?v=1.0.04"></script>
+  <script src="./scripts/auth.js?v=1.0.04"></script>
+  <script src="./scripts/ui.js?v=1.0.04"></script>
+  <script src="./scripts/milestone.js?v=1.0.04"></script>
+  <script src="./scripts/router.js?v=1.0.04"></script>
+
+</body>
+
+</html>
