@@ -191,11 +191,7 @@
 
   // ── Router ────────────────────────────────────────────────────
   function route() {
-    if (window.location.hash.includes('access_token')) {
-      const fallback = window.__GENKI_LAST_ROUTE_HASH || '#home';
-      window.location.hash = fallback;
-      return;
-    }
+    if (window.location.hash.includes('access_token')) return;
     const fullHash = window.location.hash || '#home';
     const hashWithoutQuery = fullHash.split('?')[0];
     const hashParts = hashWithoutQuery.split('/');
