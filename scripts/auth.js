@@ -270,11 +270,6 @@ if (!authState.user) authState.isVanguard = false;
   }
 
   window.renderAccountPage = async function () {
-    if (!authState.supabaseClient) { setAccountViewSignedIn(false); return; }
-    if (!authState.user) {
-      const { data } = await authState.supabaseClient.auth.getSession();
-      authState.user = data?.session?.user || null;
-    }
     if (!authState.user) {
       setAccountViewSignedIn(false);
       const list = document.getElementById('account-orders-list');
