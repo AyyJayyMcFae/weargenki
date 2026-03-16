@@ -355,7 +355,7 @@ if (!authState.user) authState.isVanguard = false;
       body: JSON.stringify({ email: session.user.email, _subject: 'New Genki Account Created' }),
     });
   }
-  if (_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION') window.updateAuthUi();
+  if (_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION' || _event === 'TOKEN_REFRESHED') window.updateAuthUi();
 });
   await window.refreshAuthState();
 };
