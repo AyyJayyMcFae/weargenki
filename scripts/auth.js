@@ -94,8 +94,8 @@ const authState = {
 
   // ── UI sync ──────────────────────────────────────────────────
   window.updateAuthUi = function () {
+    console.trace('updateAuthUi called, user:', authState.user?.email);
     const user = authState.user;
-    console.log('updateAuthUi called, user:', user?.email, 'hash:', window.location.hash);
     const authChip = document.getElementById('auth-chip');
     const authButton = document.getElementById('auth-button');
     const wishlistCount = document.getElementById('wishlist-count');
