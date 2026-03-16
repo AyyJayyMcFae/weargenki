@@ -385,12 +385,12 @@
 
   // ── Boot ──────────────────────────────────────────────────────
   async function bootApp() {
-    initAnnouncementTicker();
-    await window.initSupabaseWishlist?.();
-    route();
-    syncNewsletterPromptVisibility();
-    window.updateAuthUi?.();
-  }
+  await window.initSupabaseWishlist?.();
+  route();
+  initAnnouncementTicker(); // ← moved here, after route()
+  syncNewsletterPromptVisibility();
+  window.updateAuthUi?.();
+}
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootApp, { once: true });
