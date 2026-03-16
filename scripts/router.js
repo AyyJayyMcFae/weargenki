@@ -389,7 +389,6 @@
   route();
   setTimeout(() => initAnnouncementTicker(), 300);
   syncNewsletterPromptVisibility();
-  window.updateAuthUi?.();
 }
 
   if (document.readyState === 'loading') {
