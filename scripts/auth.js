@@ -333,26 +333,26 @@ if (!authState.user) authState.isVanguard = false;
 
   // ── Init ─────────────────────────────────────────────────────
   window.initSupabaseWishlist = async function () {
-    console.log(_event, session?.user?.email);
-    bindAuthControls();
-    bindNewsletterForm();
-    if (!hasSupabaseConfig() || !window.supabase?.createClient) { window.updateAuthUi(); return; }
-    authState.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-    });
-    authState.supabaseClient.auth.onAuthStateChange(async (_event, session) => {
-      authState.user = session?.user || null;
-      await loadWishlistFromSupabase();
-      window.updateAuthUi();
-      if (_event === 'SIGNED_IN' && session?.user) {
-        await fetch('https://formsubmit.co/ayyjayy.genki@gmail.com', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: session.user.email, _subject: 'New Genki Account Created' }),
-        });
-      }
-      if (_event === 'INITIAL_SESSION') window.updateAuthUi();
-    });
-    await window.refreshAuthState();
-  };
+  bindAuthControls();
+  bindNewsletterForm();
+  if (!hasSupabaseConfig() || !window.supabase?.createClient) { window.updateAuthUi(); return; }
+  authState.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+  });
+  authState.supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    console.log(_event, session?.user?.email); // ← correct position
+    authState.user = session?.user || null;
+    await loadWishlistFromSupabase();
+    window.updateAuthUi();
+    if (_event === 'SIGNED_IN' && session?.user) {
+      await fetch('https://formsubmit.co/ayyjayy.genki@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.user.email, _subject: 'New Genki Account Created' }),
+      });
+    }
+    if (_event === 'INITIAL_SESSION') window.updateAuthUi();
+  });
+  await window.refreshAuthState();
+};
 })();
