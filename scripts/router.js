@@ -295,8 +295,9 @@
       renderShopGrid(sortProductsForShop(filtered, sortBy), title);
     }
 
-    if (pageId === 'wishlist-page') window.renderWishlistPage();
-    if (pageId === 'account-page') window.renderAccountPage();
+    if (pageId === 'wishlist-page' || pageId === 'account-page') {
+      window.refreshAuthState?.();
+    }
     if (pageId === 'lookbook-main-page') renderLookbookMain();
     if (pageId === 'product-page') renderProduct(baseHash.replace('#', ''));
     if (pageId === 'lookbook-item-page') renderLook(baseHash.replace('#', ''));
@@ -398,3 +399,4 @@
     bootApp();
   }
 })();
+
