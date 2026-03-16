@@ -390,11 +390,11 @@
 
   // ── Boot ──────────────────────────────────────────────────────
   async function bootApp() {
-  await window.initSupabaseWishlist?.();
-  route();
-  setTimeout(() => initAnnouncementTicker(), 300);
-  syncNewsletterPromptVisibility();
-}
+    window.initSupabaseWishlist?.();
+    route();
+    setTimeout(() => initAnnouncementTicker(), 300);
+    syncNewsletterPromptVisibility();
+  }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', bootApp, { once: true });
