@@ -161,6 +161,9 @@ const authState = {
 if (!authState.user) authState.isVanguard = false;
     await loadWishlistFromSupabase();
     window.updateAuthUi();
+    if (authState.user && window.location.hash.includes('access_token')) {
+      window.location.hash = window.__GENKI_LAST_ROUTE_HASH || '#home';
+    }
     if ((window.location.hash || '').split('?')[0] === '#account') window.renderAccountPage?.();
   };
 
@@ -362,8 +365,10 @@ if (!authState.user) authState.isVanguard = false;
     });
   }
   if (_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION' || _event === 'TOKEN_REFRESHED') window.updateAuthUi();
+  if ((_event === 'SIGNED_IN' || _event === 'INITIAL_SESSION') && session?.user && window.location.hash.includes('access_token')) {
+    window.location.hash = window.__GENKI_LAST_ROUTE_HASH || '#home';
+  }
 });
   await window.refreshAuthState();
 };
 })();
-
