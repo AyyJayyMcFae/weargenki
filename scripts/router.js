@@ -387,7 +387,7 @@
   async function bootApp() {
   await window.initSupabaseWishlist?.();
   route();
-  initAnnouncementTicker(); // ← moved here, after route()
+  setTimeout(() => initAnnouncementTicker(), 300);
   syncNewsletterPromptVisibility();
   window.updateAuthUi?.();
 }
