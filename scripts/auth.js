@@ -165,9 +165,11 @@ if (!authState.user) authState.isVanguard = false;
 
   // ── Account page ─────────────────────────────────────────────
   function setAccountViewSignedIn(signedIn) {
-    document.getElementById('account-auth-gate')?.classList.toggle('hidden', signedIn);
-    document.getElementById('account-content')?.classList.toggle('hidden', !signedIn);
-  }
+  const gate = document.getElementById('account-auth-gate');
+  const content = document.getElementById('account-content');
+  if (gate) gate.style.display = signedIn ? 'none' : 'block';
+  if (content) content.style.display = signedIn ? 'grid' : 'none';
+}
 
   function setAccountProfileStatus(msg = '', isError = false) {
     const el = document.getElementById('account-profile-status');
