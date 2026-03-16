@@ -191,6 +191,7 @@
 
   // ── Router ────────────────────────────────────────────────────
   function route() {
+    if (window.location.hash.includes('access_token')) return;
     const fullHash = window.location.hash || '#home';
     const hashWithoutQuery = fullHash.split('?')[0];
     const hashParts = hashWithoutQuery.split('/');
