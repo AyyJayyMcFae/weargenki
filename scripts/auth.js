@@ -161,8 +161,10 @@ const authState = {
   window.refreshAuthState = async function () {
     if (!authState.supabaseClient) { authState.user = null; authState.wishlistIds = new Set(); window.updateAuthUi(); return; }
     const { data } = await authState.supabaseClient.auth.getSession();
-    authState.user = data?.session?.user || null;
-if (!authState.user) authState.isVanguard = false;
+    const sessionUser = data?.session?.user || null;
+    if (sessionUser) authState.user = sessionUser;
+    else if (!authState.user) authState.user = null;
+    if (!authState.user) authState.isVanguard = false;
     await loadWishlistFromSupabase();
     window.updateAuthUi();
     if (authState.user && window.location.hash.includes('access_token')) {
