@@ -164,6 +164,11 @@ const authState = {
     if (!authState.supabaseClient) return;
     const { error } = await authState.supabaseClient.auth.signOut();
     if (error) { alert(error.message || 'Sign-out failed.'); return; }
+    try { window.localStorage?.removeItem('genki-auth'); } catch (_) {}
+    authState.user = null;
+    authState.wishlistIds = new Set();
+    authState.isVanguard = false;
+    window.updateAuthUi();
     if ((window.location.hash || '#home').split('?')[0] === '#account') window.location.hash = '#home';
   }
 
