@@ -167,11 +167,32 @@ const authState = {
   }
 
   async function signOutUser() {
+    const clearAuthStorage = () => {
+      try { window.localStorage?.removeItem('genki-auth'); } catch (_) {}
+      try {
+        const ls = window.localStorage;
+        if (!ls) return;
+        const keys = [];
+        for (let i = 0; i < ls.length; i++) {
+          const k = ls.key(i);
+          if (!k) continue;
+          if (/^sb-.*-auth-token$/.test(k) || (k.includes('supabase') && k.includes('auth'))) keys.push(k);
+        }
+        keys.forEach((k) => { try { ls.removeItem(k); } catch (_) {} });
+      } catch (_) {}
+    };
     if (authState.supabaseClient) {
-      const { error } = await authState.supabaseClient.auth.signOut();
-      if (error) { console.error('Sign-out failed:', error); }
+      const timeout = new Promise((resolve) => setTimeout(resolve, 2000));
+      try {
+        const signOutPromise = authState.supabaseClient.auth.signOut().then(({ error }) => {
+          if (error) { console.error('Sign-out failed:', error); }
+        });
+        await Promise.race([signOutPromise, timeout]);
+      } catch (e) {
+        console.error('Sign-out threw:', e);
+      }
     }
-    try { window.localStorage?.removeItem('genki-auth'); } catch (_) {}
+    clearAuthStorage();
     authState.user = null;
     authState.wishlistIds = new Set();
     authState.isVanguard = false;
