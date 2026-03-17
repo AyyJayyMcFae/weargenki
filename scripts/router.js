@@ -308,6 +308,7 @@
 
   window.addEventListener('hashchange', route);
   window.addEventListener('resize', initShopFiltersUI);
+  window.route = route;
 
   // ── Checkout modal ────────────────────────────────────────────
   const checkoutModal = document.getElementById('checkout-page');
