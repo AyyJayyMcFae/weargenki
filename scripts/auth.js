@@ -50,6 +50,15 @@ const authState = {
     return source.length > 22 ? `${source.slice(0, 22)}...` : source;
   }
 
+  function readUserFromStorage() {
+    try {
+      const raw = window.localStorage?.getItem('genki-auth');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed?.user || parsed?.session?.user || parsed?.currentSession?.user || null;
+    } catch (_) { return null; }
+  }
+
   function buildFormSubmitAjaxUrl(actionUrl) {
     const marker = 'https://formsubmit.co/';
     if (!actionUrl?.startsWith(marker)) return '';
@@ -384,6 +393,11 @@ const authState = {
     window.route?.();
   }
 });
+  const storedUser = readUserFromStorage();
+  if (storedUser) {
+    authState.user = storedUser;
+    window.updateAuthUi();
+  }
   async function hydrateSessionFromStorage(retries = 3) {
     for (let i = 0; i <= retries; i++) {
       const { data } = await authState.supabaseClient.auth.getSession();
