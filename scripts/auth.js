@@ -384,6 +384,21 @@ const authState = {
     window.route?.();
   }
 });
+  async function hydrateSessionFromStorage(retries = 3) {
+    for (let i = 0; i <= retries; i++) {
+      const { data } = await authState.supabaseClient.auth.getSession();
+      const user = data?.session?.user || null;
+      if (user) {
+        authState.user = user;
+        await loadWishlistFromSupabase();
+        window.updateAuthUi();
+        return true;
+      }
+      if (i < retries) await new Promise((r) => setTimeout(r, 250));
+    }
+    return false;
+  }
+  hydrateSessionFromStorage();
   await window.refreshAuthState();
 };
 })();
