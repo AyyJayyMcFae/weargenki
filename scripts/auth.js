@@ -102,6 +102,8 @@ const authState = {
     const wishlistPageCopy = document.getElementById('wishlist-page-copy');
     const accountPageCopy = document.getElementById('account-page-copy');
     const accountSignOutButton = document.getElementById('account-signout-button');
+    const accountGate = document.getElementById('account-auth-gate');
+    const accountContent = document.getElementById('account-content');
 
     if (authChip) authChip.textContent = getUserChipLabel(user);
     if (authButton) { authButton.setAttribute('aria-label', user ? 'Account' : 'Login'); }
@@ -109,14 +111,12 @@ const authState = {
     if (wishlistPageCopy) wishlistPageCopy.textContent = user ? 'Saved items are attached to your account.' : 'Sign in with Google to save products to your wishlist.';
     if (accountPageCopy) accountPageCopy.textContent = user ? 'Manage your profile and review your order history.' : 'Sign in to manage your profile and view order history.';
     if (accountSignOutButton) accountSignOutButton.classList.toggle('hidden', !user);
+    if (accountGate || accountContent) setAccountViewSignedIn(!!user);
 
     const hash = (window.location.hash || '#home').split('?')[0];
     if (hash === '#wishlist') window.renderWishlistPage?.();
     if (hash === '#account') setTimeout(() => window.renderAccountPage?.(), 0);
-    if (isAccountPageVisible()) {
-      setAccountViewSignedIn(!!user);
-      if (user) setTimeout(() => window.renderAccountPage?.(), 0);
-    }
+    if (user && (accountGate || accountContent)) setTimeout(() => window.renderAccountPage?.(), 0);
     window.updateProductWishlistButton?.();
   };
 
