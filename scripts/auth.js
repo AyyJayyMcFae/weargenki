@@ -178,6 +178,7 @@ const authState = {
     window.updateAuthUi();
     if ((window.location.hash || '#home').split('?')[0] === '#account') window.location.hash = '#home';
   }
+  window.signOutUser = signOutUser;
 
   window.refreshAuthState = async function () {
     if (!authState.supabaseClient) { authState.user = null; authState.wishlistIds = new Set(); window.updateAuthUi(); return; }
@@ -341,6 +342,10 @@ const authState = {
       profileForm.dataset.bound = '1';
     }
   }
+  document.addEventListener('click', (e) => {
+    const btn = e.target?.closest?.('#account-signout-button');
+    if (btn) signOutUser();
+  });
 
   // ── Newsletter modal submit ──────────────────────────────────
   function bindNewsletterForm() {
