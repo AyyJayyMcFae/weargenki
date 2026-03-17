@@ -119,7 +119,13 @@ const authState = {
     if (wishlistCount) wishlistCount.textContent = String(authState.wishlistIds.size);
     if (wishlistPageCopy) wishlistPageCopy.textContent = user ? 'Saved items are attached to your account.' : 'Sign in with Google to save products to your wishlist.';
     if (accountPageCopy) accountPageCopy.textContent = user ? 'Manage your profile and review your order history.' : 'Sign in to manage your profile and view order history.';
-    if (accountSignOutButton) accountSignOutButton.classList.toggle('hidden', !user);
+    if (accountSignOutButton) {
+      accountSignOutButton.classList.toggle('hidden', !user);
+      if (!accountSignOutButton.dataset.bound) {
+        accountSignOutButton.addEventListener('click', signOutUser);
+        accountSignOutButton.dataset.bound = '1';
+      }
+    }
     if (accountGate || accountContent) setAccountViewSignedIn(!!user);
 
     const hash = (window.location.hash || '#home').split('?')[0];
@@ -161,9 +167,10 @@ const authState = {
   }
 
   async function signOutUser() {
-    if (!authState.supabaseClient) return;
-    const { error } = await authState.supabaseClient.auth.signOut();
-    if (error) { alert(error.message || 'Sign-out failed.'); return; }
+    if (authState.supabaseClient) {
+      const { error } = await authState.supabaseClient.auth.signOut();
+      if (error) { console.error('Sign-out failed:', error); }
+    }
     try { window.localStorage?.removeItem('genki-auth'); } catch (_) {}
     authState.user = null;
     authState.wishlistIds = new Set();
