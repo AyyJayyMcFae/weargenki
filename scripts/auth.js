@@ -181,6 +181,12 @@ const authState = {
         keys.forEach((k) => { try { ls.removeItem(k); } catch (_) {} });
       } catch (_) {}
     };
+    clearAuthStorage();
+    authState.user = null;
+    authState.wishlistIds = new Set();
+    authState.isVanguard = false;
+    window.updateAuthUi();
+    if ((window.location.hash || '#home').split('?')[0] === '#account') window.location.hash = '#home';
     if (authState.supabaseClient) {
       const timeout = new Promise((resolve) => setTimeout(resolve, 2000));
       try {
@@ -192,12 +198,6 @@ const authState = {
         console.error('Sign-out threw:', e);
       }
     }
-    clearAuthStorage();
-    authState.user = null;
-    authState.wishlistIds = new Set();
-    authState.isVanguard = false;
-    window.updateAuthUi();
-    if ((window.location.hash || '#home').split('?')[0] === '#account') window.location.hash = '#home';
   }
   window.signOutUser = signOutUser;
 
