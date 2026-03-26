@@ -49,7 +49,7 @@
     const milestoneTitle = document.getElementById('milestone-title');
     const milestoneTitles = [
       'KISTANISTAS',
-      '気スタニスタス'
+      '気スタニスタ'
     ];
     let milestoneTitleIndex = 0;
     let milestoneMorphing = false;
