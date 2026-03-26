@@ -8,6 +8,7 @@
   const SQUARE_APP_ID = localConfig.SQUARE_APP_ID || 'REPLACE_WITH_YOUR_SQUARE_APP_ID';
   const SQUARE_LOCATION_ID = localConfig.SQUARE_LOCATION_ID || 'REPLACE_WITH_YOUR_SQUARE_LOCATION_ID';
   const SHIPPING_RATE = Number(localConfig.SHIPPING_RATE ?? 0.08);
+  const FREE_SHIPPING_THRESHOLD_CENTS = 10000;
 
   const STORAGE_KEY = 'genki_cart_v1';
   const LAST_ORDER_KEY = 'genki_last_order_v1';
@@ -39,8 +40,32 @@
     return Math.round(n * 100);
   }
 
-  function getPriceForSize(product, size) {
-    const base = parseFloat(String(product?.price || '').replace(/[^0-9.\-]/g, '')) || 0;
+  function getPriceForSize(product, size, options = {}) {
+    const parseVariantPrice = (value) => {
+      if (value == null || value === '') return null;
+      if (typeof value === 'number' && Number.isFinite(value)) return value;
+      const parsed = parseFloat(String(value).replace(/[^0-9.\-]/g, ''));
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    let base = parseFloat(String(product?.price || '').replace(/[^0-9.\-]/g, '')) || 0;
+    const selectedSkullName = String(options?.skull || '').trim();
+    const selectedColorName = String(options?.color || '').trim();
+    const selectedSkull = product?.skullOptions?.find((option) => option?.name === selectedSkullName);
+    const selectedHoodie = selectedSkull?.hoodies?.find((option) => option?.name === selectedColorName);
+    const selectedColor = product?.colors?.find((option) => option?.name === selectedColorName);
+    const skullOverride = parseVariantPrice(selectedSkull?.priceOverride);
+    const skullAdjustment = Number(selectedSkull?.priceAdjustment || 0);
+    const variantSource = selectedHoodie || selectedColor;
+    const variantOverride = parseVariantPrice(variantSource?.priceOverride);
+    const variantAdjustment = Number(variantSource?.priceAdjustment || 0);
+
+    if (skullOverride != null) base = skullOverride;
+    else base += skullAdjustment;
+
+    if (variantOverride != null) base = variantOverride;
+    else base += variantAdjustment;
+
     if (product?.surcharges && size) {
       const clean = String(size).trim();
       if (Object.prototype.hasOwnProperty.call(product.surcharges, clean)) {
@@ -69,8 +94,8 @@
     alert('This item is exclusive to Genki Vanguard members.');
     return;
   }
-  const key = `${item.id}|${item.color || ''}|${item.size || ''}`;
-  const existing = state.items.find((x) => `${x.id}|${x.color || ''}|${x.size || ''}` === key);
+  const key = `${item.id}|${item.color || ''}|${item.skull || ''}|${item.size || ''}`;
+  const existing = state.items.find((x) => `${x.id}|${x.color || ''}|${x.skull || ''}|${x.size || ''}` === key);
   if (existing) { existing.qty += item.qty || 1; }
   else { state.items.push(Object.assign({ qty: 1 }, item)); }
   save(); render();
@@ -83,7 +108,11 @@
     save(); render();
   }
   function subtotal() { return state.items.reduce((s, it) => s + it.priceCents * it.qty, 0); }
-  function shipping() { return Math.round(subtotal() * (Number.isFinite(SHIPPING_RATE) ? SHIPPING_RATE : 0)); }
+  function shipping() {
+    const currentSubtotal = subtotal();
+    if (currentSubtotal >= FREE_SHIPPING_THRESHOLD_CENTS) return 0;
+    return Math.round(currentSubtotal * (Number.isFinite(SHIPPING_RATE) ? SHIPPING_RATE : 0));
+  }
   function total() { return subtotal() + shipping(); }
 
   function buildItemsText(items) {

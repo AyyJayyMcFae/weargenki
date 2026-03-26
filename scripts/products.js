@@ -4,6 +4,315 @@
 
 const PRODUCTS = [
   {
+    id: 'essentials-tee',
+    title: 'Essentials™ Tee',
+    price: '$35.00 ',
+    badge: 'ESSENTIALS',
+    categories: ['Tops'],
+    keywords: 'essentials tee t-shirt casual comfortable',
+    sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'],
+    surcharges: {},
+    primaryOptionLabel: 'Colour',
+    secondaryOptionLabel: 'Graphic',
+    secondaryOptionStyle: 'thumbnail',
+    images: [
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-27_oxzjsg.png',
+    ],
+    skullOptions: [
+      {
+        name: 'Blank', color: 'bg-transparent', priceAdjustment: -5,
+        hoodies: [
+          { name: 'Navy', color: 'bg-brand-navy', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-27_oxzjsg.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-2_fcvei1.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408190/Essential_Cotton_T-Shirt-gallery-3_upo6eb.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-4_rxzie3.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-5_bdrv1m.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408193/Essential_Cotton_T-Shirt-gallery-8_wohk2a.jpg'
+          ] },
+          { name: 'Black', color: 'bg-black', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408191/Essential_Cotton_T-Shirt-gallery-9_t0qnmz.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408192/Essential_Cotton_T-Shirt-gallery-10_baxeru.png'
+          ] },
+          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-21_zznsxo.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-22_lg1miv.png'
+          ] },
+          { name: 'Brown', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-25_p6yjdu.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408183/Essential_Cotton_T-Shirt-gallery-26_fbkahr.png',
+          ] },
+          {name:  'Red', color: 'bg-red-700', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-23_au5q4r.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-24_d7ba8s.png'
+          ] },
+          {name:  'Pink', color: 'bg-pink-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-17_jdrtpe.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-18_aumokg.png'
+          ] },
+          {name:  'Sky Blue', color: 'bg-blue-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-19_iefpsr.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png',
+          ] },
+          {name:  'Yellow', color: 'bg-yellow-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408197/Essential_Cotton_T-Shirt-gallery-15_grulba.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png'
+          ] },
+          {name:  'White Grey', color: 'bg-gray-200', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-13_tqbiqn.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-14_iepmev.png'
+          ] },
+          {name:  'White', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-11_lzigmd.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_hmcnwz.png'
+          ] },
+        ],
+      },
+      {
+        name: 'PS Smiley', color: 'bg-purple-600',
+        thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415813/SPSmileyPurple_vo4aex.png',
+        hoodies: [
+          { name: 'Black', color: 'bg-black', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/cc66e4be5aa54085a2ccb46e0ced79f5.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408192/Essential_Cotton_T-Shirt-gallery-10_baxeru.png'] },
+          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/40077ba831b048eb9f32c108f530cac4.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-22_lg1miv.png'] },
+          { name:  'White', color: 'bg-white', images: ['https://ajmall-vc-public-bucket.oss-us-west-1.aliyuncs.com/hugepod/material/custom_printing/0573d40ab7c64e0da645121ed8711094.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_hmcnwz.png'] },
+        ],
+      },
+      {
+        name: 'Esquire', color: 'bg-white',
+        thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415804/Genki_chrome_White_heuag8.png',
+        hoodies: [
+          { name: 'Navy', color: 'bg-pink-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/cce0a3e78c3a4829862547a4e45f8626.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-2_fcvei1.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408190/Essential_Cotton_T-Shirt-gallery-3_upo6eb.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-4_rxzie3.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-5_bdrv1m.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408193/Essential_Cotton_T-Shirt-gallery-8_wohk2a.jpg'
+          ] },
+          { name: 'Black', color: 'bg-black', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408191/Essential_Cotton_T-Shirt-gallery-9_t0qnmz.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408192/Essential_Cotton_T-Shirt-gallery-10_baxeru.png'
+          ] },
+          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-21_zznsxo.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-22_lg1miv.png'
+          ] },
+          { name: 'Brown', color: 'bg-amber-500', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-25_p6yjdu.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408183/Essential_Cotton_T-Shirt-gallery-26_fbkahr.png',
+          ] },
+          {name:  'Red', color: 'bg-red-700', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-23_au5q4r.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-24_d7ba8s.png'
+          ] },
+          {name:  'Pink', color: 'bg-pink-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/18c26ecaceb54f50a05091db617ff03e.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-18_aumokg.png'
+          ] },
+          {name:  'Sky Blue', color: 'bg-blue-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/97c583870b6f4e1eaf2727206841ef41.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png',
+          ] },
+          {name:  'Yellow', color: 'bg-yellow-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408197/Essential_Cotton_T-Shirt-gallery-15_grulba.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png'
+          ] },
+          {name:  'White Grey', color: 'bg-gray-200', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-13_tqbiqn.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-14_iepmev.png'
+          ] },
+          {name:  'White', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-11_lzigmd.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_hmcnwz.png'
+          ] },
+        ],
+
+      },
+      {
+        name: 'Capsules', color: 'bg-pink-100',
+        thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415811/GenkiPill_ajymhq.png',
+        hoodies: [
+          {name:  'Pink', color: 'bg-pink-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/ff632619281b4f109632eba91cda503b.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-18_aumokg.png'
+          ] },
+          { name: 'Navy', color: 'bg-brand-navy', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-27_oxzjsg.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-2_fcvei1.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408190/Essential_Cotton_T-Shirt-gallery-3_upo6eb.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-4_rxzie3.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-5_bdrv1m.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408193/Essential_Cotton_T-Shirt-gallery-8_wohk2a.jpg'
+          ] },
+          { name: 'Black', color: 'bg-black', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408191/Essential_Cotton_T-Shirt-gallery-9_t0qnmz.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408192/Essential_Cotton_T-Shirt-gallery-10_baxeru.png'
+          ] },
+          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-21_zznsxo.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-22_lg1miv.png'
+          ] },
+          { name: 'Brown', color: 'bg-amber-500', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-25_p6yjdu.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408183/Essential_Cotton_T-Shirt-gallery-26_fbkahr.png',
+          ] },
+          {name:  'Red', color: 'bg-red-700', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-23_au5q4r.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-24_d7ba8s.png'
+          ] },
+          {name:  'Pink', color: 'bg-pink-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/ff632619281b4f109632eba91cda503b.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-18_aumokg.png'
+          ] },
+          {name:  'Sky Blue', color: 'bg-blue-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-19_iefpsr.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png',
+          ] },
+          {name:  'Yellow', color: 'bg-yellow-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408197/Essential_Cotton_T-Shirt-gallery-15_grulba.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png'
+          ] },
+          {name:  'White Grey', color: 'bg-gray-200', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-13_tqbiqn.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-14_iepmev.png'
+          ] },
+          {name:  'White', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-11_lzigmd.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_hmcnwz.png'
+          ] },
+        ],
+      },
+      // {
+      //   name:'Crossword', color: 'bg-pink-200',
+      //   thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415806/genki_strip_break_y93yto.png',
+      //   hoodies: [
+      //     { name: 'Navy', color: 'bg-brand-navy', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408188/Essential_Cotton_T-Shirt-gallery-28_oxzjsg.png'] },
+      //     { name: 'Black', color: 'bg-black', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408191/Essential_Cotton_T-Shirt-gallery-9_t0qnmz.png',
+      //       'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408192/Essential_Cotton_T-Shirt-gallery-10_baxeru.png'] },
+      //     { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408193/Essential_Cotton_T-Shirt-gallery-11_baxeru.png'] },
+      //     { name: 'Brown', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_baxeru.png'] },
+      //     {name: 'Maroon', color: 'bg-brand-maroon', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408195/Essential_Cotton_T-Shirt-gallery-13_baxeru.png'] },
+      //     {name: 'Pink', color: 'bg-pink-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408196/Essential_Cotton_T-Shirt-gallery-14_baxeru.png'] },
+      //     {name: 'Sky Blue', color: 'bg-blue-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408197/Essential_Cotton_T-Shirt-gallery-15_baxeru.png'] },
+      //     {name: 'banana', color: 'bg-yellow-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-16_baxeru.png'] },
+      //   ],
+
+      // },
+      {
+        name: 'Nomad', color: 'bg-blue-300',
+        thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415808/genkiBack_iz8k4u.png',
+        hoodies: [
+          { name: 'Navy', color: 'bg-pink-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/509c71bd10d54f329bfe5d460440d00c.png',
+            'https://files.tapstitch.com/hugepod/material/custom_printing/a44ce1878d7943d4913def47165686af.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408190/Essential_Cotton_T-Shirt-gallery-3_upo6eb.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-4_rxzie3.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-5_bdrv1m.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408193/Essential_Cotton_T-Shirt-gallery-8_wohk2a.jpg'
+          ] },
+          { name: 'Black', color: 'bg-black', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/f4ef9b2889d247309cc4afe564e4505e.png',
+            'https://files.tapstitch.com/hugepod/material/custom_printing/cafd350c4f584c5ea9904ab8d645c6de.png'
+          ] },
+          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-21_zznsxo.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-22_lg1miv.png'
+          ] },
+          { name: 'Brown', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-25_p6yjdu.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408183/Essential_Cotton_T-Shirt-gallery-26_fbkahr.png',
+          ] },
+          {name:  'Red', color: 'bg-red-700', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/e94f84ba63b6452fae7aad2d0e04b538.png',
+            'https://files.tapstitch.com/hugepod/material/custom_printing/42be4f0f43cd49c38d558bd6addfb608.png'
+          ] },
+          {name:  'Pink', color: 'bg-pink-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-17_jdrtpe.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-18_aumokg.png'
+          ] },
+          {name:  'Sky Blue', color: 'bg-blue-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-19_iefpsr.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png',
+          ] },
+          {name:  'Banana', color: 'bg-yellow-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/a917799c452c4333aca7a32c99dcccf9.png',
+            'https://files.tapstitch.com/hugepod/material/custom_printing/b87f21ea425a4221a0246df12f3083b2.png'
+          ] },
+          {name:  'White Grey', color: 'bg-gray-200', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-13_tqbiqn.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-14_iepmev.png'
+          ] },
+          {name:  'White', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-11_lzigmd.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_hmcnwz.png'
+          ] },
+        ],
+      },
+      {
+        name: 'Rosebush', color: 'bg-gray-800',
+        thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415813/genkiflowers2_ryskb4.png',
+        hoodies: [
+          {name:  'Red', color: 'bg-red-700', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/a57b8a30affe43b0a1ec433f050fc968.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-24_d7ba8s.png'
+          ] },
+          { name: 'Navy', color: 'bg-brand-navy', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/d79c6c1655ec4900a805169acfb36256.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-2_fcvei1.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408190/Essential_Cotton_T-Shirt-gallery-3_upo6eb.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-4_rxzie3.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-5_bdrv1m.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408193/Essential_Cotton_T-Shirt-gallery-8_wohk2a.jpg'
+          ] },
+          { name: 'Black', color: 'bg-black', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/bc076d8c5d48420f850b6bf416835104.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408192/Essential_Cotton_T-Shirt-gallery-10_baxeru.png'
+          ] },
+          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/f39f77e1ce5d4b8fb3481438a12b4d19.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-22_lg1miv.png'
+          ] },
+          { name: 'Brown', color: 'bg-white', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/ce9a8c2537004359931461699a9188ca.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408183/Essential_Cotton_T-Shirt-gallery-26_fbkahr.png',
+          ] },
+          
+          {name:  'Pink', color: 'bg-pink-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/ccbdc101d9204af59847b495512a41fa.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-18_aumokg.png'
+          ] },
+          {name:  'Sky Blue', color: 'bg-blue-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-19_iefpsr.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png',
+          ] },
+          {name:  'Yellow', color: 'bg-yellow-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408197/Essential_Cotton_T-Shirt-gallery-15_grulba.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png'
+          ] },
+          {name:  'White Grey', color: 'bg-gray-200', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-13_tqbiqn.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-14_iepmev.png'
+          ] },
+          {name:  'White', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-11_lzigmd.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_hmcnwz.png'
+          ] },
+        ],
+      },
+      {
+        name: 'Rainman', color: 'bg-brand-maroon',
+        thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415805/Genki_Storm_Jersey_row1vl.png',
+        hoodies: [
+          {name:  'Sky Blue', color: 'bg-blue-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/73929dfa4fb94da2a49f11a7d2b9634a.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png',
+          ] },
+          { name: 'Navy', color: 'bg-pink-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-27_oxzjsg.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-2_fcvei1.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408190/Essential_Cotton_T-Shirt-gallery-3_upo6eb.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-4_rxzie3.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-5_bdrv1m.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408193/Essential_Cotton_T-Shirt-gallery-8_wohk2a.jpg'
+          ] },
+          { name: 'Black', color: 'bg-black', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408191/Essential_Cotton_T-Shirt-gallery-9_t0qnmz.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408192/Essential_Cotton_T-Shirt-gallery-10_baxeru.png'
+          ] },
+          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-21_zznsxo.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-22_lg1miv.png'
+          ] },
+          { name: 'Brown', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-25_p6yjdu.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408183/Essential_Cotton_T-Shirt-gallery-26_fbkahr.png',
+          ] },
+          {name:  'Red', color: 'bg-red-700', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-23_au5q4r.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408184/Essential_Cotton_T-Shirt-gallery-24_d7ba8s.png'
+          ] },
+          {name:  'Pink', color: 'bg-pink-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-17_jdrtpe.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-18_aumokg.png'
+          ] },
+          
+          {name:  'Yellow', color: 'bg-yellow-300', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408197/Essential_Cotton_T-Shirt-gallery-15_grulba.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-20_pg21ay.png'
+          ] },
+          {name:  'White Grey', color: 'bg-gray-200', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408199/Essential_Cotton_T-Shirt-gallery-13_tqbiqn.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408198/Essential_Cotton_T-Shirt-gallery-14_iepmev.png'
+          ] },
+          {name:  'White', color: 'bg-white', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-11_lzigmd.png',
+            'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_hmcnwz.png'
+          ] },
+        ],
+
+      },
+      // {
+      //   name: 'Tag', color: 'bg-amber-950',
+      //   hoodies: [
+      //     { name: 'Navy', color: 'bg-pink-300', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170099458117494-0.png'] },
+      //     { name: 'Black', color: 'bg-yellow-600', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170099458112882-0.png'] },
+      //     { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009945818937-0.png'] },
+      //     { name: 'Brown', color: 'bg-white', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009945818938-0.png'] },
+      //     {name: 'Maroon', color: 'bg-brand-maroon', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009945818938-0.png'] },
+      //     {name: 'Pink', color: 'bg-pink-300', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170099458117494-0.png'] },
+      //     {name: 'Sky Blue', color: 'bg-blue-300', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17009 ninety-four-five-eight-one-one-seven-four-nine-four-zero.png'] },
+      //   ],
+      // }
+    ],
+    details: [
+      'Breathable mesh fabric for all-day comfort.',
+      'Bold "RAINMAN" lettering on the back.',
+      'Ribbed collar and armholes for a classic look.',
+    ],
+  },
+  {
     id: 'sigilism-boxy-tank',
     title: 'Sigilism Boxy Tank',
     price: '$35.00 ',
@@ -731,34 +1040,6 @@ const PRODUCTS = [
       'Lightweight and breathable fabric for comfort.',
       'Features the "Kancho Hancho" [ACD] Sketch graphic.',
       'Classic button-up design with a relaxed fit.',
-    ],
-  },
-
-  {
-    id: 'genki-rainman-reverse-tee',
-    title: 'Rainman Reverse Graphic Tee',
-    price: '$40.00 ',
-    badge: '',
-    categories: 'Tops',
-    keywords: 't-shirt rainman graphic genki reverse',
-    sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†'],
-    surcharges: { '2XL†': 2.00, '3XL†': 3.00, '4XL†': 5.00 },
-    images: [
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-5.png',
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-2.png',
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-1.png',
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-3.png',
-    ],
-    colors: [
-      { name: 'Fatigue Green', color: 'bg-brand-fatigue', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-5.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-2.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-1.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-174708690117202-3.png'] },
-      { name: 'Black', color: 'bg-black', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019575-5.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019575-2.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019575-1.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019575-3.png'] },
-      { name: 'Watermelon', color: 'bg-red-400', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019395-5.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019395-2.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019395-1.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019395-3.png'] },
-      { name: 'Navy', color: 'bg-blue-950', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019546-5.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019546-2.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019546-1.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869019546-3.png'] },
-      { name: 'Blue', color: 'bg-blue-300', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869018481-5.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869018481-2.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869018481-1.png', 'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-17470869018481-3.png'] },
-    ],
-    details: [
-      'Bold graphic print design.',
-      'Reverse-style construction for a deconstructed look.',
     ],
   },
 

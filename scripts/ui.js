@@ -185,7 +185,7 @@ window.renderWishlistPage = function () {
     card.innerHTML = `
       <div class="relative overflow-hidden">
         ${window.wishlistButtonMarkup(product.id)}
-        <img src="${image}" alt="${product.title}" class="w-full h-80 object-cover">
+        <img src="${image}" alt="${product.title}" class="w-full h-80 object-contain bg-neutral-900">
       </div>
       <div class="p-4">
         <h3 class="font-semibold text-white mb-1">${product.title}</h3>
@@ -374,11 +374,34 @@ function renderProduct(key) {
   const detailsList = el('product-details-list');
   const mainImgViewport = el('product-main-image-viewport');
   const mainImgWrapper = mainImg?.parentElement;
+  const getSelectedSizeLabel = () => {
+    const sizes = Array.isArray(data.sizes) ? data.sizes : [];
+    return sizes[activeSize] || '';
+  };
+  const getSelectedSkullName = () => data.skullOptions?.[activeSkull]?.name || '';
+  const getSelectedColorName = () => {
+    if (data.skullOptions?.length) {
+      return data.skullOptions?.[activeSkull]?.hoodies?.[activeHoodie]?.name || '';
+    }
+    return data.colors?.[activeColor]?.name || '';
+  };
+  const updateDisplayedPrice = () => {
+    if (!priceEl || !window.Cart?.getPriceForSize) return;
+    const price = Cart.getPriceForSize(data, getSelectedSizeLabel(), {
+      skull: getSelectedSkullName(),
+      color: getSelectedColorName(),
+    });
+    priceEl.textContent = `$${price.toFixed(2)}`;
+  };
 
   const THUMBS_PER_PAGE = 3;
   let activeImageIndex = 0;
   let thumbWindowStart = 0;
   let currentGalleryImages = [];
+  let activeSkull = 0;
+  let activeHoodie = 0;
+  let activeColor = 0;
+  let activeSize = 0;
 
   // ── Zoom state ───────────────────────────────────────────────
   let zoomScale = 1;
@@ -507,7 +530,7 @@ function renderProduct(key) {
       const absIdx = thumbWindowStart + offset;
       const img = document.createElement('img');
       img.src = src; img.alt = `${data.title} ${absIdx + 1}`;
-      img.className = 'product-thumb w-full h-24 object-cover rounded border border-white/10 cursor-pointer hover:opacity-80 transition';
+      img.className = 'product-thumb w-full h-24 object-contain rounded border border-white/10 cursor-pointer hover:opacity-80 transition bg-neutral-900';
       img.dataset.index = absIdx;
       if (absIdx === activeImageIndex) img.classList.add('border-white', 'border-2');
       img.addEventListener('click', () => { activeImageIndex = absIdx; syncActiveImage(); });
@@ -554,7 +577,14 @@ function renderProduct(key) {
   skullBlock.style.display = 'none';
 
   if (data.skullOptions?.length) {
-    let activeSkull = 0, activeHoodie = 0;
+    const useSecondaryThumbnails = data.secondaryOptionStyle === 'thumbnail';
+    const getSkullThumbnail = (skull) => (
+      skull?.thumbnail
+      || skull?.hoodies?.find((hoodie) => Array.isArray(hoodie?.images) && hoodie.images.length)?.images?.[0]
+      || skull?.hoodies?.find((hoodie) => hoodie?.image)?.image
+      || skull?.images?.[0]
+      || ''
+    );
     const getComboImages = () => {
       const skull = data.skullOptions[activeSkull] || {};
       const hoodie = skull.hoodies?.[activeHoodie];
@@ -577,6 +607,7 @@ function renderProduct(key) {
           btn.classList.add('border-white');
           if (hoodieName) hoodieName.textContent = h.name;
           renderGallery(getComboImages());
+          updateDisplayedPrice();
         });
         hoodieColorsContainer.appendChild(btn);
       });
@@ -585,14 +616,19 @@ function renderProduct(key) {
     if (skullName) skullName.textContent = data.skullOptions[0]?.name || 'N/A';
     data.skullOptions.forEach((s, i) => {
       const btn = document.createElement('button');
-      btn.title = s.name; btn.className = `w-8 h-8 ${s.color || 'bg-white'} border-2 border-white/20 hover:border-white transition`;
+      const thumbSrc = useSecondaryThumbnails ? getSkullThumbnail(s) : '';
+      btn.title = s.name;
+      btn.className = useSecondaryThumbnails
+        ? 'w-16 h-16 border-2 border-white/20 hover:border-white transition bg-neutral-900 bg-contain bg-center bg-no-repeat'
+        : `w-8 h-8 ${s.color || 'bg-white'} border-2 border-white/20 hover:border-white transition`;
+      if (thumbSrc) btn.style.backgroundImage = `url("${thumbSrc}")`;
       if (i === 0) btn.classList.add('border-white');
       btn.addEventListener('click', () => {
         activeSkull = i; activeHoodie = 0;
         skullColorsContainer.querySelectorAll('button').forEach((b) => b.classList.remove('border-white'));
         btn.classList.add('border-white');
         if (skullName) skullName.textContent = s.name;
-        renderHoodies(); renderGallery(getComboImages());
+        renderHoodies(); renderGallery(getComboImages()); updateDisplayedPrice();
       });
       skullColorsContainer.appendChild(btn);
     });
@@ -606,10 +642,12 @@ function renderProduct(key) {
       btn.title = c.name; btn.className = `w-8 h-8 ${c.color} border-2 border-white/20 hover:border-white transition`;
       if (i === 0) btn.classList.add('border-white');
       btn.addEventListener('click', () => {
+        activeColor = i;
         if (hoodieName) hoodieName.textContent = c.name;
         hoodieColorsContainer.querySelectorAll('button').forEach((b) => b.classList.remove('border-white'));
         btn.classList.add('border-white');
         renderGallery(getImagesForColor(c));
+        updateDisplayedPrice();
       });
       hoodieColorsContainer.appendChild(btn);
     });
@@ -625,11 +663,8 @@ function renderProduct(key) {
     sizesContainer.innerHTML = '';
     if (sizes.length) {
       sizeBlock.style.display = 'block';
-      let activeSize = 0;
+      activeSize = 0;
       sizeName.textContent = sizes[0];
-      const updatePrice = () => {
-        if (priceEl) priceEl.textContent = `$${Cart.getPriceForSize(data, sizes[activeSize]).toFixed(2)}`;
-      };
       sizes.forEach((s, i) => {
         const btn = document.createElement('button');
         btn.textContent = s; btn.className = 'border border-white/20 p-2 hover:bg-white/10 transition';
@@ -638,16 +673,19 @@ function renderProduct(key) {
           activeSize = i; sizeName.textContent = s;
           sizesContainer.querySelectorAll('button').forEach((b) => b.classList.remove('bg-white', 'text-black', 'font-bold'));
           btn.classList.add('bg-white', 'text-black', 'font-bold');
-          updatePrice();
+          updateDisplayedPrice();
         });
         sizesContainer.appendChild(btn);
       });
-      updatePrice();
+      updateDisplayedPrice();
     } else {
       sizeBlock.style.display = 'none';
       sizeName.textContent = 'OS';
+      activeSize = 0;
     }
   }
+
+  updateDisplayedPrice();
 
   // ── Details ───────────────────────────────────────────────────
   if (detailsList) {
@@ -667,7 +705,7 @@ function renderProduct(key) {
       const colorLabel = selectedHoodie?.title;
       const skullLabelVal = selectedSkull?.title;
       const sizeLabel = selectedSize?.textContent;
-      const priceCents = Math.round(Cart.getPriceForSize(data, sizeLabel) * 100);
+      const priceCents = Math.round(Cart.getPriceForSize(data, sizeLabel, { skull: skullLabelVal, color: colorLabel }) * 100);
       Cart.add({
         id: data.id, title: data.title, priceCents, qty: 1,
         color: colorLabel, skull: skullLabelVal, size: sizeLabel,
@@ -694,7 +732,7 @@ const lookbookData = {
   'lookbook-1': { title: 'GENKI TWO-FACED - Split', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp', caption: 'Genki Tour Hoodie', linkedProduct: 'genki-two-faced-hoodie' },
   'lookbook-2': { title: 'Genki Skull - Street Essentials', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748940/I0P8IHJ_oxbf46.webp', caption: 'In the thick of it all with the Genki Skull Hoodie.', linkedProduct: 'genki-skull-hoodie' },
   'lookbook-3': { title: 'Genki Sakura - Cargo Focus', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748935/0AA3u2l_iwzzvt.webp', caption: 'Sporty and utility look centered around the Genki Sport Fleece Joggers.', linkedProduct: 'genki-sakura-hoodie' },
-  'lookbook-4': { title: 'GENKI NEW YORK - Downtown Taxicab Yellow Beanie.', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762752906/6EiT5o1_nhvhwf.webp', caption: 'Cozy city vibes with the GENKI Tour Beanie.', linkedProduct: 'genki-tour-beanie' },
+  'lookbook-4': { title: 'GENKI NEW YORK - Downtown Taxicab Yellow Beanie.', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762752906/6EiT5o1_nhvhwf.webp', caption: 'Cozy city vibes with the Genki Village Shinobi Beanie.', linkedProduct: 'genki-shinobi-beanie' },
 };
 
 function renderLookbookMain() {
