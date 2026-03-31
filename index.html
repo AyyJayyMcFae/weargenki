@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GENKI - Wear Genki</title>
+  <title>GENKI | Streetwear built for real life</title>
+  <meta name="description" content="GENKI is an independent streetwear label with limited-run drops, everyday essentials, and editorial-inspired looks built for real life." />
+  <meta name="keywords" content="GENKI, Wear Genki, streetwear, clothing brand, graphic tees, hoodies, outerwear, accessories, limited drops" />
+  <meta name="author" content="GENKI" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <link rel="canonical" href="https://weargenki.vercel.app/" id="canonical-link" />
   <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Use Inter font family -->
@@ -14,6 +20,47 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHq6O3b+6b0Z9VV8+5v4y5j1l5/1p5Q5K5j5V5Q5K5j5V5Q5K5j5V5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="manifest" href="/site.webmanifest">
   <meta name="theme-color" content="#0d0d0d">
+  <meta property="og:site_name" content="GENKI">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="GENKI | Streetwear built for real life">
+  <meta property="og:description" content="Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.">
+  <meta property="og:image" content="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp">
+  <meta property="og:image:alt" content="GENKI streetwear campaign image">
+  <meta property="og:url" content="https://weargenki.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GENKI | Streetwear built for real life">
+  <meta name="twitter:description" content="Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.">
+  <meta name="twitter:image" content="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp">
+  <meta name="twitter:image:alt" content="GENKI streetwear campaign image">
+
+  <script type="application/ld+json" id="structured-data">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://weargenki.vercel.app/#organization",
+        "name": "GENKI",
+        "url": "https://weargenki.vercel.app/",
+        "logo": "https://res.cloudinary.com/dzhvdoifb/image/upload/v1772417097/Kanji_Boxed_z35cw0.png",
+        "sameAs": [
+          "https://www.instagram.com/weargenki/"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://weargenki.vercel.app/#website",
+        "url": "https://weargenki.vercel.app/",
+        "name": "GENKI",
+        "description": "Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.",
+        "publisher": {
+          "@id": "https://weargenki.vercel.app/#organization"
+        }
+      }
+    ]
+  }
+  </script>
 
   <meta property="og:title" content="GENKI – Streetwear Label">
   <meta property="og:description" content="Limited-run streetwear built for real life.">
@@ -458,7 +505,7 @@
           color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Free product — winner drawn from newsletter</p>
       </div>
 
       <!-- Tier 3 -->
@@ -476,7 +523,7 @@
           color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Full outfit — yours, on us</p>
       </div>
 
       <!-- Tier 4 -->
@@ -494,7 +541,7 @@
         color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Free shipping for life — Genki Vanguard</p>
       </div>
     </div>
 
@@ -1375,13 +1422,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <!-- Genki Scripts (load order matters) -->
-  <script src="./scripts/products.js?v=1.1.0"></script>
-  <script src="./scripts/cart.js?v=1.1.0"></script>
-  <script src="./scripts/ticker.js?v=1.1.0"></script>
-  <script src="./scripts/auth.js?v=1.1.0"></script>
-  <script src="./scripts/ui.js?v=1.1.0"></script>
-  <script src="./scripts/milestone.js?v=1.1.0"></script>
-  <script src="./scripts/router.js?v=1.1.0"></script>
+  <script src="./scripts/products.js?v=1.1.2"></script>
+  <script src="./scripts/seo.js?v=1.1.2"></script>
+  <script src="./scripts/cart.js?v=1.1.2"></script>
+  <script src="./scripts/ticker.js?v=1.1.2"></script>
+  <script src="./scripts/auth.js?v=1.1.2"></script>
+  <script src="./scripts/ui.js?v=1.1.2"></script>
+  <script src="./scripts/milestone.js?v=1.1.2"></script>
+  <script src="./scripts/router.js?v=1.1.2"></script>
 
 </body>
 
