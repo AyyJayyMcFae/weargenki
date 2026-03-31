@@ -189,9 +189,49 @@
     transition: width 0.3s ease-out, opacity 0.3s ease-out;
     display: flex;
     align-items: center;
+    z-index: 70;
    }
     #search-input-container.active { width: 280px; opacity: 1; pointer-events: auto; }
     #search-input-container input { padding-right: 40px; }
+    #mobile-nav-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 180px;
+      background: rgba(13,13,13,.98);
+      border: 1px solid rgba(255,255,255,.12);
+      z-index: 80;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    #mobile-nav-menu.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    @media (max-width: 767px) {
+      #nav-inner nav { gap: .15rem; }
+      #search-toggle-container { position: static; }
+      #search-input-container {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 12px;
+        right: 12px;
+        width: auto;
+        transform: none;
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(13,13,13,.98);
+        z-index: 80;
+      }
+      #search-input-container.active { width: auto; }
+      #mobile-nav-menu {
+        right: 4px;
+        min-width: 190px;
+        top: calc(100% + 8px);
+      }
+    }
   /* Cart summary list */
     .cart-line { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
     .qty-btn { width: 28px; height: 28px; border: 1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; }
@@ -331,7 +371,7 @@
       <div id="logo-container" class="opacity-0 transition-opacity duration-300">
         <a href="#home" id="home-link" class="text-xl font-bold tracking-widest text-white">GENKI / 元気</a>
       </div>
-      <nav class="flex space-x-4 items-center">
+      <nav class="flex gap-1 md:gap-4 items-center">
         <!-- Search -->
         <div id="search-toggle-container" class="relative">
           <button id="search-toggle-button" aria-label="Search" class="p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10 z-10" onclick="toggleSearchInput(event)">
@@ -344,14 +384,29 @@
             </button>
           </div>
         </div>
-        <button id="auth-button" aria-label="Login" class="p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10 flex items-center gap-2">
+        <button id="auth-button" aria-label="Login" class="hidden md:flex p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10 items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           <span id="auth-chip" class="hidden md:inline text-[10px] uppercase tracking-[0.2em]">Guest</span>
         </button>
-        <button id="wishlist-nav-button" aria-label="Wishlist" class="relative p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
+        <button id="wishlist-nav-button" aria-label="Wishlist" class="relative hidden md:block p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
           <span id="wishlist-count" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
         </button>
+        <div class="relative md:hidden">
+          <button id="mobile-nav-toggle" aria-label="Menu" aria-expanded="false" class="p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="7" y1="12" x2="20" y2="12"></line><line x1="10" y1="17" x2="20" y2="17"></line></svg>
+          </button>
+          <div id="mobile-nav-menu" class="shadow-xl">
+            <button id="mobile-auth-button" type="button" class="w-full flex items-center justify-between px-4 py-3 text-left text-sm text-white/85 hover:text-white hover:bg-white/5 transition">
+              <span>Account</span>
+              <span id="mobile-auth-chip" class="text-[10px] uppercase tracking-[0.2em] text-white/45">Guest</span>
+            </button>
+            <button id="mobile-wishlist-button" type="button" class="w-full flex items-center justify-between px-4 py-3 text-left text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">
+              <span>Wishlist</span>
+              <span id="mobile-wishlist-count" class="min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
+            </button>
+          </div>
+        </div>
         <button id="cart-toggle" aria-label="Shopping Bag" class="relative p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
           <span id="cart-count" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
@@ -679,21 +734,8 @@
         <div class="w-full px-0">
             <h2 class="text-3xl md:text-4xl font-bold mb-10 text-white border-b border-white/10 pb-4 text-center">LOOKBOOK</h2>
 
-            <!-- Full-bleed photo wall: zero gap so images touch the edges; smaller gaps on md -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-0 md:gap-1">
-              <div class="col-span-2 row-span-2 overflow-hidden">
-                <a href="#lookbook-1"><img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp" alt="Lookbook Image 1" class="w-full h-full object-cover transition-transform duration-300 cursor-pointer" style="max-height:70vh;"></a>
-              </div>
-              <div class="col-span-2 overflow-hidden">
-                <a href="#lookbook-2"><img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748940/I0P8IHJ_oxbf46.webp" alt="Lookbook Image 2" class="w-full h-full object-cover transition-transform duration-300 cursor-pointer" style="max-height:40vh;"></a>
-              </div>
-              <div class="overflow-hidden">
-                <a href="#lookbook-3"><img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748935/0AA3u2l_iwzzvt.webp" alt="Lookbook Image 3" class="w-full h-full object-cover transition-transform duration-300 cursor-pointer"></a>
-              </div>
-              <div class="overflow-hidden">
-                <a href="#lookbook-4"><img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762752906/6EiT5o1_nhvhwf.webp" alt="Lookbook Image 4" class="w-full h-full object-cover transition-transform duration-300 cursor-pointer"></a>
-              </div>
-            </div>
+            <!-- Full-bleed photo wall: populated from the actual lookbook dataset -->
+            <div id="home-lookbook-grid" class="grid grid-cols-2 md:grid-cols-4 gap-0 md:gap-1"></div>
 
           <!-- Button is sharp -->
           <div class="text-center mt-10">
