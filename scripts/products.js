@@ -16,11 +16,12 @@ const PRODUCTS = [
     secondaryOptionLabel: 'Graphic',
     secondaryOptionStyle: 'thumbnail',
     images: [
-      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-27_oxzjsg.png',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774813208/Untitled-1_i5sswu.png',
     ],
     skullOptions: [
       {
-        name: 'Blank', color: 'bg-transparent', priceAdjustment: -5,
+        name: 'Blank', color: 'bg-transparent', priceAdjustment: -5, 
+        thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774813208/Untitled-1_i5sswu.png',
         hoodies: [
           { name: 'Navy', color: 'bg-brand-navy', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-27_oxzjsg.png',
             'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-2_fcvei1.png',
@@ -74,7 +75,7 @@ const PRODUCTS = [
         name: 'Esquire', color: 'bg-white',
         thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415804/Genki_chrome_White_heuag8.png',
         hoodies: [
-          { name: 'Navy', color: 'bg-pink-300', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/cce0a3e78c3a4829862547a4e45f8626.png',
+          { name: 'Navy', color: 'bg-brand-navy', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/cce0a3e78c3a4829862547a4e45f8626.png',
             'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408187/Essential_Cotton_T-Shirt-gallery-2_fcvei1.png',
             'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408190/Essential_Cotton_T-Shirt-gallery-3_upo6eb.png',
             'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408189/Essential_Cotton_T-Shirt-gallery-4_rxzie3.png',

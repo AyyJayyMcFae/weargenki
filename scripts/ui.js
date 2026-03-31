@@ -33,6 +33,188 @@ function renderUrgencyTagBadge(product, tone = 'overlay') {
   return `<span class="text-[10px] font-medium tracking-[0.18em] px-2 py-1 border ${cls}">${tag}</span>`;
 }
 
+const cutoutImageCache = new Map();
+
+function isMockupBackgroundCutoutCandidate(src = '') {
+  return /(?:tapstitch\.com|aliyuncs\.com)\/hugepod\/material\/custom_printing\//i.test(String(src));
+}
+
+function getProductImageClasses(_src, baseClasses) {
+  return baseClasses;
+}
+
+function averageRgb(samples) {
+  if (!samples.length) return [0, 0, 0];
+  const total = samples.reduce((acc, [r, g, b]) => {
+    acc[0] += r;
+    acc[1] += g;
+    acc[2] += b;
+    return acc;
+  }, [0, 0, 0]);
+  return total.map((value) => value / samples.length);
+}
+
+function getBackgroundReferenceColor(data, width, height) {
+  const step = Math.max(1, Math.floor(Math.min(width, height) / 40));
+  const margin = Math.max(2, step * 2);
+  const points = [
+    [margin, margin],
+    [width - margin - 1, margin],
+    [margin, height - margin - 1],
+    [width - margin - 1, height - margin - 1],
+    [Math.floor(width / 2), margin],
+    [Math.floor(width / 2), height - margin - 1],
+    [margin, Math.floor(height / 2)],
+    [width - margin - 1, Math.floor(height / 2)]
+  ];
+  const samples = [];
+  points.forEach(([x, y]) => {
+    const startX = Math.max(0, x - step);
+    const startY = Math.max(0, y - step);
+    const endX = Math.min(width, x + step);
+    const endY = Math.min(height, y + step);
+    for (let py = startY; py < endY; py += 1) {
+      for (let px = startX; px < endX; px += 1) {
+        const idx = (py * width + px) * 4;
+        samples.push([data[idx], data[idx + 1], data[idx + 2]]);
+      }
+    }
+  });
+  return averageRgb(samples);
+}
+
+function removeSolidBackgroundFromImage(sourceImage) {
+  const canvas = document.createElement('canvas');
+  const width = sourceImage.naturalWidth || sourceImage.width;
+  const height = sourceImage.naturalHeight || sourceImage.height;
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(sourceImage, 0, 0, width, height);
+
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const [bgR, bgG, bgB] = getBackgroundReferenceColor(data, width, height);
+  const solidThreshold = 30;
+  const featherThreshold = 72;
+  const visited = new Uint8Array(width * height);
+  const backgroundMask = new Uint8Array(width * height);
+  const queue = [];
+  let queueIndex = 0;
+
+  const colorDistanceAt = (pixelIndex) => {
+    const idx = pixelIndex * 4;
+    const dr = data[idx] - bgR;
+    const dg = data[idx + 1] - bgG;
+    const db = data[idx + 2] - bgB;
+    return Math.sqrt(dr * dr + dg * dg + db * db);
+  };
+
+  const enqueueIfBackground = (x, y) => {
+    if (x < 0 || y < 0 || x >= width || y >= height) return;
+    const pixelIndex = y * width + x;
+    if (visited[pixelIndex]) return;
+    visited[pixelIndex] = 1;
+    if (colorDistanceAt(pixelIndex) <= solidThreshold) {
+      backgroundMask[pixelIndex] = 1;
+      queue.push(pixelIndex);
+    }
+  };
+
+  for (let x = 0; x < width; x += 1) {
+    enqueueIfBackground(x, 0);
+    enqueueIfBackground(x, height - 1);
+  }
+  for (let y = 1; y < height - 1; y += 1) {
+    enqueueIfBackground(0, y);
+    enqueueIfBackground(width - 1, y);
+  }
+
+  while (queueIndex < queue.length) {
+    const pixelIndex = queue[queueIndex++];
+    const x = pixelIndex % width;
+    const y = Math.floor(pixelIndex / width);
+    enqueueIfBackground(x + 1, y);
+    enqueueIfBackground(x - 1, y);
+    enqueueIfBackground(x, y + 1);
+    enqueueIfBackground(x, y - 1);
+  }
+
+  for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
+    if (!backgroundMask[pixelIndex]) continue;
+    const idx = pixelIndex * 4;
+    data[idx + 3] = 0;
+  }
+
+  for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
+    if (backgroundMask[pixelIndex]) continue;
+    const distance = colorDistanceAt(pixelIndex);
+    if (distance >= featherThreshold) continue;
+
+    const x = pixelIndex % width;
+    const y = Math.floor(pixelIndex / width);
+    let touchesBackground = false;
+
+    for (let oy = -1; oy <= 1 && !touchesBackground; oy += 1) {
+      for (let ox = -1; ox <= 1; ox += 1) {
+        if (ox === 0 && oy === 0) continue;
+        const nx = x + ox;
+        const ny = y + oy;
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        if (backgroundMask[ny * width + nx]) {
+          touchesBackground = true;
+          break;
+        }
+      }
+    }
+
+    if (!touchesBackground) continue;
+
+    const idx = pixelIndex * 4;
+    const alphaRatio = Math.max(0, (distance - solidThreshold) / (featherThreshold - solidThreshold));
+    data[idx + 3] = Math.min(data[idx + 3], Math.round(255 * alphaRatio));
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL('image/png');
+}
+
+function queueBackgroundCutout(img, src, options = {}) {
+  if (!img) return;
+  const targetSrc = String(src || img.currentSrc || img.src || '');
+  if (!isMockupBackgroundCutoutCandidate(targetSrc)) return;
+  if (img.dataset.cutoutSource === targetSrc) return;
+
+  img.dataset.cutoutSource = targetSrc;
+  const replaceSrc = options.replaceSrc !== false;
+
+  const applyProcessed = (processedSrc) => {
+    if (!processedSrc || img.dataset.cutoutSource !== targetSrc) return;
+    if (replaceSrc && img.src !== processedSrc) img.src = processedSrc;
+  };
+
+  if (cutoutImageCache.has(targetSrc)) {
+    applyProcessed(cutoutImageCache.get(targetSrc));
+    return;
+  }
+
+  const sourceImage = new Image();
+  sourceImage.crossOrigin = 'anonymous';
+  sourceImage.onload = () => {
+    try {
+      const processedSrc = removeSolidBackgroundFromImage(sourceImage);
+      cutoutImageCache.set(targetSrc, processedSrc);
+      applyProcessed(processedSrc);
+    } catch (_) {
+      cutoutImageCache.set(targetSrc, targetSrc);
+    }
+  };
+  sourceImage.onerror = () => {
+    cutoutImageCache.set(targetSrc, targetSrc);
+  };
+  sourceImage.src = targetSrc;
+}
+
 // ── Related products ──────────────────────────────────────────
 function getRelatedProducts(currentProduct, limit = 4) {
   const currentCategory = getPrimaryCategory(currentProduct).toLowerCase();
@@ -65,11 +247,12 @@ function renderRelatedProducts(currentProduct) {
     card.type = 'button';
     card.className = 'text-left border border-white/10 hover:border-white transition bg-transparent';
     card.innerHTML = `
-      <img src="${image}" alt="${product.title}" class="w-full h-36 object-contain bg-neutral-900" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
+      <img src="${image}" alt="${product.title}" class="${getProductImageClasses(image, 'w-full h-36 object-contain bg-neutral-900')}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
       <div class="p-2">
         <p class="text-xs text-white truncate">${product.title}</p>
         <p class="text-xs text-gray-400">${product.price || ''}</p>
       </div>`;
+    queueBackgroundCutout(card.querySelector('img'), image);
     card.addEventListener('click', () => { window.location.hash = `#${product.id}`; });
     grid.appendChild(card);
   });
@@ -102,7 +285,7 @@ function renderShopGrid(productsToRender, title = 'ALL PRODUCTS') {
     card.innerHTML = `
       <div class="relative overflow-hidden">
         ${window.wishlistButtonMarkup(product.id)}
-        <img src="${product.images[0]}" alt="${product.title}" class="w-full max-h-80 aspect-[4/5] object-contain bg-neutral-900" style="width:100%;height:auto;">
+        <img src="${product.images[0]}" alt="${product.title}" class="${getProductImageClasses(product.images[0], 'w-full max-h-80 aspect-[4/5] object-contain bg-neutral-900')}" style="width:100%;height:auto;">
         ${(product.badge || normalizeUrgencyTag(product.urgencyTag)) ? `
           <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
             ${product.badge ? `<span class="bg-blue-900 text-white text-xs px-2 py-1 font-medium">${product.badge}</span>` : ''}
@@ -123,7 +306,9 @@ function renderShopGrid(productsToRender, title = 'ALL PRODUCTS') {
             </select>` : ''}
           <button type="button" data-quick-add class="px-3 py-2 border border-white/25 text-white text-xs uppercase tracking-[0.15em] hover:border-white transition">Quick Add</button>
         </div>
-      </div>`;
+      </div>`; 
+
+    queueBackgroundCutout(card.querySelector('img'), product.images[0]);
 
     // Wishlist toggle
     card.querySelector('[data-wishlist-toggle]')?.addEventListener('click', async (e) => {
@@ -185,12 +370,13 @@ window.renderWishlistPage = function () {
     card.innerHTML = `
       <div class="relative overflow-hidden">
         ${window.wishlistButtonMarkup(product.id)}
-        <img src="${image}" alt="${product.title}" class="w-full h-80 object-contain bg-neutral-900">
+        <img src="${image}" alt="${product.title}" class="${getProductImageClasses(image, 'w-full h-80 object-contain bg-neutral-900')}">
       </div>
       <div class="p-4">
         <h3 class="font-semibold text-white mb-1">${product.title}</h3>
         <p class="text-sm text-gray-400">${product.price || ''}</p>
       </div>`;
+    queueBackgroundCutout(card.querySelector('img'), image);
     card.addEventListener('click', () => { window.location.hash = `#${product.id}`; });
     card.querySelector('[data-wishlist-toggle]')?.addEventListener('click', async (e) => {
       e.preventDefault(); e.stopPropagation();
@@ -274,7 +460,7 @@ function renderNewArrivalsFromProducts() {
     card.onclick = () => { window.location.hash = `#${product.id}`; };
     card.innerHTML = `
       <div class="relative overflow-hidden">
-        <img src="${image}" alt="${product.title}" class="w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
+        <img src="${image}" alt="${product.title}" class="${getProductImageClasses(image, 'w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80')}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
         <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
           <span class="bg-blue-900 text-white text-xs px-2 py-1 font-medium">FEATURED</span>
           ${renderUrgencyTagBadge(product)}
@@ -285,6 +471,7 @@ function renderNewArrivalsFromProducts() {
         <p class="text-sm text-gray-400 mb-3">${product.price || ''}</p>
         ${colorDots ? `<div class="flex justify-center space-x-2">${colorDots}</div>` : ''}
       </div>`;
+    queueBackgroundCutout(card.querySelector('img'), image);
     container.appendChild(card);
   });
 }
@@ -308,7 +495,7 @@ function renderShopNewFromProducts() {
     card.onclick = () => { window.location.hash = `#${product.id}`; };
     card.innerHTML = `
       <div class="relative overflow-hidden">
-        <img src="${image}" alt="${product.title}" class="w-full h-80 object-contain bg-neutral-900" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
+        <img src="${image}" alt="${product.title}" class="${getProductImageClasses(image, 'w-full h-80 object-contain bg-neutral-900')}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
         <div class="absolute top-3 right-3 flex flex-col items-end gap-1">
           <span class="bg-blue-900 text-white text-xs px-2 py-1 font-medium">NEW</span>
           ${renderUrgencyTagBadge(product)}
@@ -318,6 +505,7 @@ function renderShopNewFromProducts() {
         <h3 class="font-semibold text-white mb-1">${product.title}</h3>
         <p class="text-sm text-gray-400">${product.price || ''}</p>
       </div>`;
+    queueBackgroundCutout(card.querySelector('img'), image);
     grid.appendChild(card);
   });
 }
@@ -435,18 +623,21 @@ function renderProduct(key) {
     }
   };
 
+  const toggleMainImageZoom = (clientX, clientY) => {
+    if (!mainImg) return;
+    if (zoomScale === 1) {
+      const rect = mainImg.getBoundingClientRect();
+      panX = -(clientX - rect.left - rect.width / 2) * (ZOOM_TAP_SCALE - 1);
+      panY = -(clientY - rect.top - rect.height / 2) * (ZOOM_TAP_SCALE - 1);
+      zoomScale = Math.min(ZOOM_MAX, ZOOM_TAP_SCALE);
+      mainImg.style.transition = 'transform 160ms ease';
+      applyZoomTransform();
+    } else {
+      resetMainImageZoom(true);
+    }
+  };
+
   if (mainImg) {
-    mainImg.onclick = (e) => {
-      if (movedWhileDragging) { movedWhileDragging = false; return; }
-      if (zoomScale === 1) {
-        const rect = mainImg.getBoundingClientRect();
-        panX = -(e.clientX - rect.left - rect.width / 2) * (ZOOM_TAP_SCALE - 1);
-        panY = -(e.clientY - rect.top - rect.height / 2) * (ZOOM_TAP_SCALE - 1);
-        zoomScale = Math.min(ZOOM_MAX, ZOOM_TAP_SCALE);
-        mainImg.style.transition = 'transform 160ms ease';
-        applyZoomTransform();
-      } else { resetMainImageZoom(true); }
-    };
     mainImg.onpointerdown = (e) => {
       if (zoomScale <= 1) return;
       draggingZoom = true; movedWhileDragging = false; dragPointerId = e.pointerId;
@@ -504,6 +695,12 @@ function renderProduct(key) {
     };
     mainImgViewport.onpointerup = finishSwipe;
     mainImgViewport.onpointercancel = finishSwipe;
+    mainImgViewport.onclick = (e) => {
+      if (e.target?.closest('#product-thumbs-prev, #product-thumbs-next')) return;
+      if (suppressClick) return;
+      if (movedWhileDragging) { movedWhileDragging = false; return; }
+      toggleMainImageZoom(e.clientX, e.clientY);
+    };
   }
 
   if (thumbsPrev) thumbsPrev.onclick = goPrev;
@@ -531,6 +728,7 @@ function renderProduct(key) {
       const img = document.createElement('img');
       img.src = src; img.alt = `${data.title} ${absIdx + 1}`;
       img.className = 'product-thumb w-full h-24 object-contain rounded border border-white/10 cursor-pointer hover:opacity-80 transition bg-neutral-900';
+      queueBackgroundCutout(img, src);
       img.dataset.index = absIdx;
       if (absIdx === activeImageIndex) img.classList.add('border-white', 'border-2');
       img.addEventListener('click', () => { activeImageIndex = absIdx; syncActiveImage(); });
@@ -546,6 +744,7 @@ function renderProduct(key) {
     activeImageIndex = Math.max(0, Math.min(activeImageIndex, total - 1));
     resetMainImageZoom(false);
     mainImg.src = currentGalleryImages[activeImageIndex];
+    queueBackgroundCutout(mainImg, currentGalleryImages[activeImageIndex]);
     if (activeImageIndex < thumbWindowStart || activeImageIndex >= thumbWindowStart + THUMBS_PER_PAGE) {
       thumbWindowStart = Math.floor(activeImageIndex / THUMBS_PER_PAGE) * THUMBS_PER_PAGE;
     }

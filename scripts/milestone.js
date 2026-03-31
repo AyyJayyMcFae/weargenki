@@ -5,7 +5,7 @@
 
 (function () {
   // ── UPDATE THIS NUMBER WHEN SALES COME IN ──
-  const CURRENT_SALES = 1;
+  const CURRENT_SALES = 0;
   const MAX_SALES = 100;
   const TIERS = [25, 50, 75, 100];
 
