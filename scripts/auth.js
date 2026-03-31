@@ -107,7 +107,9 @@ const authState = {
     const user = authState.user;
     const authChip = document.getElementById('auth-chip');
     const authButton = document.getElementById('auth-button');
+    const mobileAuthChip = document.getElementById('mobile-auth-chip');
     const wishlistCount = document.getElementById('wishlist-count');
+    const mobileWishlistCount = document.getElementById('mobile-wishlist-count');
     const wishlistPageCopy = document.getElementById('wishlist-page-copy');
     const accountPageCopy = document.getElementById('account-page-copy');
     const accountSignOutButton = document.getElementById('account-signout-button');
@@ -115,8 +117,10 @@ const authState = {
     const accountContent = document.getElementById('account-content');
 
     if (authChip) authChip.textContent = getUserChipLabel(user);
+    if (mobileAuthChip) mobileAuthChip.textContent = getUserChipLabel(user);
     if (authButton) { authButton.setAttribute('aria-label', user ? 'Account' : 'Login'); }
     if (wishlistCount) wishlistCount.textContent = String(authState.wishlistIds.size);
+    if (mobileWishlistCount) mobileWishlistCount.textContent = String(authState.wishlistIds.size);
     if (wishlistPageCopy) wishlistPageCopy.textContent = user ? 'Saved items are attached to your account.' : 'Sign in with Google to save products to your wishlist.';
     if (accountPageCopy) accountPageCopy.textContent = user ? 'Manage your profile and review your order history.' : 'Sign in to manage your profile and view order history.';
     if (accountSignOutButton) {
@@ -353,6 +357,8 @@ const authState = {
     };
     bind('auth-button', () => { window.location.hash = '#account'; });
     bind('wishlist-nav-button', () => { window.location.hash = '#wishlist'; });
+    bind('mobile-auth-button', () => { window.location.hash = '#account'; window.toggleMobileNavMenu?.(); });
+    bind('mobile-wishlist-button', () => { window.location.hash = '#wishlist'; window.toggleMobileNavMenu?.(); });
     bind('account-signin-button', signInWithGoogle);
     bind('account-signout-button', signOutUser);
     bind('account-refresh-orders', loadOrdersForAccount);

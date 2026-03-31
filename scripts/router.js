@@ -14,6 +14,8 @@
   const searchInput = document.getElementById('header-search-input');
   const searchInputContainer = document.getElementById('search-input-container');
   const searchToggleButton = document.getElementById('search-toggle-button');
+  const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+  const mobileNavMenu = document.getElementById('mobile-nav-menu');
 
   const HEADER_OFFSET_TRIM = 0;
   const scrollThreshold = 10;
@@ -98,6 +100,7 @@
   // ── Search ────────────────────────────────────────────────────
   window.toggleSearchInput = function (event) {
     if (event) event.stopPropagation();
+    closeMobileNavMenu();
     searchInputContainer.classList.toggle('active');
     if (searchInputContainer.classList.contains('active')) {
       searchInput.focus();
@@ -113,6 +116,32 @@
       document.removeEventListener('click', closeSearchOnDocumentClick);
     }
   }
+
+  function closeMobileNavMenu() {
+    if (!mobileNavMenu || !mobileNavToggle) return;
+    mobileNavMenu.classList.remove('active');
+    mobileNavToggle.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('click', closeMobileNavOnDocumentClick);
+  }
+
+  function closeMobileNavOnDocumentClick(event) {
+    if (!mobileNavMenu.contains(event.target) && !mobileNavToggle.contains(event.target)) {
+      closeMobileNavMenu();
+    }
+  }
+
+  window.toggleMobileNavMenu = function (event) {
+    if (!mobileNavMenu || !mobileNavToggle) return;
+    if (event) event.stopPropagation();
+    searchInputContainer.classList.remove('active');
+    document.removeEventListener('click', closeSearchOnDocumentClick);
+    const isOpen = mobileNavMenu.classList.toggle('active');
+    mobileNavToggle.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) document.addEventListener('click', closeMobileNavOnDocumentClick);
+    else document.removeEventListener('click', closeMobileNavOnDocumentClick);
+  };
+
+  mobileNavToggle?.addEventListener('click', window.toggleMobileNavMenu);
 
   window.performSearchAndRoute = function () {
     const query = searchInput.value.trim();
@@ -242,7 +271,10 @@
     syncRouteOffset();
 
     // ── Page-specific rendering ──────────────────────────────────
-    if (pageId === 'home-page') renderNewArrivalsFromProducts();
+    if (pageId === 'home-page') {
+      renderNewArrivalsFromProducts();
+      window.renderHomeLookbook?.();
+    }
 
     if (pageId === 'new-page') renderShopNewFromProducts();
 
@@ -391,6 +423,7 @@
     route();
     setTimeout(() => initAnnouncementTicker(), 300);
     syncNewsletterPromptVisibility();
+    closeMobileNavMenu();
   }
 
   if (document.readyState === 'loading') {

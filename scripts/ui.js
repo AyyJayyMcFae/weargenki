@@ -928,34 +928,174 @@ function renderProduct(key) {
 
 // ── Lookbook ──────────────────────────────────────────────────
 const lookbookData = {
-  'lookbook-1': { title: 'GENKI TWO-FACED - Split', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp', caption: 'Genki Tour Hoodie', linkedProduct: 'genki-two-faced-hoodie' },
-  'lookbook-2': { title: 'Genki Skull - Street Essentials', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748940/I0P8IHJ_oxbf46.webp', caption: 'In the thick of it all with the Genki Skull Hoodie.', linkedProduct: 'genki-skull-hoodie' },
-  'lookbook-3': { title: 'Genki Sakura - Cargo Focus', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748935/0AA3u2l_iwzzvt.webp', caption: 'Sporty and utility look centered around the Genki Sport Fleece Joggers.', linkedProduct: 'genki-sakura-hoodie' },
-  'lookbook-4': { title: 'GENKI NEW YORK - Downtown Taxicab Yellow Beanie.', image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762752906/6EiT5o1_nhvhwf.webp', caption: 'Cozy city vibes with the Genki Village Shinobi Beanie.', linkedProduct: 'genki-shinobi-beanie' },
+  'lookbook-1': { 
+    title: 'GENKI TWO-FACED - Split', 
+    image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp', 
+    caption: 'Genki Tour Hoodie', 
+    linkedProduct: 'genki-two-faced-hoodie' },
+
+  'lookbook-2': { 
+    title: 'Genki Skull - Street Essentials', 
+    image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748940/I0P8IHJ_oxbf46.webp', 
+    caption: 'In the thick of it all with the Genki Skull Hoodie.', 
+    linkedProduct: 'genki-skull-hoodie' },
+  'lookbook-3': { 
+    title: 'Genki Sakura - Cargo Focus', 
+    image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748935/0AA3u2l_iwzzvt.webp', 
+    caption: 'Sporty and utility look centered around the Genki Sport Fleece Joggers.', 
+    linkedProduct: 'genki-sakura-hoodie' },
+  'lookbook-4': {
+    title: 'Rosebush Essential Tee',
+    image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774986213/IMG_6041_wzbbcb.webp',
+    caption: 'Out and about in the Rosebush Essential Tee.',
+    linkedProduct: 'essentials-tee',
+    imageFit: 'contain',
+    imagePosition: 'top center',
+    imageBackground: '#0d0d0d'
+  },
+  'lookbook-5': { 
+    title: 'Loving Life in the Skull Hoodie', 
+    image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774986932/IMG_6043_levbtb.webp', 
+    caption: 'Just stepped ut the house in the Pink/Black Skull Hoodie.', 
+    linkedProduct: 'skull-hoodie' },
+
+  'lookbook-6': {
+    type: 'drawing-board',
+    title: 'First Ad I Took Somewhat Seriously',
+    image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774988228/image_ult8ty.webp',
+    caption: 'I remember throwing this together to advertise the Shinobi stuff when I first came up with it, way back when. I was so proud of how it turned out, haha. Not bad work, really but, like, if you look at the hand on the jacket, I actually drew that in myself.',
+    linkedSearch: 'Genki Shinobi',
+    linkedLabel: 'Shop the concept'
+  },
+  // 'lookbook-7': {
+  //   type: 'on-the-way',
+  //   title: 'Sample Pack Landing',
+  //   image: 'https://example.com/packing-shot.webp',
+  //   caption: 'Factory sample photos and package details before launch.',
+  //   linkedHref: '#new',
+  //   linkedLabel: 'See update'
+  // },
 };
+
+function getLookType(item) {
+  if (item?.type === 'drawing-board' || item?.type === 'on-the-way') return item.type;
+  return 'shop-fit';
+}
+
+function getLookCardLabel(item) {
+  const type = getLookType(item);
+  if (type === 'drawing-board') return 'Drawing Board';
+  if (type === 'on-the-way') return 'On the way';
+  return 'Lookbook';
+}
+
+function getLookAction(item) {
+  const type = getLookType(item);
+  if (type === 'drawing-board') {
+    const href = item?.linkedProduct
+      ? `#${item.linkedProduct}`
+      : item?.linkedSearch
+        ? `#shop?q=${encodeURIComponent(item.linkedSearch)}`
+        : item?.linkedHref || '';
+    return {
+      href,
+      cardLabel: item?.linkedLabel || 'Shop the concept',
+      buttonLabel: item?.linkedLabel || 'Shop the Concept'
+    };
+  }
+  if (type === 'on-the-way') {
+    return {
+      href: item?.linkedHref || '',
+      cardLabel: item?.linkedLabel || 'See update',
+      buttonLabel: item?.linkedLabel || 'See Update'
+    };
+  }
+  return {
+    href: item?.linkedProduct ? `#${item.linkedProduct}` : '',
+    cardLabel: item?.linkedLabel || 'Shop the fit',
+    buttonLabel: item?.linkedLabel || 'View Product'
+  };
+}
+
+function getLookImageFit(item) {
+  return item?.imageFit === 'contain' ? 'object-contain' : 'object-cover';
+}
+
+function getLookImageStyle(item, extras = '') {
+  const styles = [];
+  if (item?.imagePosition) styles.push(`object-position:${item.imagePosition}`);
+  if (item?.imageBackground) styles.push(`background:${item.imageBackground}`);
+  if (extras) styles.push(extras);
+  return styles.join(';');
+}
+
+function shuffleArray(items) {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function renderHomeLookbook() {
+  const grid = document.getElementById('home-lookbook-grid');
+  if (!grid) return;
+
+  const looks = shuffleArray(Object.entries(lookbookData)).slice(0, 4);
+  const slotClasses = [
+    'col-span-2 row-span-2 overflow-hidden',
+    'col-span-2 overflow-hidden',
+    'overflow-hidden',
+    'overflow-hidden'
+  ];
+  const imageStyles = [
+    'max-height:70vh;',
+    'max-height:40vh;',
+    '',
+    ''
+  ];
+
+  grid.innerHTML = looks.map(([key, item], index) => `
+    <div class="${slotClasses[index] || 'overflow-hidden'}">
+      <a href="#${key}" class="group block h-full">
+        <img
+          src="${item.image}"
+          alt="${item.caption || item.title}"
+          class="w-full h-full ${getLookImageFit(item)} transition-transform duration-300 cursor-pointer group-hover:scale-[1.02]"
+          style="${getLookImageStyle(item, imageStyles[index] || '')}"
+          loading="lazy"
+        >
+      </a>
+    </div>
+  `).join('');
+}
 
 function renderLookbookMain() {
   const grid = document.getElementById('lookbook-main-grid');
   if (!grid) return;
   grid.innerHTML = '';
   Object.entries(lookbookData).forEach(([key, item]) => {
+    const action = getLookAction(item);
     const card = document.createElement('a');
     card.href = `#${key}`;
-    card.className = 'group block overflow-hidden border border-white/10 hover:border-white transition';
+    card.className = 'look-main-card group block hover:border-white transition';
     card.innerHTML = `
-      <div class="relative overflow-hidden">
-        <img src="${item.image}" alt="${item.caption || item.title}" class="w-full h-72 object-cover transition duration-300 group-hover:scale-[1.03] group-hover:brightness-110">
+      <div class="relative overflow-hidden" style="${item.imageBackground ? `background:${item.imageBackground}` : ''}">
+        <img src="${item.image}" alt="${item.caption || item.title}" class="w-full h-auto ${getLookImageFit(item)} transition duration-300 group-hover:scale-[1.03] group-hover:brightness-110" style="${getLookImageStyle(item)}">
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
       </div>
       <div class="p-4 space-y-1">
-        <p class="text-xs uppercase tracking-[0.3em] text-white/50">Lookbook</p>
+        <p class="text-xs uppercase tracking-[0.3em] text-white/50">${getLookCardLabel(item)}</p>
         <h3 class="text-lg font-semibold">${item.title}</h3>
         <p class="text-sm text-gray-400">${item.caption || 'View look'}</p>
-        ${item.linkedProduct ? `<span class="inline-flex items-center text-xs uppercase tracking-[0.25em] text-white/70 mt-2">Shop the fit</span>` : ''}
+        ${action.href ? `<span class="inline-flex items-center text-xs uppercase tracking-[0.25em] text-white/70 mt-2">${action.cardLabel}</span>` : ''}
       </div>`;
     grid.appendChild(card);
   });
 }
+
+window.renderHomeLookbook = renderHomeLookbook;
 
 function renderLook(key) {
   const data = lookbookData[key];
@@ -964,11 +1104,23 @@ function renderLook(key) {
   const titleEl = document.getElementById('look-title');
   const captionEl = document.getElementById('look-caption');
   const linkedBtn = document.getElementById('look-linked-product');
-  if (img) img.src = data.image;
+  const action = getLookAction(data);
+  if (img) {
+    img.src = data.image;
+    img.classList.remove('object-cover', 'object-contain');
+    img.classList.add(data.imageFit === 'contain' ? 'object-contain' : 'object-cover');
+    img.style.objectPosition = data.imagePosition || '';
+    img.style.background = data.imageBackground || '';
+  }
   if (titleEl) titleEl.textContent = data.title;
   if (captionEl) captionEl.textContent = data.caption;
   if (linkedBtn) {
-    if (data.linkedProduct) { linkedBtn.href = `#${data.linkedProduct}`; linkedBtn.style.display = 'inline-block'; }
-    else { linkedBtn.style.display = 'none'; }
+    if (action.href) {
+      linkedBtn.href = action.href;
+      linkedBtn.textContent = action.buttonLabel;
+      linkedBtn.style.display = 'inline-block';
+    } else {
+      linkedBtn.style.display = 'none';
+    }
   }
 }

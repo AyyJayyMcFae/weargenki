@@ -1087,6 +1087,31 @@ const PRODUCTS = [
   },
 
   {
+    id: 'genki-shinobi-packable-jacket',
+    title: 'Genki Village Shinobi Packable Jacket',
+    price: '$85.00 ',
+    badge: '',
+    categories: ['Tops', 'Outerwear'],
+    keywords: 'jacket packable shinobi genki lightweight warm comfortable',
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    images: [
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774992796/ca30fe45-c15b-45e0-8774-d30b12f90890_dm3zuv.png',
+      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170094910711008-0.png',
+      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176509461712698-1.png',
+    ],
+    colors: [
+      { name: 'Black', color: 'bg-black', images: ['https://cdn.printful.me/t/quick-stores/variants/w339/1426525969cc3f6c137a7__825', 'https://cdn.printful.me/t/quick-stores/variants/w339/1426525969cc3f6c4ca43__825', 'https://cdn.printful.me/t/quick-stores/variants/w339/1426525969cc3f6d3ece0__825', 'https://cdn.printful.me/t/quick-stores/variants/w339/1426525969cc3f6d74a37__825'] },
+      { name: 'Navy', color: 'bg-gray-800', images: ['https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-170094910711014-2.png', 'https://cdn.printful.me/t/quick-stores/variants/w339/1426526469cc3f732e63e__825', 'https://cdn.printful.me/t/quick-stores/variants/w339/1426526469cc3f742e260__825','https://cdn.printful.me/t/quick-stores/variants/w339/1426526469cc3f74646e5__825'] },
+      { name: 'Red', color: 'bg-red-600', images: ['https://cdn.printful.me/t/quick-stores/variants/w339/1426526969cc3f7a52bf9__825', 'https://cdn.printful.me/t/quick-stores/variants/w339/1426526969cc3f7a76837__825','https://cdn.printful.me/t/quick-stores/variants/w339/1426526969cc3f7b71416__825','https://cdn.printful.me/t/quick-stores/variants/w339/1426526969cc3f7b99d56__825'] },
+      { name: 'Royal Blue', color: 'bg-blue-800', images: ['https://cdn.printful.me/t/quick-stores/variants/w339/1426527469cc3f811711d__825', 'https://cdn.printful.me/t/quick-stores/variants/w339/1426527469cc3f814de07__825','https://cdn.printful.me/t/quick-stores/variants/w339/1426527469cc3f82572d5__825','https://cdn.printful.me/t/quick-stores/variants/w339/1426527469cc3f82ca9ee__825'] }
+    ],
+    details: [
+      'Lightweight and packable for on-the-go lifestyles.',
+      'Water-resistant fabric to keep you dry.',
+    ],
+  },
+
+  {
     id: 'genki-shinobi-beanie',
     title: 'Genki Village Shinobi Beanie',
     price: '$30.00 ',
