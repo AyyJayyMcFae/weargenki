@@ -1216,6 +1216,10 @@
                     <span>Shipping</span>
                     <span id="payment-shipping" class="text-white font-semibold">$0.00</span>
                   </div>
+                  <div id="payment-discount-row" class="hidden flex items-center justify-between text-sm text-green-400">
+                    <span>Promo discount</span>
+                    <span id="payment-discount" class="font-semibold">-$0.00</span>
+                  </div>
                   <div class="border-t border-white/10 pt-3 flex items-center justify-between text-lg font-semibold">
                     <span>Total</span>
                     <span id="payment-total">$0.00</span>
@@ -1227,7 +1231,11 @@
                 <div class="space-y-3">
                   <div>
                     <label class="text-xs uppercase tracking-[0.3em] text-white/60">Promo code</label>
-                    <input id="sq-promo" type="text" placeholder="Enter promo code (optional)" class="mt-2 w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <div class="mt-2 flex gap-2">
+                      <input id="sq-promo" type="text" placeholder="Enter promo code (optional)" class="min-w-0 flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
+                      <button id="sq-promo-apply" type="button" class="shrink-0 border border-white/20 px-4 text-sm font-bold uppercase tracking-[0.2em] text-white hover:border-white transition">Apply</button>
+                    </div>
+                    <p id="sq-promo-status" class="mt-2 text-sm text-gray-400 hidden"></p>
                   </div>
                   <div class="space-y-2 border border-white/10 p-3">
                     <p class="text-xs uppercase tracking-[0.3em] text-white/60">Card details</p>
