@@ -328,7 +328,9 @@ const PRODUCTS = [
       'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839820/Sigilism_Boxy_Tank_Black_Collar_plh6gu.png',
     ],
     colors: [
-      { name: 'Black', color: 'bg-black', images: [] },
+      { name: 'Black', color: 'bg-black', images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839813/Sigilism_Boxy_Tank_Black_Front_f4tb2e.png',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839817/Sigilism_Boxy_Tank_Black_Back_fsf5om.png',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772839820/Sigilism_Boxy_Tank_Black_Collar_plh6gu.png',] },
       {
         name: 'Grey', color: 'bg-gray-500',
         images: [
@@ -356,12 +358,14 @@ const PRODUCTS = [
     images: [
       'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837873/Rainman_Jersey_Red_Front_nqs8rl.png',
       'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837877/Rainman_Jersey_Red_Back_bw0srx.png',
+    ],
+
+    colors: [
+      { name: 'Red', color: 'bg-red-800', images: [  'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837873/Rainman_Jersey_Red_Front_nqs8rl.png',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837877/Rainman_Jersey_Red_Back_bw0srx.png',
       'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837890/Rainman_Jersey_Red_Buttons_gope0m.png',
       'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772838162/Rainman_Jersey_Red_Hem_ghwenb.png',
-      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837904/Rainman_Jersey_Red_Bunch_ynareq.png',
-    ],
-    colors: [
-      { name: 'Red', color: 'bg-red-800', images: [] },
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1772837904/Rainman_Jersey_Red_Bunch_ynareq.png',] },
       {
         name: 'Black', color: 'bg-black',
         images: [
@@ -412,7 +416,7 @@ const PRODUCTS = [
     id: 'genki-kinetic-performance-shortskirt',
     title: 'Genki Kinetic™ Performance ShortSkirt',
     price: '$45.00 ',
-    badge: 'FIT',
+    badge: 'KINETIC',
     categories: 'Bottoms',
     keywords: 'genki kinetic™™ performance shortskirt athletic skirt tennis skirt',
     sizes: ['S', 'M', 'L', 'XL'],
@@ -560,7 +564,7 @@ const PRODUCTS = [
     id: 'genki-kinetic-long-sleeve-shirt',
     title: 'Genki Kinetic™ Long Sleeve Shirt',
     price: '$55.00 ',
-    badge: 'FIT',
+    badge: 'KINETIC',
     categories: 'Tops',
     keywords: 'genki kinetic™ champion long sleeve shirt athletic',
     sizes: ['S', 'M', 'L', 'XL', '2XL†'],
@@ -568,8 +572,6 @@ const PRODUCTS = [
     images: [
       'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173490502110580-1.png',
       'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173490502110580-5.png',
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173490502110580-4.png',
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-173490502110580-6.png',
     ],
     colors: [],
     details: [
@@ -799,7 +801,7 @@ const PRODUCTS = [
     title: 'Genki Kinetic™ Fitted T-shirt',
     price: '$40.00 ',
     surcharges: { '2XL†': 2.00, '3XL†': 3.00 },
-    badge: 'FIT',
+    badge: 'KINETIC',
     categories: 'Tops',
     keywords: 'fitted t-shirt fit breathable lightweight comfortable genki',
     sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†'],
@@ -825,7 +827,7 @@ const PRODUCTS = [
     title: 'Genki Kinetic™ Fleece Joggers',
     price: '$55.00 ',
     surcharges: { '2XL†': 3.00 },
-    badge: 'FIT',
+    badge: 'KINETIC',
     categories: 'Bottoms',
     keywords: 'fleece joggers fit comfortable warm genki activewear',
     sizes: ['XS', 'S', 'M', 'L', 'XL', '2XL†'],

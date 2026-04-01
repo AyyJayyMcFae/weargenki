@@ -98,10 +98,15 @@
   [header, innerNavDiv, announcementBar].forEach((el) => el?.addEventListener('transitionend', applyCurrentRouteOffset));
 
   // ── Search ────────────────────────────────────────────────────
+  function syncSearchNavState() {
+    innerNavDiv?.classList.toggle('search-active', Boolean(searchInputContainer?.classList.contains('active')));
+  }
+
   window.toggleSearchInput = function (event) {
     if (event) event.stopPropagation();
     closeMobileNavMenu();
     searchInputContainer.classList.toggle('active');
+    syncSearchNavState();
     if (searchInputContainer.classList.contains('active')) {
       searchInput.focus();
       document.addEventListener('click', closeSearchOnDocumentClick);
@@ -113,6 +118,7 @@
   function closeSearchOnDocumentClick(event) {
     if (!searchInputContainer.contains(event.target) && !searchToggleButton.contains(event.target)) {
       searchInputContainer.classList.remove('active');
+      syncSearchNavState();
       document.removeEventListener('click', closeSearchOnDocumentClick);
     }
   }
@@ -134,6 +140,7 @@
     if (!mobileNavMenu || !mobileNavToggle) return;
     if (event) event.stopPropagation();
     searchInputContainer.classList.remove('active');
+    syncSearchNavState();
     document.removeEventListener('click', closeSearchOnDocumentClick);
     const isOpen = mobileNavMenu.classList.toggle('active');
     mobileNavToggle.setAttribute('aria-expanded', String(isOpen));
@@ -146,6 +153,7 @@
   window.performSearchAndRoute = function () {
     const query = searchInput.value.trim();
     searchInputContainer.classList.remove('active');
+    syncSearchNavState();
     window.location.hash = query ? `#shop?q=${encodeURIComponent(query)}` : '#shop';
   };
 
@@ -205,6 +213,7 @@
   // ── Page map ──────────────────────────────────────────────────
   const pageMap = {
     '#home': 'home-page', '': 'home-page',
+    '#kinetic': 'kinetic-page',
     '#new': 'new-page',
     '#shop': 'shop-page',
     '#wishlist': 'wishlist-page',
@@ -275,6 +284,8 @@
       renderNewArrivalsFromProducts();
       window.renderHomeLookbook?.();
     }
+
+    if (pageId === 'kinetic-page') renderKineticCollectionFromProducts();
 
     if (pageId === 'new-page') renderShopNewFromProducts();
 

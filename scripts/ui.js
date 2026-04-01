@@ -43,6 +43,68 @@ function getProductImageClasses(_src, baseClasses) {
   return baseClasses;
 }
 
+function getCardHoverSwapImages(product) {
+  const images = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
+  if (images.length < 2) return null;
+  return images;
+}
+
+function attachProductCardHoverSwap(card, product) {
+  const images = getCardHoverSwapImages(product);
+  const img = card?.querySelector('img');
+  if (!img || !images) return;
+
+  const primaryImage = images[0];
+  const hoverImage = images[1];
+  const FADE_DURATION_MS = 180;
+  const parent = img.parentElement;
+  if (!parent) return;
+
+  
+  img.style.transition = img.style.transition
+    ? `${img.style.transition}, opacity ${FADE_DURATION_MS}ms ease`
+    : `opacity ${FADE_DURATION_MS}ms ease`;
+
+  const overlay = img.cloneNode(false);
+  overlay.removeAttribute('id');
+  overlay.removeAttribute('srcset');
+  overlay.src = hoverImage;
+  overlay.alt = img.alt;
+  overlay.setAttribute('aria-hidden', 'true');
+  overlay.style.position = 'absolute';
+  overlay.style.inset = '0';
+  overlay.style.width = '100%';
+  overlay.style.height = img.style.height || '100%';
+  overlay.style.maxHeight = img.style.maxHeight || '';
+  overlay.style.aspectRatio = img.style.aspectRatio || '';
+  overlay.style.objectFit = img.style.objectFit || '';
+  overlay.style.objectPosition = img.style.objectPosition || '';
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+  overlay.style.zIndex = '0';
+  overlay.style.transition = `opacity ${FADE_DURATION_MS}ms ease`;
+  parent.insertBefore(overlay, img);
+
+
+
+  const preload = new Image();
+  preload.src = hoverImage;
+
+  const showImage = (src) => {
+    if (!src) return;
+    const showOverlay = src === hoverImage;
+    overlay.style.opacity = showOverlay ? '1' : '0';
+    img.style.opacity = showOverlay ? '0' : '1';
+  };
+
+  queueBackgroundCutout(img, primaryImage);
+  queueBackgroundCutout(overlay, hoverImage);
+  card.addEventListener('mouseenter', () => showImage(hoverImage));
+  card.addEventListener('mouseleave', () => showImage(primaryImage));
+  card.addEventListener('focusin', () => showImage(hoverImage));
+  card.addEventListener('focusout', () => showImage(primaryImage));
+}
+
 function averageRgb(samples) {
   if (!samples.length) return [0, 0, 0];
   const total = samples.reduce((acc, [r, g, b]) => {
@@ -253,15 +315,16 @@ function renderRelatedProducts(currentProduct) {
         <p class="text-xs text-gray-400">${product.price || ''}</p>
       </div>`;
     queueBackgroundCutout(card.querySelector('img'), image);
+    attachProductCardHoverSwap(card, product);
     card.addEventListener('click', () => { window.location.hash = `#${product.id}`; });
     grid.appendChild(card);
   });
 }
 
 // ── Shop grid ─────────────────────────────────────────────────
-function renderShopGrid(productsToRender, title = 'ALL PRODUCTS') {
-  const gridContainer = document.getElementById('shop-product-grid');
-  const shopTitle = document.getElementById('shop-title');
+function renderShopGrid(productsToRender, title = 'ALL PRODUCTS', options = {}) {
+  const gridContainer = document.getElementById(options.gridId || 'shop-product-grid');
+  const shopTitle = document.getElementById(options.titleId || 'shop-title');
   if (!gridContainer || !shopTitle) return;
 
   shopTitle.textContent = title;
@@ -309,12 +372,13 @@ function renderShopGrid(productsToRender, title = 'ALL PRODUCTS') {
       </div>`; 
 
     queueBackgroundCutout(card.querySelector('img'), product.images[0]);
+    attachProductCardHoverSwap(card, product);
 
     // Wishlist toggle
     card.querySelector('[data-wishlist-toggle]')?.addEventListener('click', async (e) => {
       e.preventDefault(); e.stopPropagation();
       const changed = await window.toggleWishlistProduct(product.id);
-      if (changed) renderShopGrid(productsToRender, title);
+      if (changed) renderShopGrid(productsToRender, title, options);
     });
 
     // Quick controls stop propagation
@@ -336,6 +400,26 @@ function renderShopGrid(productsToRender, title = 'ALL PRODUCTS') {
     });
 
     gridContainer.appendChild(card);
+  });
+}
+
+function renderKineticCollectionFromProducts() {
+  const kineticProducts = PRODUCTS.filter((product) => {
+    const haystack = [
+      product?.id,
+      product?.title,
+      product?.badge,
+      product?.keywords,
+      Array.isArray(product?.categories) ? product.categories.join(' ') : product?.categories,
+      product?.category,
+      Array.isArray(product?.colors) ? product.colors.map((color) => color?.name || '').join(' ') : ''
+    ].join(' ').toLowerCase();
+    return haystack.includes('kinetic');
+  });
+
+  renderShopGrid(kineticProducts, 'KINETIC COLLECTION', {
+    gridId: 'kinetic-product-grid',
+    titleId: 'kinetic-title'
   });
 }
 
@@ -377,6 +461,7 @@ window.renderWishlistPage = function () {
         <p class="text-sm text-gray-400">${product.price || ''}</p>
       </div>`;
     queueBackgroundCutout(card.querySelector('img'), image);
+    attachProductCardHoverSwap(card, product);
     card.addEventListener('click', () => { window.location.hash = `#${product.id}`; });
     card.querySelector('[data-wishlist-toggle]')?.addEventListener('click', async (e) => {
       e.preventDefault(); e.stopPropagation();
@@ -388,7 +473,7 @@ window.renderWishlistPage = function () {
 };
 
 // ── Featured carousel (home page) ────────────────────────────
-const FEATURED_RULE = ['kinetic'];
+const FEATURED_RULE = ['shinobi', 'acd', 'black'];
 const FEATURED_FALLBACK_IDS = ['genki-esquire-jacket', 'acd-kancho-hancho-shirt', 'genki-sakura-hoodie', 'acd-neko-pastel-cap', 'genki-america-snapback'];
 const FEATURED_MATCH_MODE = 'any';
 
@@ -419,6 +504,24 @@ function getFeaturedHaystack(product) {
   ].join(' ').toLowerCase();
 }
 
+function getFeaturedColorMatchedImage(product) {
+  const { include } = parseFeaturedRuleTokens(FEATURED_RULE);
+  const colors = Array.isArray(product?.colors) ? product.colors : [];
+  const getColorImage = (color) => {
+    if (Array.isArray(color?.images) && color.images.length) return color.images[0];
+    if (color?.image) return color.image;
+    return '';
+  };
+  for (const term of include) {
+    if (!term || term === 'has:urgencytag' || term === 'urgencytag:*') continue;
+    const exactMatch = colors.find((color) => String(color?.name || '').trim().toLowerCase() === term);
+    const partialMatch = colors.find((color) => String(color?.name || '').trim().toLowerCase().includes(term));
+    const matchedImage = getColorImage(exactMatch) || getColorImage(partialMatch);
+    if (matchedImage) return matchedImage;
+  }
+  return product?.images?.[0] || 'https://placehold.co/600x600/222222/ffffff?text=Product';
+}
+
 function getFeaturedProducts(limit = 5) {
   const { include, exclude } = parseFeaturedRuleTokens(FEATURED_RULE);
   const scored = PRODUCTS.map((product) => {
@@ -429,15 +532,22 @@ function getFeaturedProducts(limit = 5) {
       return haystack.includes(term);
     });
     if (hasExcluded) return null;
-    const hitCount = include.reduce((count, term) => {
-      if (term === 'has:urgencytag' || term === 'urgencytag:*') return count + (urgencyTag ? 1 : 0);
-      return count + (haystack.includes(term) ? 1 : 0);
+    const matchFlags = include.map((term) => {
+      if (term === 'has:urgencytag' || term === 'urgencytag:*') return Boolean(urgencyTag);
+      return haystack.includes(term);
+    });
+    const hitCount = matchFlags.reduce((count, matched) => count + (matched ? 1 : 0), 0);
+    const weightedScore = matchFlags.reduce((score, matched, index) => {
+      if (!matched) return score;
+      return score + (include.length - index);
     }, 0);
     const includePass = !include.length || (FEATURED_MATCH_MODE === 'all' ? hitCount === include.length : hitCount > 0);
     if (!includePass) return null;
-    return { product, score: hitCount };
+    return { product, score: weightedScore, hitCount };
   }).filter(Boolean);
-  let filtered = scored.sort((a, b) => b.score - a.score).map((item) => item.product);
+  let filtered = scored
+    .sort((a, b) => (b.score - a.score) || (b.hitCount - a.hitCount))
+    .map((item) => item.product);
   if (!filtered.length) {
     const byId = new Map(PRODUCTS.map((p) => [p.id, p]));
     filtered = FEATURED_FALLBACK_IDS.map((id) => byId.get(id)).filter(Boolean);
@@ -452,7 +562,7 @@ function renderNewArrivalsFromProducts() {
   container.innerHTML = '';
   getFeaturedProducts(5).forEach((product, index) => {
     const visibilityClass = index === 3 ? ' hidden md:block' : index === 4 ? ' hidden xl:block' : '';
-    const image = product.images?.[0] || 'https://placehold.co/600x600/222222/ffffff?text=Product';
+    const image = getFeaturedColorMatchedImage(product);
     const colors = Array.isArray(product.colors) ? product.colors : [];
     const colorDots = colors.slice(0, 5).map((c) => `<div class="w-4 h-4 ${c?.color || 'bg-black'} border border-white/50" title="${c?.name || ''}"></div>`).join('');
     const card = document.createElement('div');
@@ -472,6 +582,7 @@ function renderNewArrivalsFromProducts() {
         ${colorDots ? `<div class="flex justify-center space-x-2">${colorDots}</div>` : ''}
       </div>`;
     queueBackgroundCutout(card.querySelector('img'), image);
+    attachProductCardHoverSwap(card, product);
     container.appendChild(card);
   });
 }
@@ -506,6 +617,7 @@ function renderShopNewFromProducts() {
         <p class="text-sm text-gray-400">${product.price || ''}</p>
       </div>`;
     queueBackgroundCutout(card.querySelector('img'), image);
+    attachProductCardHoverSwap(card, product);
     grid.appendChild(card);
   });
 }
@@ -1108,7 +1220,7 @@ function renderLook(key) {
   if (img) {
     img.src = data.image;
     img.classList.remove('object-cover', 'object-contain');
-    img.classList.add(data.imageFit === 'contain' ? 'object-contain' : 'object-cover');
+    img.classList.add('object-contain');
     img.style.objectPosition = data.imagePosition || '';
     img.style.background = data.imageBackground || '';
   }
