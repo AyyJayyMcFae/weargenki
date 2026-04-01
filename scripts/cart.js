@@ -21,8 +21,11 @@
   const PROMO_CODES = {
     GKVG100: { type: 'free_shipping', description: 'Free shipping unlocked.' },
     FREESHIP: { type: 'free_shipping', description: 'Free shipping unlocked.' },
+    NEWSHIPVIP: { type: 'shipping_plus_percent', value: 10, description: 'Free shipping plus 10% off your subtotal.' },
     WELCOME10: { type: 'percent', value: 10, description: '10% off your subtotal.' },
     NEXTDROP: { type: 'percent', value: 15, description: '15% off your subtotal.' },
+    STACKED20: { type: 'percent', value: 20, minSubtotal: 10000, description: '20% off orders over $100.' },
+    BONUS25: { type: 'fixed', value: 2500, minSubtotal: 15000, description: '$25.00 off orders over $150.' },
     ANNIVERSARY25: { type: 'percent', value: 25, description: '25% off your subtotal.' },
     BROKEAGAIN: { type: 'percent', value: 1, description: '1% off. Every cent counts.' },
     POCKETLINT: { type: 'fixed', value: 100, description: '$1.00 off your order.' },
@@ -44,7 +47,7 @@
   const generateCancelCode = () => String(Math.floor(10000000 + Math.random() * 90000000));
   const normalizePromoCode = (value = '') => String(value).trim().toUpperCase();
   const getAppliedPromo = () => PROMO_CODES[appliedPromoCode] || null;
-  const hasFreeShippingPromo = () => getAppliedPromo()?.type === 'free_shipping';
+  const hasFreeShippingPromo = () => ['free_shipping', 'shipping_plus_percent'].includes(getAppliedPromo()?.type);
 
   function setCancelDetails(code) {
     const codeEl = document.getElementById('checkout-cancel-code');
@@ -139,6 +142,7 @@
     if (!promo || promo.type === 'free_shipping') return 0;
     if (promo.minSubtotal && currentSubtotal < promo.minSubtotal) return 0;
     if (promo.type === 'percent') return Math.round(currentSubtotal * (promo.value / 100));
+    if (promo.type === 'shipping_plus_percent') return Math.round(currentSubtotal * (promo.value / 100));
     if (promo.type === 'fixed') return Math.min(currentSubtotal, promo.value);
     return 0;
   }
