@@ -7,14 +7,30 @@
   const localConfig = window.__GENKI_CONFIG__ || {};
   const SQUARE_APP_ID = localConfig.SQUARE_APP_ID || 'REPLACE_WITH_YOUR_SQUARE_APP_ID';
   const SQUARE_LOCATION_ID = localConfig.SQUARE_LOCATION_ID || 'REPLACE_WITH_YOUR_SQUARE_LOCATION_ID';
-  const SHIPPING_RATE = Number(localConfig.SHIPPING_RATE ?? 0.08);
+  const normalizeShippingRate = (value, fallback = 0.08) => {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 0) return fallback;
+    return parsed > 1 ? parsed / 100 : parsed;
+  };
+  const SHIPPING_RATE = normalizeShippingRate(localConfig.SHIPPING_RATE);
   const FREE_SHIPPING_THRESHOLD_CENTS = 10000;
 
   const STORAGE_KEY = 'genki_cart_v1';
   const LAST_ORDER_KEY = 'genki_last_order_v1';
   const CANCEL_WINDOW_HOURS = 12;
+  const PROMO_CODES = {
+    GKVG100: { type: 'free_shipping', description: 'Free shipping unlocked.' },
+    FREESHIP: { type: 'free_shipping', description: 'Free shipping unlocked.' },
+    WELCOME10: { type: 'percent', value: 10, description: '10% off your subtotal.' },
+    NEXTDROP: { type: 'percent', value: 15, description: '15% off your subtotal.' },
+    ANNIVERSARY25: { type: 'percent', value: 25, description: '25% off your subtotal.' },
+    BROKEAGAIN: { type: 'percent', value: 1, description: '1% off. Every cent counts.' },
+    POCKETLINT: { type: 'fixed', value: 100, description: '$1.00 off your order.' },
+    ALMOSTRICH: { type: 'fixed', value: 200, minSubtotal: 20000, description: '$2.00 off orders over $200.' },
+  };
 
   const state = { items: [] };
+  let appliedPromoCode = '';
   let squarePayments = null;
   let squareCard = null;
   let squareSdkPromise = null;
@@ -26,6 +42,9 @@
   // ── Helpers ──────────────────────────────────────────────────
   const money = (cents) => `$${(cents / 100).toFixed(2)}`;
   const generateCancelCode = () => String(Math.floor(10000000 + Math.random() * 90000000));
+  const normalizePromoCode = (value = '') => String(value).trim().toUpperCase();
+  const getAppliedPromo = () => PROMO_CODES[appliedPromoCode] || null;
+  const hasFreeShippingPromo = () => getAppliedPromo()?.type === 'free_shipping';
 
   function setCancelDetails(code) {
     const codeEl = document.getElementById('checkout-cancel-code');
@@ -110,10 +129,20 @@
   function subtotal() { return state.items.reduce((s, it) => s + it.priceCents * it.qty, 0); }
   function shipping() {
     const currentSubtotal = subtotal();
+    if (hasFreeShippingPromo()) return 0;
     if (currentSubtotal >= FREE_SHIPPING_THRESHOLD_CENTS) return 0;
     return Math.round(currentSubtotal * (Number.isFinite(SHIPPING_RATE) ? SHIPPING_RATE : 0));
   }
-  function total() { return subtotal() + shipping(); }
+  function promoDiscount() {
+    const promo = getAppliedPromo();
+    const currentSubtotal = subtotal();
+    if (!promo || promo.type === 'free_shipping') return 0;
+    if (promo.minSubtotal && currentSubtotal < promo.minSubtotal) return 0;
+    if (promo.type === 'percent') return Math.round(currentSubtotal * (promo.value / 100));
+    if (promo.type === 'fixed') return Math.min(currentSubtotal, promo.value);
+    return 0;
+  }
+  function total() { return Math.max(0, subtotal() + shipping() - promoDiscount()); }
 
   function buildItemsText(items) {
     return (items || []).map((it) => {
@@ -200,7 +229,10 @@
     const badge = $('#cart-count');
     const paymentSubtotal = $('#payment-subtotal');
     const paymentShipping = $('#payment-shipping');
+    const paymentDiscountRow = $('#payment-discount-row');
+    const paymentDiscount = $('#payment-discount');
     const paymentTotal = $('#payment-total');
+    const promoStatus = $('#sq-promo-status');
 
     if (list) {
       list.innerHTML = '';
@@ -235,11 +267,20 @@
 
     const subVal = subtotal();
     const shipVal = shipping();
+    const discountVal = promoDiscount();
     const totalVal = total();
     if (sub) sub.textContent = money(subVal);
     if (paymentSubtotal) paymentSubtotal.textContent = money(subVal);
     if (paymentShipping) paymentShipping.textContent = money(shipVal);
+    if (paymentDiscountRow) paymentDiscountRow.classList.toggle('hidden', discountVal <= 0);
+    if (paymentDiscount) paymentDiscount.textContent = `-${money(discountVal)}`;
     if (paymentTotal) paymentTotal.textContent = money(totalVal);
+    const appliedPromo = getAppliedPromo();
+    if (promoStatus && appliedPromo) {
+      promoStatus.textContent = `Promo applied: ${appliedPromo.description}`;
+      promoStatus.classList.remove('hidden', 'text-red-400', 'text-gray-400');
+      promoStatus.classList.add('text-green-400');
+    }
     const count = state.items.reduce((n, it) => n + it.qty, 0);
     if (badge) badge.textContent = count;
     refreshPayNowButtonState();
@@ -325,7 +366,7 @@
     const notes = g('sq-notes');
     const cardholderName = g('sq-cardholder-name');
     const billingZip = g('sq-billing-zip');
-    const promoCode = g('sq-promo');
+    const promoCode = appliedPromoCode;
     const address = [address1, address2, city, stateVal, zip, country].filter(Boolean).join(', ');
     return {
       name, email, phone, address1, address, shippingDetails: address, notes,
@@ -437,11 +478,49 @@
     const squarePay = document.getElementById('square-pay');
     const squarePayLater = document.getElementById('square-pay-later');
     const squareError = document.getElementById('square-error');
+    const promoInput = document.getElementById('sq-promo');
+    const promoApply = document.getElementById('sq-promo-apply');
+    const promoStatus = document.getElementById('sq-promo-status');
 
     const setSquareError = (msg = '') => {
       if (!squareError) return;
       squareError.textContent = msg;
       squareError.classList.toggle('hidden', !msg);
+    };
+
+    const setPromoStatus = (msg = '', isError = false) => {
+      if (!promoStatus) return;
+      promoStatus.textContent = msg;
+      promoStatus.classList.toggle('hidden', !msg);
+      promoStatus.classList.toggle('text-red-400', !!(msg && isError));
+      promoStatus.classList.toggle('text-green-400', !!(msg && !isError));
+      promoStatus.classList.toggle('text-gray-400', !msg);
+    };
+
+    const applyPromoCode = () => {
+      const code = normalizePromoCode(promoInput?.value || '');
+      if (!code) {
+        appliedPromoCode = '';
+        setPromoStatus('');
+        render();
+        return;
+      }
+      const promo = PROMO_CODES[code];
+      if (!promo) {
+        appliedPromoCode = '';
+        setPromoStatus('Invalid promo code.', true);
+        render();
+        return;
+      }
+      if (promo.minSubtotal && subtotal() < promo.minSubtotal) {
+        appliedPromoCode = '';
+        setPromoStatus(`This code works on orders over ${money(promo.minSubtotal)}.`, true);
+        render();
+        return;
+      }
+      appliedPromoCode = code;
+      setPromoStatus(`Promo applied: ${promo.description}`);
+      render();
     };
 
     const updatePayNowState = () => {
@@ -467,6 +546,16 @@
 
     ['sq-name', 'sq-email', 'sq-address', 'sq-city', 'sq-state', 'sq-zip', 'sq-cardholder-name', 'sq-billing-zip']
       .forEach((id) => document.getElementById(id)?.addEventListener('input', updatePayNowState));
+
+    promoApply?.addEventListener('click', applyPromoCode);
+    promoInput?.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      applyPromoCode();
+    });
+    promoInput?.addEventListener('input', () => {
+      setPromoStatus('');
+    });
 
     // Hydrate cancel form from last order
     const hydrateCancelForm = () => {

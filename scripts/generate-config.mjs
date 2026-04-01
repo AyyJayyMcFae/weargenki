@@ -12,11 +12,12 @@ const keyMap = {
   SUPABASE_ANON_KEY: 'PUBLIC_SUPABASE_ANON_KEY',
   SITE_URL: 'PUBLIC_SITE_URL',
   SQUARE_APP_ID: 'PUBLIC_SQUARE_APP_ID',
-  SQUARE_LOCATION_ID: 'PUBLIC_SQUARE_LOCATION_ID'
+  SQUARE_LOCATION_ID: 'PUBLIC_SQUARE_LOCATION_ID',
+  SHIPPING_RATE: 'PUBLIC_SHIPPING_RATE'
 };
 
 const requiredConfigKeys = ['SUPABASE_URL', 'SUPABASE_ANON_KEY'];
-const optionalConfigKeys = ['SITE_URL', 'SQUARE_APP_ID', 'SQUARE_LOCATION_ID'];
+const optionalConfigKeys = ['SITE_URL', 'SQUARE_APP_ID', 'SQUARE_LOCATION_ID', 'SHIPPING_RATE'];
 
 const readVar = (name) => (process.env[name] || '').trim();
 const config = {};
