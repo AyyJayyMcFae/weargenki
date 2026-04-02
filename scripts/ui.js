@@ -59,6 +59,10 @@ function attachProductCardHoverSwap(card, product) {
   const FADE_DURATION_MS = 180;
   const parent = img.parentElement;
   if (!parent) return;
+  if (window.getComputedStyle(parent).position === 'static') {
+    parent.style.position = 'relative';
+  }
+  parent.style.overflow = 'hidden';
 
   
   img.style.transition = img.style.transition
@@ -307,9 +311,11 @@ function renderRelatedProducts(currentProduct) {
     const image = product.images?.[0] || 'https://placehold.co/600x600/222222/ffffff?text=Product';
     const card = document.createElement('button');
     card.type = 'button';
-    card.className = 'text-left border border-white/10 hover:border-white transition bg-transparent';
+    card.className = 'text-left border border-white/10 hover:border-white transition bg-transparent overflow-hidden';
     card.innerHTML = `
-      <img src="${image}" alt="${product.title}" class="${getProductImageClasses(image, 'w-full h-36 object-contain bg-neutral-900')}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
+      <div class="relative overflow-hidden bg-neutral-900">
+        <img src="${image}" alt="${product.title}" class="${getProductImageClasses(image, 'w-full h-36 object-contain bg-neutral-900')}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
+      </div>
       <div class="p-2">
         <p class="text-xs text-white truncate">${product.title}</p>
         <p class="text-xs text-gray-400">${product.price || ''}</p>
@@ -1020,6 +1026,8 @@ function renderProduct(key) {
       Cart.add({
         id: data.id, title: data.title, priceCents, qty: 1,
         color: colorLabel, skull: skullLabelVal, size: sizeLabel,
+        categories: data.categories,
+        keywords: data.keywords,
         image: mainImg?.src || data.images?.[0],
       });
       Cart.open();

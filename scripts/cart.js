@@ -19,17 +19,111 @@
   const LAST_ORDER_KEY = 'genki_last_order_v1';
   const CANCEL_WINDOW_HOURS = 12;
   const PROMO_CODES = {
-    GKVG100: { type: 'free_shipping', description: 'Free shipping unlocked.' },
-    FREESHIP: { type: 'free_shipping', description: 'Free shipping unlocked.' },
-    NEWSHIPVIP: { type: 'shipping_plus_percent', value: 10, description: 'Free shipping plus 10% off your subtotal.' },
-    WELCOME10: { type: 'percent', value: 10, description: '10% off your subtotal.' },
-    NEXTDROP: { type: 'percent', value: 15, description: '15% off your subtotal.' },
-    STACKED20: { type: 'percent', value: 20, minSubtotal: 10000, description: '20% off orders over $100.' },
-    BONUS25: { type: 'fixed', value: 2500, minSubtotal: 15000, description: '$25.00 off orders over $150.' },
-    ANNIVERSARY25: { type: 'percent', value: 25, description: '25% off your subtotal.' },
-    BROKEAGAIN: { type: 'percent', value: 1, description: '1% off. Every cent counts.' },
-    POCKETLINT: { type: 'fixed', value: 100, description: '$1.00 off your order.' },
-    ALMOSTRICH: { type: 'fixed', value: 200, minSubtotal: 20000, description: '$2.00 off orders over $200.' },
+    GKVG100: {
+      description: 'Free shipping unlocked.',
+      rules: [
+        { target: { type: 'shipping' }, 
+          effect: { type: 'free_shipping' } }
+      ]
+    },
+    FREESHIP: {
+      description: 'Free shipping unlocked.',
+      rules: [
+        { target: { type: 'shipping' }, 
+          effect: { type: 'free_shipping' } }
+      ]
+    },
+    NEWSHIPVIP: {
+      description: 'Free shipping plus 10% off your subtotal.',
+      rules: [
+        { target: { type: 'shipping' }, 
+          effect: { type: 'free_shipping' } },
+        { target: { type: 'cart' }, 
+          effect: { type: 'percent', value: 10 } }
+      ]
+    },
+    WELCOME10: {
+      description: '10% off your subtotal.',
+      rules: [
+        { target: { type: 'cart' }, 
+          effect: { type: 'percent', value: 10 } }
+      ]
+    },
+    NEXTDROP: {
+      description: '15% off your subtotal.',
+      rules: [
+        { target: { type: 'cart' }, 
+          effect: { type: 'percent', value: 15 } }
+      ]
+    },
+    STACKED20: {
+      description: '20% off orders over $100.',
+      rules: [
+        {
+          requires: [{ type: 'subtotal_gte', value: 10000 }],
+          target: { type: 'cart' },
+          effect: { type: 'percent', value: 20 },
+        }
+      ]
+    },
+    BONUS25: {
+      description: '$25.00 off orders over $150.',
+      rules: [
+        {
+          requires: [{ type: 'subtotal_gte', value: 15000 }],
+          target: { type: 'cart' },
+          effect: { type: 'fixed', value: 2500 },
+        }
+      ]
+    },
+    ANNIVERSARY25: {
+      description: '25% off your subtotal.',
+      rules: [
+        { target: { type: 'cart' },
+          effect: { type: 'percent', value: 25 } }
+      ]
+    },
+    BROKEAGAIN: {
+      description: '1% off. Every cent counts.',
+      rules: [
+        { target: { type: 'cart' }, 
+          effect: { type: 'percent', value: 1 } }
+      ]
+    },
+    POCKETLINT: {
+      description: '$1.00 off your order.',
+      rules: [
+        { target: { type: 'cart' }, 
+          effect: { type: 'fixed', value: 100 } }
+      ]
+    },
+    ALMOSTRICH: {
+      description: '$2.00 off orders over $200.',
+      rules: [
+        {
+          requires: [{ type: 'subtotal_gte', value: 20000 }],
+          target: { type: 'cart' },
+          effect: { type: 'fixed', value: 200 },
+        }
+      ]
+    },
+    HOODIETEE: {
+      description: '50% off of any Essential Tee when you buy any Hoodie.',
+      rules: [
+        {
+          requires: [{ type: 'category', value: 'hoodie', qty: 1 }],
+          target: { type: 'product', value: 'essentials-tee', qty: 1, pick: 'cheapest' },
+          effect: { type: 'percent', value: 50 },
+        }
+      ]
+    },
+    元気: {
+      description: 'Hell yea... 🤟',
+      rules: [
+        { target: { type: 'cart' }, 
+          effect: { type: 'message_only' } }
+      ]
+    }
   };
 
   const state = { items: [] };
@@ -46,8 +140,8 @@
   const money = (cents) => `$${(cents / 100).toFixed(2)}`;
   const generateCancelCode = () => String(Math.floor(10000000 + Math.random() * 90000000));
   const normalizePromoCode = (value = '') => String(value).trim().toUpperCase();
+  const normalizeMatcher = (value = '') => String(value).trim().toLowerCase();
   const getAppliedPromo = () => PROMO_CODES[appliedPromoCode] || null;
-  const hasFreeShippingPromo = () => ['free_shipping', 'shipping_plus_percent'].includes(getAppliedPromo()?.type);
 
   function setCancelDetails(code) {
     const codeEl = document.getElementById('checkout-cancel-code');
@@ -97,6 +191,161 @@
     return base;
   }
 
+  function normalizeCategoryList(categories) {
+    if (Array.isArray(categories)) return categories.map((entry) => String(entry || '').trim()).filter(Boolean);
+    if (categories == null) return [];
+    const single = String(categories).trim();
+    return single ? [single] : [];
+  }
+
+  function getItemCategoryTags(item) {
+    const tags = new Set();
+    normalizeCategoryList(item?.categories).forEach((entry) => tags.add(normalizeMatcher(entry)));
+    const haystack = normalizeMatcher([
+      item?.id,
+      item?.title,
+      item?.keywords,
+      ...normalizeCategoryList(item?.categories),
+    ].filter(Boolean).join(' '));
+    if (haystack.includes('hoodie')) tags.add('hoodie');
+    if (haystack.includes('tee') || haystack.includes('t-shirt') || haystack.includes('t shirt')) tags.add('tee');
+    if (haystack.includes('shirt')) tags.add('shirt');
+    return tags;
+  }
+
+  function itemMatchesSelector(item, selector = {}) {
+    const selectorType = normalizeMatcher(selector.type);
+    const selectorValue = normalizeMatcher(selector.value);
+    if (!selectorType || !selectorValue || !item) return false;
+    if (selectorType === 'product') return normalizeMatcher(item.id) === selectorValue;
+    if (selectorType === 'category') return getItemCategoryTags(item).has(selectorValue);
+    return false;
+  }
+
+  function countMatchingQty(items, selector) {
+    return (items || []).reduce((sum, item) => (
+      itemMatchesSelector(item, selector) ? sum + Math.max(0, Number(item.qty) || 0) : sum
+    ), 0);
+  }
+
+  function getMatchingUnits(items, selector = {}, pick = 'cheapest') {
+    const units = [];
+    (items || []).forEach((item) => {
+      if (!itemMatchesSelector(item, selector)) return;
+      const qty = Math.max(0, Number(item.qty) || 0);
+      for (let i = 0; i < qty; i += 1) units.push({ priceCents: Number(item.priceCents) || 0, item });
+    });
+    units.sort((a, b) => (pick === 'priciest' ? b.priceCents - a.priceCents : a.priceCents - b.priceCents));
+    return units;
+  }
+
+  function requirementIsMet(requirement = {}, currentSubtotal) {
+    const requirementType = normalizeMatcher(requirement.type);
+    if (requirementType === 'subtotal' || requirementType === 'subtotal_gte') {
+      return currentSubtotal >= (Number(requirement.value) || 0);
+    }
+    return countMatchingQty(state.items, requirement) >= (requirement.qty || 1);
+  }
+
+  function resolveRuleTarget(rule = {}, currentSubtotal) {
+    const target = rule.target || {};
+    const targetType = normalizeMatcher(target.type);
+    if (targetType === 'cart' || targetType === 'subtotal') {
+      return {
+        kind: 'cart',
+        amountCents: currentSubtotal,
+      };
+    }
+    if (targetType === 'shipping') {
+      return {
+        kind: 'shipping',
+        amountCents: Math.round(currentSubtotal * (Number.isFinite(SHIPPING_RATE) ? SHIPPING_RATE : 0)),
+      };
+    }
+    const targetQty = Math.max(1, Number(target.qty) || 1);
+    const units = getMatchingUnits(state.items, target, target.pick).slice(0, targetQty);
+    return {
+      kind: 'items',
+      units,
+      amountCents: units.reduce((sum, unit) => sum + unit.priceCents, 0),
+    };
+  }
+
+  function getRuleFailureMessage(rule = {}) {
+    const requires = Array.isArray(rule.requires) ? rule.requires : [];
+    const requirement = requires[0];
+    const requirementType = normalizeMatcher(requirement?.type);
+    if (requirementType === 'subtotal' || requirementType === 'subtotal_gte') {
+      return `This code works on orders over ${money(Number(requirement?.value) || 0)}.`;
+    }
+    const targetType = normalizeMatcher(rule.target?.type);
+    if (targetType === 'product' && rule.target?.value) {
+      return `Add ${String(rule.target.value).replace(/-/g, ' ')} to your cart to use this code.`;
+    }
+    return 'This promo is not available for the current cart.';
+  }
+
+  function getPromoState(promo = getAppliedPromo()) {
+    const currentSubtotal = subtotal();
+    if (!promo) return { eligible: false, discount: 0, freeShipping: false, message: '' };
+    if (!promo.rules?.length) return { eligible: false, discount: 0, freeShipping: false, message: 'This promo has no rules.' };
+
+    let discount = 0;
+    let freeShipping = false;
+
+    for (const rule of promo.rules) {
+      const requires = Array.isArray(rule.requires) ? rule.requires : [];
+      const unmet = requires.find((requirement) => !requirementIsMet(requirement, currentSubtotal));
+      if (unmet) {
+        return {
+          eligible: false,
+          discount: 0,
+          freeShipping: false,
+          message: getRuleFailureMessage(rule),
+        };
+      }
+
+      const resolvedTarget = resolveRuleTarget(rule, currentSubtotal);
+      const effectType = normalizeMatcher(rule.effect?.type);
+      const effectValue = Number(rule.effect?.value) || 0;
+
+      if ((resolvedTarget.kind === 'items' && !resolvedTarget.units.length) || resolvedTarget.amountCents <= 0) {
+        if (effectType === 'free_shipping' && resolvedTarget.kind === 'shipping') {
+          freeShipping = true;
+          continue;
+        }
+        return {
+          eligible: false,
+          discount: 0,
+          freeShipping: false,
+          message: getRuleFailureMessage(rule),
+        };
+      }
+
+      if (effectType === 'free_shipping') {
+        freeShipping = true;
+        continue;
+      }
+      if (effectType === 'message_only') {
+        continue;
+      }
+      if (effectType === 'percent') {
+        discount += Math.round(resolvedTarget.amountCents * (effectValue / 100));
+        continue;
+      }
+      if (effectType === 'fixed') {
+        discount += Math.min(resolvedTarget.amountCents, effectValue);
+      }
+    }
+
+    return {
+      eligible: freeShipping || discount > 0 || promo.rules.some((rule) => normalizeMatcher(rule.effect?.type) === 'message_only'),
+      discount,
+      freeShipping,
+      message: promo.description || 'Promo applied.',
+    };
+  }
+
   // ── Persistence ──────────────────────────────────────────────
   function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items)); }
   function load() {
@@ -132,19 +381,12 @@
   function subtotal() { return state.items.reduce((s, it) => s + it.priceCents * it.qty, 0); }
   function shipping() {
     const currentSubtotal = subtotal();
-    if (hasFreeShippingPromo()) return 0;
+    if (getPromoState().freeShipping) return 0;
     if (currentSubtotal >= FREE_SHIPPING_THRESHOLD_CENTS) return 0;
     return Math.round(currentSubtotal * (Number.isFinite(SHIPPING_RATE) ? SHIPPING_RATE : 0));
   }
   function promoDiscount() {
-    const promo = getAppliedPromo();
-    const currentSubtotal = subtotal();
-    if (!promo || promo.type === 'free_shipping') return 0;
-    if (promo.minSubtotal && currentSubtotal < promo.minSubtotal) return 0;
-    if (promo.type === 'percent') return Math.round(currentSubtotal * (promo.value / 100));
-    if (promo.type === 'shipping_plus_percent') return Math.round(currentSubtotal * (promo.value / 100));
-    if (promo.type === 'fixed') return Math.min(currentSubtotal, promo.value);
-    return 0;
+    return getPromoState().discount;
   }
   function total() { return Math.max(0, subtotal() + shipping() - promoDiscount()); }
 
@@ -167,6 +409,44 @@
     const out = {};
     fd.forEach((value, key) => { out[key] = String(value); });
     return out;
+  }
+
+  function getPromoTrackingClient() {
+    const client = window.authState?.supabaseClient;
+    if (client) return client;
+    const supabaseUrl = String(localConfig.SUPABASE_URL || '').trim();
+    const supabaseAnonKey = String(localConfig.SUPABASE_ANON_KEY || '').trim();
+    if (!window.supabase?.createClient) return null;
+    if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.startsWith('REPLACE_') || supabaseAnonKey.startsWith('REPLACE_')) return null;
+    try {
+      return window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function trackPromoRedemption({ promoCode, paymentStatus, amount, subtotal: subAmount, shipping: shippingAmount, buyer, items }) {
+    if (!promoCode) return false;
+    const client = getPromoTrackingClient();
+    if (!client) return false;
+    const firstItem = Array.isArray(items) && items.length ? items[0] : null;
+    const { error } = await client.rpc('record_promo_redemption', {
+      p_promo_code: promoCode,
+      p_order_status: paymentStatus || 'pending',
+      p_amount_cents: Number(amount) || 0,
+      p_subtotal_cents: Number(subAmount) || 0,
+      p_shipping_cents: Number(shippingAmount) || 0,
+      p_customer_email: buyer?.email || null,
+      p_item_count: Array.isArray(items) ? items.reduce((sum, item) => sum + (Number(item.qty) || 0), 0) : 0,
+      p_primary_product_id: firstItem?.id || null,
+    });
+    if (error) {
+      console.warn('Promo tracking failed', error);
+      return false;
+    }
+    return true;
   }
 
   async function submitOrderSlipForm(payload) {
@@ -270,8 +550,9 @@
     }
 
     const subVal = subtotal();
+    const promoState = getPromoState();
     const shipVal = shipping();
-    const discountVal = promoDiscount();
+    const discountVal = promoState.discount;
     const totalVal = total();
     if (sub) sub.textContent = money(subVal);
     if (paymentSubtotal) paymentSubtotal.textContent = money(subVal);
@@ -281,9 +562,11 @@
     if (paymentTotal) paymentTotal.textContent = money(totalVal);
     const appliedPromo = getAppliedPromo();
     if (promoStatus && appliedPromo) {
-      promoStatus.textContent = `Promo applied: ${appliedPromo.description}`;
-      promoStatus.classList.remove('hidden', 'text-red-400', 'text-gray-400');
-      promoStatus.classList.add('text-green-400');
+      promoStatus.textContent = promoState.eligible
+        ? `Promo applied: ${promoState.message}`
+        : promoState.message;
+      promoStatus.classList.remove('hidden', 'text-red-400', 'text-green-400', 'text-gray-400');
+      promoStatus.classList.add(promoState.eligible ? 'text-green-400' : 'text-red-400');
     }
     const count = state.items.reduce((n, it) => n + it.qty, 0);
     if (badge) badge.textContent = count;
@@ -516,14 +799,15 @@
         render();
         return;
       }
-      if (promo.minSubtotal && subtotal() < promo.minSubtotal) {
+      const promoState = getPromoState(promo);
+      if (!promoState.eligible) {
         appliedPromoCode = '';
-        setPromoStatus(`This code works on orders over ${money(promo.minSubtotal)}.`, true);
+        setPromoStatus(promoState.message || 'This promo is not available for the current cart.', true);
         render();
         return;
       }
       appliedPromoCode = code;
-      setPromoStatus(`Promo applied: ${promo.description}`);
+      setPromoStatus(`Promo applied: ${promoState.message}`);
       render();
     };
 
@@ -612,6 +896,7 @@
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok || !data.success) throw new Error(data.error || 'Payment failed. Please try again.');
         await submitOrderSlipForm(payload);
+        await trackPromoRedemption({ ...payload, paymentStatus: 'paid' });
         applyCheckoutSuccessMessage({ paymentStatus: 'paid' });
         setCancelDetails(cancelCode);
         saveLastOrder({ cancelCode, email, createdAt: Date.now(), paymentStatus: 'paid' });
@@ -646,6 +931,7 @@
       };
       const sent = await submitOrderSlipForm(payload);
       if (!sent) { setSquareError('Could not submit order request. Please try again.'); return; }
+      await trackPromoRedemption({ ...payload, paymentStatus: 'pending' });
       saveLastOrder({ cancelCode, email, createdAt: Date.now(), paymentStatus: 'pending' });
       applyCheckoutSuccessMessage({ paymentStatus: 'pending' });
       setCancelDetails(cancelCode);
