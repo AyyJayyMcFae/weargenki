@@ -4,6 +4,42 @@
 
 const PRODUCTS = [
   {
+    id: 'saiko-hoodie',
+    title: 'Saiko Psycho Distressed Hoodie',
+    price: '$70.00',
+    badge: 'DROP',
+    categories: ['Hoodies', 'Tops'],
+    keywords: 'saiko psycho hoodie sweatshirt comfortable casual',
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    images: [
+      'https://files.tapstitch.com/hugepod/material/custom_printing/19995531a40547c384faeee71c0e75c7.png?x-oss-process=style/hugepod-product','https://files.tapstitch.com/hugepod/material/custom_printing/a298505f3d134f549de401c801ce5adb.png?x-oss-process=style/hugepod-product',
+    ]
+  },
+
+{
+    id: 'Saiko-raw-tee',
+    title: 'Saiko Psycho Raw-Hem Tee',
+    price: '$45.00',
+    badge: 'DROP',
+    categories: ['Tops'],
+    keywords: 'saiko psycho tee t-shirt casual comfortable',
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    images: [
+      'https://files.tapstitch.com/hugepod/material/custom_printing/e62cd985686f4efc8f043ab105864009.png','https://files.tapstitch.com/hugepod/material/custom_printing/9a50865d75aa4448b56ff121c91feb92.png',
+    ]
+  },
+
+  { 
+    id: 'kinetic-Heartbeat-cap',
+    title: 'Kinetic Heartbeat Cap',
+    price: '$30.00',
+    badge: 'KINETIC',
+    categories: ['Accessories'],
+    keywords: 'kinetic heartbeat cap hat snapback adjustable',
+    images: ['https://cdn.printful.me/t/quick-stores/products/17849610-396-69cd7511cdcbf' ]
+  },
+
+  {
     id: 'essentials-tee',
     title: 'Essentials™ Tee',
     price: '$35.00 ',
@@ -701,6 +737,59 @@ const PRODUCTS = [
   },
 
   {
+    id: 'saiko-psycho-patch',
+    title: 'Saiko Psycho Patch',
+    price: '$12.00 ',
+    badge: 'NEW',
+    categories: 'Accessories',
+    keywords: 'saiko psycho patch embroidered patch accessory',
+    images: [
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1777222696/df452036-aa63-4236-a04d-cf2d52e36418.png',
+    ],
+    colors: [
+      {
+        name: 'Green',
+        color: 'bg-green-500',
+        images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1777222696/df452036-aa63-4236-a04d-cf2d52e36418.png'],
+      },
+      {
+        name: 'Pink',
+        color: 'bg-pink-200',
+        images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1777222691/edf348ae-322c-43af-84b6-8fb34af63f6d.png'],
+      },
+    ],
+    details: [
+      'Embroidered Saiko Psycho patch.',
+      'Available in two color options.',
+      'Built for jackets, bags, and layered custom pieces.',
+    ],
+  },
+
+  {
+    id: 'saiko-psycho-beanie',
+    title: 'Saiko Psycho Beanie',
+    price: '$30.00 ',
+    badge: 'NEW',
+    categories: 'Accessories',
+    keywords: 'saiko psycho beanie knit cap accessory',
+    images: [
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1777222559/copy_of_13222776-8cd9-4a98-a5fe-9bbee1521871_9810ab.png',
+    ],
+    colors: [
+      {
+        name: 'Black',
+        color: 'bg-black',
+        images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1777222559/copy_of_13222776-8cd9-4a98-a5fe-9bbee1521871_9810ab.png'],
+      },
+    ],
+    details: [
+      'Cuffed knit beanie with Saiko Psycho branding.',
+      'Everyday weight for colder weather rotation.',
+      'Clean front hit with a compact streetwear fit.',
+    ],
+  },
+
+  {
     id: 'genki-woman-eco-tote',
     title: 'Miki Eco Tote',
     price: '$35.00 ',
@@ -740,6 +829,7 @@ const PRODUCTS = [
       'Oversized fit for comfort and style.',
     ],
   },
+
 
   {
     id: 'genki-nomad-jacket',
@@ -1133,6 +1223,84 @@ const PRODUCTS = [
     details: [
       'Soft knit material for warmth.',
       'Features the embroidered Shinobi logo.',
+    ],
+  },
+
+  // =============================================================
+  // SKATEBOARD DECKS - Custom build configurator
+  // =============================================================
+  {
+    id: 'genki-skate-deck',
+    title: 'GENKI Skate Deck',
+    price: '$65.00 ',
+    badge: 'NEW',
+    categories: 'Decks',
+    keywords: 'skateboard deck street skate genki custom build complete',
+    images: [
+      'https://products.boardpusher.com/2603/05/custom-skateboard-82334993-a8e3-4601-802b-c04e2ddbd88elgm.jpg?v=cf',
+      'https://placehold.co/800x3000/1a1a1a/ffffff?text=GENKI+Skate+Deck+Back',
+      'https://placehold.co/800x3000/1a1a1a/ffffff?text=GENKI+Skate+Deck+Side',
+    ],
+    // Custom product type for deck builder
+    productType: 'deck',
+    primaryOptionLabel: 'Build',
+    secondaryOptionLabel: 'Deck Art',
+    // Build options: Deck Only, Deck + Grip, Complete
+    skullOptions: [
+      {
+        name: 'Deck Only', priceAdjustment: 0,
+        description: 'Raw deck without grip tape',
+        thumbnail: 'https://products.boardpusher.com/2603/05/custom-skateboard-82334993-a8e3-4601-802b-c04e2ddbd88elgm.jpg?v=cf',
+        hoodies: [
+          { name: 'Blank', color: 'bg-transparent', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Blank+Deck'] },
+        ],
+      },
+      {
+        name: 'Deck + Grip', priceAdjustment: 15,
+        description: 'Deck with grip tape applied',
+        thumbnail: 'https://placehold.co/200x200/1a1a1a/ffffff?text=Deck%2BGrip',
+        // Grip tape options
+        hoodies: [
+          { name: 'Standard Black', color: 'bg-gray-800', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Standard+Black+Grip'], priceAdjustment: 0 },
+          { name: 'Checkered Black/White', color: 'bg-gray-200', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Checkered+Grip'], priceAdjustment: 5 },
+          { name: 'Die Cut Logo', color: 'bg-gray-700', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Die+Cut+Logo+Grip'], priceAdjustment: 8 },
+          { name: 'Clear', color: 'bg-blue-100/30', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Clear+Grip'], priceAdjustment: 5 },
+        ],
+      },
+      {
+        name: 'Complete', priceAdjustment: 45,
+        description: 'Fully built skateboard with trucks and wheels',
+        thumbnail: 'https://placehold.co/200x200/1a1a1a/ffffff?text=Complete',
+        // Grip tape options for complete
+        hoodies: [
+          { name: 'Standard Black', color: 'bg-gray-800', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Complete+Standard'], priceAdjustment: 0 },
+          { name: 'Checkered', color: 'bg-gray-200', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Complete+Checkered'], priceAdjustment: 5 },
+          { name: 'Die Cut Logo', color: 'bg-gray-700', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Complete+Logo'], priceAdjustment: 8 },
+          { name: 'Clear', color: 'bg-blue-100/30', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Complete+Clear'], priceAdjustment: 5 },
+        ],
+        // Truck options (stored in custom field)
+        truckOptions: [
+          { name: 'Standard Silver', color: 'bg-gray-400', priceAdjustment: 0 },
+          { name: 'Matte Black', color: 'bg-gray-900', priceAdjustment: 10 },
+          { name: 'Polished Chrome', color: 'bg-gray-300', priceAdjustment: 15 },
+          { name: 'Gold', color: 'bg-yellow-500', priceAdjustment: 20 },
+        ],
+        // Wheel options
+        wheelOptions: [
+          { name: '52mm White', color: 'bg-white', priceAdjustment: 0 },
+          { name: '52mm Black', color: 'bg-black', priceAdjustment: 0 },
+          { name: '54mm White', color: 'bg-gray-100', priceAdjustment: 5 },
+          { name: '54mm Black', color: 'bg-gray-800', priceAdjustment: 5 },
+          { name: '54mm Red', color: 'bg-red-600', priceAdjustment: 8 },
+          { name: '54mm Blue', color: 'bg-blue-600', priceAdjustment: 8 },
+        ],
+      },
+    ],
+    details: [
+      '7.25" x 31" street deck',
+      'Canadian maple wood',
+      'Medium concave shape',
+      'Weight: 1.1kg',
     ],
   },
 ];

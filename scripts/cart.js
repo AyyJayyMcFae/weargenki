@@ -123,7 +123,7 @@
         { target: { type: 'cart' }, 
           effect: { type: 'message_only' } }
       ]
-    }
+    },
   };
 
   const state = { items: [] };

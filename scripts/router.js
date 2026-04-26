@@ -214,6 +214,8 @@
   const pageMap = {
     '#home': 'home-page', '': 'home-page',
     '#kinetic': 'kinetic-page',
+    '#skate': 'skate-page',
+    '#decks': 'skate-page',
     '#new': 'new-page',
     '#shop': 'shop-page',
     '#wishlist': 'wishlist-page',
@@ -248,13 +250,20 @@
 
     // Resolve page ID
     let pageId = pageMap[baseHash] || 'home-page';
-    if (PRODUCTS.some((p) => `#${p.id}` === baseHash)) pageId = 'product-page';
+    if (PRODUCTS.some((p) => `#${p.id}` === baseHash)) {
+      const product = PRODUCTS.find((p) => `#${p.id}` === baseHash);
+      console.log('Product found:', product?.id, 'productType:', product?.productType);
+      pageId = product?.productType === 'deck' ? 'deck-page' : 'product-page';
+    }
     else if (baseHash.startsWith('#lookbook-') && baseHash !== '#lookbook-main') pageId = 'lookbook-item-page';
     else if (baseHash === '#shop' && categoriesSlug?.startsWith('categories-')) pageId = 'shop-page';
+    
+    console.log('Resolved pageId:', pageId, 'for hash:', baseHash);
 
     // Show target page, hide all others
     document.querySelectorAll('.page-content').forEach((p) => { p.style.display = 'none'; });
     const targetPage = document.getElementById(pageId);
+    console.log('Showing page:', pageId, 'element:', targetPage);
     if (targetPage) targetPage.style.display = 'block';
     window.scrollTo(0, 0);
 
@@ -286,6 +295,8 @@
     }
 
     if (pageId === 'kinetic-page') renderKineticCollectionFromProducts();
+
+    if (pageId === 'skate-page') renderSkateCollectionFromProducts();
 
     if (pageId === 'new-page') renderShopNewFromProducts();
 
@@ -344,6 +355,10 @@
     // }
     if (pageId === 'lookbook-main-page') renderLookbookMain();
     if (pageId === 'product-page') renderProduct(baseHash.replace('#', ''));
+    if (pageId === 'deck-page') {
+      console.log('Rendering deck page for:', baseHash);
+      renderDeck(baseHash.replace('#', ''));
+    }
     if (pageId === 'lookbook-item-page') renderLook(baseHash.replace('#', ''));
 
     window.updateProductWishlistButton?.();

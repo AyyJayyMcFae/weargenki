@@ -248,7 +248,7 @@ function removeSolidBackgroundFromImage(sourceImage) {
 function queueBackgroundCutout(img, src, options = {}) {
   if (!img) return;
   const targetSrc = String(src || img.currentSrc || img.src || '');
-  if (!isMockupBackgroundCutoutCandidate(targetSrc)) return;
+  if (!options.force && !isMockupBackgroundCutoutCandidate(targetSrc)) return;
   if (img.dataset.cutoutSource === targetSrc) return;
 
   img.dataset.cutoutSource = targetSrc;
@@ -429,6 +429,26 @@ function renderKineticCollectionFromProducts() {
   });
 }
 
+function renderSkateCollectionFromProducts() {
+  const skateProducts = PRODUCTS.filter((product) => {
+    const haystack = [
+      product?.id,
+      product?.title,
+      product?.badge,
+      product?.keywords,
+      Array.isArray(product?.categories) ? product.categories.join(' ') : product?.categories,
+      product?.category,
+      Array.isArray(product?.colors) ? product.colors.map((color) => color?.name || '').join(' ') : ''
+    ].join(' ').toLowerCase();
+    return haystack.includes('deck');
+  });
+
+  renderShopGrid(skateProducts, 'SKATE COLLECTION', {
+    gridId: 'skate-product-grid',
+    titleId: 'skate-title'
+  });
+}
+
 // ── Wishlist page ─────────────────────────────────────────────
 window.renderWishlistPage = function () {
   const grid = document.getElementById('wishlist-product-grid');
@@ -479,7 +499,7 @@ window.renderWishlistPage = function () {
 };
 
 // ── Featured carousel (home page) ────────────────────────────
-const FEATURED_RULE = ['shinobi', 'acd', 'black'];
+const FEATURED_RULE = ['SAIKO'];
 const FEATURED_FALLBACK_IDS = ['genki-esquire-jacket', 'acd-kancho-hancho-shirt', 'genki-sakura-hoodie', 'acd-neko-pastel-cap', 'genki-america-snapback'];
 const FEATURED_MATCH_MODE = 'any';
 
@@ -1046,6 +1066,317 @@ function renderProduct(key) {
   renderRelatedProducts(data);
 }
 
+// ── Deck Product Page (Skateboard Build Configurator) ─────────
+function renderDeck(key) {
+  console.log('renderDeck called with key:', key);
+  const data = PRODUCTS.find((p) => p.id === key && p.productType === 'deck');
+  console.log('Found deck product:', data);
+  if (!data) {
+    // Fallback to regular product page if not a deck
+    console.log('Falling back to renderProduct');
+    renderProduct(key);
+    return;
+  }
+
+  const el = (id) => document.getElementById(id);
+  const titleEl = el('deck-title');
+  const priceEl = el('deck-price');
+  const descEl = el('deck-description');
+  const badgeEl = el('deck-badge');
+  const mainImg = el('deck-main-image');
+  const thumbs = el('deck-thumbs');
+  const thumbsPrev = el('deck-thumbs-prev');
+  const thumbsNext = el('deck-thumbs-next');
+  const detailsList = el('deck-details-list');
+
+  // Build configuration state
+  let activeBuild = 0;
+  let activeGrip = 0;
+  let activeTruck = 0;
+  let activeWheel = 0;
+  let currentImages = [];
+  let activeImageIndex = 0;
+
+  // Get current build option
+  const getCurrentBuild = () => data.skullOptions?.[activeBuild];
+  const getCurrentGrip = () => getCurrentBuild()?.hoodies?.[activeGrip];
+  const getCurrentTruck = () => getCurrentBuild()?.truckOptions?.[activeTruck];
+  const getCurrentWheel = () => getCurrentBuild()?.wheelOptions?.[activeWheel];
+
+  // Calculate total price
+  const calculatePrice = () => {
+    const basePrice = parseFloat(data.price.replace('$', ''));
+    const build = getCurrentBuild();
+    const grip = getCurrentGrip();
+    const truck = getCurrentTruck();
+    const wheel = getCurrentWheel();
+    
+    let total = basePrice + (build?.priceAdjustment || 0);
+    if (grip?.priceAdjustment) total += grip.priceAdjustment;
+    if (truck?.priceAdjustment) total += truck.priceAdjustment;
+    if (wheel?.priceAdjustment) total += wheel.priceAdjustment;
+    
+    return total.toFixed(2);
+  };
+
+  // Update price display
+  const updatePrice = () => {
+    if (priceEl) priceEl.textContent = `$${calculatePrice()}`;
+  };
+
+  const getGalleryImages = () => {
+    if (Array.isArray(data.images) && data.images.length) return data.images;
+    const gripImages = getCurrentGrip()?.images;
+    return Array.isArray(gripImages) ? gripImages : [];
+  };
+
+  // Render gallery
+  const renderGallery = (images) => {
+    currentImages = images || [];
+    if (activeImageIndex >= currentImages.length) activeImageIndex = 0;
+    if (currentImages.length && mainImg) {
+      mainImg.src = currentImages[activeImageIndex] || currentImages[0];
+      queueBackgroundCutout(mainImg, currentImages[activeImageIndex] || currentImages[0], { force: true });
+    }
+    // Render thumbnails
+    if (thumbs) {
+      thumbs.innerHTML = currentImages.map((src, i) => `
+        <img src="${src}" alt="Deck ${i + 1}" class="border border-white/10 cursor-pointer hover:border-white transition ${i === activeImageIndex ? 'border-white' : ''}" data-index="${i}">
+      `).join('');
+      
+      thumbs.querySelectorAll('img').forEach((img) => {
+        queueBackgroundCutout(img, img.src, { force: true });
+        img.addEventListener('click', () => {
+          activeImageIndex = parseInt(img.dataset.index);
+          if (mainImg) {
+            mainImg.src = currentImages[activeImageIndex];
+            queueBackgroundCutout(mainImg, currentImages[activeImageIndex], { force: true });
+          }
+          thumbs.querySelectorAll('img').forEach((t) => t.classList.remove('border-white'));
+          img.classList.add('border-white');
+        });
+      });
+    }
+
+    if (thumbsPrev) thumbsPrev.disabled = currentImages.length <= 1 || activeImageIndex <= 0;
+    if (thumbsNext) thumbsNext.disabled = currentImages.length <= 1 || activeImageIndex >= currentImages.length - 1;
+  };
+
+  // Populate header
+  if (titleEl) titleEl.textContent = data.title;
+  if (badgeEl) {
+    badgeEl.textContent = data.badge || '';
+    badgeEl.style.display = data.badge ? 'inline-block' : 'none';
+  }
+  if (descEl) descEl.textContent = data.keywords;
+
+  // Render build options
+  const buildContainer = el('deck-build-options');
+  if (buildContainer && data.skullOptions) {
+    buildContainer.innerHTML = data.skullOptions.map((build, i) => `
+      <button class="build-option-btn p-4 border ${i === 0 ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-left transition" data-build="${i}">
+        <p class="font-semibold text-white">${build.name}</p>
+        <p class="text-sm text-gray-400">${build.description || ''}</p>
+        <p class="text-sm text-white mt-1">${build.priceAdjustment > 0 ? `+$${build.priceAdjustment}` : 'Included'}</p>
+      </button>
+    `).join('');
+
+    buildContainer.querySelectorAll('.build-option-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeBuild = parseInt(btn.dataset.build);
+        activeGrip = 0;
+        activeTruck = 0;
+        activeWheel = 0;
+        
+        // Update UI
+        buildContainer.querySelectorAll('.build-option-btn').forEach((b) => {
+          b.classList.remove('border-white', 'bg-white/10');
+          b.classList.add('border-white/20');
+        });
+        btn.classList.remove('border-white/20');
+        btn.classList.add('border-white', 'bg-white/10');
+        
+        renderGripOptions();
+        renderTruckOptions();
+        renderWheelOptions();
+        updatePrice();
+      });
+    });
+  }
+
+  // Render grip tape options
+  const gripSection = el('deck-grip-section');
+  const gripContainer = el('deck-grip-options');
+  const renderGripOptions = () => {
+    const build = getCurrentBuild();
+    const grips = build?.hoodies || [];
+    const isComplete = build?.name === 'Complete';
+    
+    if (gripSection) {
+      gripSection.style.display = (build?.name !== 'Deck Only') ? 'block' : 'none';
+    }
+    
+    if (gripContainer && grips.length) {
+      gripContainer.innerHTML = grips.map((grip, i) => `
+        <button class="grip-option-btn px-4 py-2 border ${i === activeGrip ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-sm transition" data-grip="${i}">
+          <span class="inline-block w-4 h-4 rounded ${grip.color} mr-2 border border-white/30"></span>
+          ${grip.name}
+          ${grip.priceAdjustment > 0 ? `<span class="text-gray-400 ml-1">+$${grip.priceAdjustment}</span>` : ''}
+        </button>
+      `).join('');
+
+      gripContainer.querySelectorAll('.grip-option-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeGrip = parseInt(btn.dataset.grip);
+          gripContainer.querySelectorAll('.grip-option-btn').forEach((b) => {
+            b.classList.remove('border-white', 'bg-white/10');
+            b.classList.add('border-white/20');
+          });
+          btn.classList.remove('border-white/20');
+          btn.classList.add('border-white', 'bg-white/10');
+          updatePrice();
+        });
+      });
+    }
+  };
+
+  // Render truck options
+  const truckSection = el('deck-truck-section');
+  const truckContainer = el('deck-truck-options');
+  const renderTruckOptions = () => {
+    const build = getCurrentBuild();
+    const trucks = build?.truckOptions || [];
+    
+    if (truckSection) {
+      truckSection.style.display = (build?.name === 'Complete') ? 'block' : 'none';
+    }
+    
+    if (truckContainer && trucks.length) {
+      truckContainer.innerHTML = trucks.map((truck, i) => `
+        <button class="truck-option-btn px-4 py-2 border ${i === activeTruck ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-sm transition" data-truck="${i}">
+          <span class="inline-block w-4 h-4 rounded ${truck.color} mr-2 border border-white/30"></span>
+          ${truck.name}
+          ${truck.priceAdjustment > 0 ? `<span class="text-gray-400 ml-1">+$${truck.priceAdjustment}</span>` : ''}
+        </button>
+      `).join('');
+
+      truckContainer.querySelectorAll('.truck-option-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeTruck = parseInt(btn.dataset.truck);
+          truckContainer.querySelectorAll('.truck-option-btn').forEach((b) => {
+            b.classList.remove('border-white', 'bg-white/10');
+            b.classList.add('border-white/20');
+          });
+          btn.classList.remove('border-white/20');
+          btn.classList.add('border-white', 'bg-white/10');
+          updatePrice();
+        });
+      });
+    }
+  };
+
+  // Render wheel options
+  const wheelSection = el('deck-wheel-section');
+  const wheelContainer = el('deck-wheel-options');
+  const renderWheelOptions = () => {
+    const build = getCurrentBuild();
+    const wheels = build?.wheelOptions || [];
+    
+    if (wheelSection) {
+      wheelSection.style.display = (build?.name === 'Complete') ? 'block' : 'none';
+    }
+    
+    if (wheelContainer && wheels.length) {
+      wheelContainer.innerHTML = wheels.map((wheel, i) => `
+        <button class="wheel-option-btn px-4 py-2 border ${i === activeWheel ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-sm transition" data-wheel="${i}">
+          <span class="inline-block w-4 h-4 rounded ${wheel.color} mr-2 border border-white/30"></span>
+          ${wheel.name}
+          ${wheel.priceAdjustment > 0 ? `<span class="text-gray-400 ml-1">+$${wheel.priceAdjustment}</span>` : ''}
+        </button>
+      `).join('');
+
+      wheelContainer.querySelectorAll('.wheel-option-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeWheel = parseInt(btn.dataset.wheel);
+          wheelContainer.querySelectorAll('.wheel-option-btn').forEach((b) => {
+            b.classList.remove('border-white', 'bg-white/10');
+            b.classList.add('border-white/20');
+          });
+          btn.classList.remove('border-white/20');
+          btn.classList.add('border-white', 'bg-white/10');
+          updatePrice();
+        });
+      });
+    }
+  };
+
+  // Initialize
+  renderGripOptions();
+  renderTruckOptions();
+  renderWheelOptions();
+  updatePrice();
+  renderGallery(getGalleryImages());
+
+  // Details
+  if (detailsList) {
+    detailsList.innerHTML = '';
+    (data.details || []).forEach((d) => {
+      const li = document.createElement('li'); li.textContent = d; detailsList.appendChild(li);
+    });
+  }
+
+  // Add to cart
+  const addBtn = el('deck-add-to-cart');
+  if (addBtn) {
+    addBtn.onclick = () => {
+      if (!window.Cart?.add) {
+        // Try again after a short delay in case Cart is still loading
+        setTimeout(() => addBtn.onclick(), 100);
+        return;
+      }
+      const build = getCurrentBuild();
+      const grip = getCurrentGrip();
+      const truck = getCurrentTruck();
+      const wheel = getCurrentWheel();
+      const buildName = build?.name || '';
+      const gripName = grip?.name || '';
+      const truckName = truck?.name || '';
+      const wheelName = wheel?.name || '';
+      // Build configuration description
+      const configParts = [buildName];
+      if (gripName) configParts.push(gripName);
+      if (truckName) configParts.push(truckName);
+      if (wheelName) configParts.push(wheelName);
+      const configDescription = configParts.join(' + ');
+      const priceCents = Math.round(parseFloat(calculatePrice()) * 100);
+      window.Cart.add({
+        id: data.id,
+        title: data.title,
+        priceCents,
+        qty: 1,
+        color: configDescription,
+        size: '',
+        categories: data.categories,
+        keywords: data.keywords,
+        image: mainImg?.src || data.images?.[0],
+      });
+      window.Cart.open();
+    };
+  }
+
+  // Navigation buttons
+  if (thumbsPrev) thumbsPrev.onclick = () => {
+    activeImageIndex = Math.max(0, activeImageIndex - 1);
+    renderGallery(currentImages);
+  };
+  if (thumbsNext) thumbsNext.onclick = () => {
+    activeImageIndex = Math.min(currentImages.length - 1, activeImageIndex + 1);
+    renderGallery(currentImages);
+  };
+}
+
+window.renderDeck = renderDeck;
+
 // ── Lookbook ──────────────────────────────────────────────────
 const lookbookData = {
   'lookbook-1': { 
@@ -1073,13 +1404,9 @@ const lookbookData = {
     imagePosition: 'top center',
     imageBackground: '#0d0d0d'
   },
-  'lookbook-5': { 
-    title: 'Loving Life in the Skull Hoodie', 
-    image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774986932/IMG_6043_levbtb.webp', 
-    caption: 'Just stepped ut the house in the Pink/Black Skull Hoodie.', 
-    linkedProduct: 'skull-hoodie' },
+  
 
-  'lookbook-6': {
+  'lookbook-5': {
     type: 'drawing-board',
     title: 'First Ad I Took Somewhat Seriously',
     image: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774988228/image_ult8ty.webp',
@@ -1087,7 +1414,7 @@ const lookbookData = {
     linkedSearch: 'Genki Shinobi',
     linkedLabel: 'Shop the concept'
   },
-  // 'lookbook-7': {
+  // 'lookbook-6': {
   //   type: 'on-the-way',
   //   title: 'Sample Pack Landing',
   //   image: 'https://example.com/packing-shot.webp',
