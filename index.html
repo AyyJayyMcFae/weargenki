@@ -229,6 +229,34 @@
       border-left: 1px solid rgba(255,255,255,.12);
       padding-left: 1rem;
     }
+    .skate-shell {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,0) 28%),
+        linear-gradient(180deg, rgba(13,13,13,1), rgba(13,13,13,.96));
+    }
+    .skate-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent 85%);
+      pointer-events: none;
+    }
+    .skate-stat {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      backdrop-filter: blur(4px);
+    }
+    .skate-rail {
+      border-left: 1px solid rgba(255,255,255,.12);
+      padding-left: 1rem;
+    }
     #search-input-container input { padding-right: 40px; }
     #mobile-nav-menu {
       position: absolute;
@@ -336,6 +364,49 @@
     @media (pointer: coarse) {
       .product-gallery-nav-btn::before { inset: -14px; }
     }
+    .deck-hero-stage {
+      position: relative;
+      overflow: hidden;
+      min-height: clamp(520px, 72vh, 980px);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+        radial-gradient(circle at center, rgba(255,255,255,.06), transparent 44%);
+      background-size: 44px 44px, 44px 44px, auto;
+      background-color: #090909;
+    }
+    #deck-main-image {
+      position: relative;
+      z-index: 1;
+      max-height: clamp(340px, 62vh, 760px);
+      width: auto;
+      margin: 0 auto;
+      filter: drop-shadow(0 26px 48px rgba(0,0,0,.45));
+    }
+    .deck-option-panel {
+      border: 1px solid rgba(255,255,255,.1);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+    }
+    .deck-thumb-tape {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.35) transparent;
+    }
+    .deck-thumb-tape img {
+      flex: 0 0 auto;
+      width: 110px;
+      height: 110px;
+      object-fit: contain;
+      background: #171717;
+    }
+    @media (max-width: 767px) {
+      .deck-hero-stage {
+        min-height: clamp(360px, 58vh, 620px);
+      }
+      .deck-thumb-tape img {
+        width: 84px;
+        height: 84px;
+      }
+    }
     @media (min-width: 768px) {
       .look-main-collage { column-count: 2; column-gap: 12px; }
       .look-ribbon-shift { margin-top: 16px; transform: translateX(-10vw); width: calc(100% + 10vw); }
@@ -412,6 +483,7 @@
         <div id="desktop-category-links" class="hidden lg:flex items-center gap-1 mr-1">
           <a href="#shop/categories-all" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Shop</a>
           <a href="#kinetic" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Kinetic</a>
+          <a href="#skate" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Skate</a>
           <a href="#shop/categories-tops" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Tops</a>
           <a href="#shop/categories-bottoms" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Bottoms</a>
           <a href="#shop/categories-outerwear" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Outerwear</a>
@@ -444,6 +516,7 @@
           <div id="mobile-nav-menu" class="shadow-xl">
             <a href="#shop/categories-all" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition">Shop All</a>
             <a href="#kinetic" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Kinetic</a>
+            <a href="#skate" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Skate</a>
             <a href="#shop/categories-tops" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Tops</a>
             <a href="#shop/categories-bottoms" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Bottoms</a>
             <a href="#shop/categories-outerwear" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Outerwear</a>
@@ -611,7 +684,7 @@
           color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Free product — winner drawn from newsletter</p>
       </div>
 
       <!-- Tier 3 -->
@@ -629,7 +702,7 @@
           color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Full outfit — yours, on us</p>
       </div>
 
       <!-- Tier 4 -->
@@ -647,7 +720,7 @@
         color: rgba(255,255,255,0.75);
           margin: 0;
           line-height: 1.5;
-        ">???</p>
+        ">Free shipping for life — Genki Vanguard</p>
       </div>
     </div>
 
@@ -843,6 +916,42 @@
           </div>
         </section>
         <div id="kinetic-product-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
+        <div class="text-center mt-10">
+          <a href="#shop" class="inline-block px-8 py-3 bg-neutral-600 text-white font-semibold uppercase tracking-widest text-sm border border-neutral-500 hover:bg-gray-200 hover:text-black transition duration-150">Shop All</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="skate-page" class="page-content py-24">
+      <div class="px-4 sm:px-6 lg:px-8">
+        <section class="skate-shell px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10 mb-10">
+          <div class="relative z-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)] gap-8 items-start">
+            <div>
+              <p class="text-[11px] uppercase tracking-[0.38em] text-white/55 mb-3">Skateboard Collection / Street Ready</p>
+              <h2 id="skate-title" class="text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-none">SKATE</h2>
+              <p class="mt-4 max-w-3xl text-gray-300 text-base md:text-lg leading-relaxed">Custom builds and ready-to-roll completes. Choose your art, pick your components, or roll with a complete setup built for street, park, or vert.</p>
+            </div>
+            <div class="skate-rail space-y-4">
+              <p class="text-[11px] uppercase tracking-[0.34em] text-white/45">Collection Notes</p>
+              <p class="text-sm text-gray-300">Street decks, completes, and build-your-own options.</p>
+              <div class="grid grid-cols-3 gap-3 pt-2">
+                <div class="skate-stat p-3">
+                  <p class="text-[10px] uppercase tracking-[0.25em] text-white/45">Focus</p>
+                  <p class="mt-2 text-sm font-semibold text-white">Ride</p>
+                </div>
+                <div class="skate-stat p-3">
+                  <p class="text-[10px] uppercase tracking-[0.25em] text-white/45">Feel</p>
+                  <p class="mt-2 text-sm font-semibold text-white">Pop</p>
+                </div>
+                <div class="skate-stat p-3">
+                  <p class="text-[10px] uppercase tracking-[0.25em] text-white/45">Use</p>
+                  <p class="mt-2 text-sm font-semibold text-white">Any</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div id="skate-product-grid" class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"></div>
         <div class="text-center mt-10">
           <a href="#shop" class="inline-block px-8 py-3 bg-neutral-600 text-white font-semibold uppercase tracking-widest text-sm border border-neutral-500 hover:bg-gray-200 hover:text-black transition duration-150">Shop All</a>
         </div>
@@ -1456,6 +1565,93 @@
             <div class="pt-4 border-t border-white/10">
               <p class="text-lg font-semibold mb-3">More Like This</p>
               <div id="related-products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 5c. DECK PRODUCT PAGE (Skateboard Build Configurator) -->
+    <!-- ============================================== -->
+    <div id="deck-page" class="page-content py-24">
+      <div class="w-full px-4 md:px-6 xl:px-8">
+        <a href="#shop" class="text-sm text-gray-400 hover:text-white mb-6 flex items-center transition">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="m15 18-6-6 6-6"></path></svg>
+          Back to All Products
+        </a>
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-0 xl:min-h-[calc(100vh-180px)] border border-white/10">
+          <div id="deck-image-gallery" class="relative xl:border-r xl:border-white/10">
+            <div id="deck-main-image-viewport" class="deck-hero-stage relative select-none xl:min-h-[calc(100vh-300px)]">
+              <div class="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"></div>
+              <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+              <div class="absolute inset-0 flex items-center justify-center p-5 md:p-10">
+                <img id="deck-main-image" src="https://placehold.co/800x3000/1a1a1a/ffffff?text=GENKI+Skate+Deck" alt="Deck Main Image" class="h-full object-contain" style="transform-origin:center center;">
+              </div>
+              <button id="deck-thumbs-prev" type="button" aria-label="Previous image" class="product-gallery-nav-btn absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center border border-white/25 bg-black/40 hover:border-white transition disabled:opacity-35 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button id="deck-thumbs-next" type="button" aria-label="Next image" class="product-gallery-nav-btn absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center border border-white/25 bg-black/40 hover:border-white transition disabled:opacity-35 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <div class="mt-4 px-0 xl:px-0">
+              <p class="text-[11px] uppercase tracking-[0.35em] text-white/45 mb-3">Gallery</p>
+              <div id="deck-thumbs" class="deck-thumb-tape flex gap-3 overflow-x-auto pb-2">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-8 px-0 py-0 xl:px-10 xl:py-8 2xl:px-14">
+            <div class="border-b border-white/10 pb-6 pt-2 xl:pt-0">
+              <div class="flex items-center gap-3">
+                <span id="deck-badge" class="text-xs font-medium uppercase tracking-[0.35em] text-white border border-white/50 px-2 py-1 inline-block">NEW</span>
+                <p class="text-[11px] uppercase tracking-[0.35em] text-white/45">Deck Configurator</p>
+              </div>
+              <h1 id="deck-title" class="text-4xl md:text-5xl font-extrabold mt-3 mb-2 leading-none"></h1>
+              <p id="deck-price" class="text-3xl font-light text-white"></p>
+              <p id="deck-description" class="text-gray-400 text-sm mt-3 max-w-xl"></p>
+            </div>
+
+            <div class="deck-option-panel p-6 md:p-7 space-y-6">
+              <div>
+                <p class="text-lg font-semibold mb-3">Select Build:</p>
+                <div id="deck-build-options" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+
+              <div id="deck-grip-section" class="hidden">
+                <p class="text-lg font-semibold mb-3">Grip Tape:</p>
+                <div id="deck-grip-options" class="flex flex-wrap gap-3">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+
+              <div id="deck-truck-section" class="hidden">
+                <p class="text-lg font-semibold mb-3">Trucks:</p>
+                <div id="deck-truck-options" class="flex flex-wrap gap-3">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+
+              <div id="deck-wheel-section" class="hidden">
+                <p class="text-lg font-semibold mb-3">Wheels:</p>
+                <div id="deck-wheel-options" class="flex flex-wrap gap-3">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+
+              <button id="deck-add-to-cart" class="w-full py-4 bg-white text-black font-extrabold uppercase tracking-widest text-lg hover:bg-gray-200 transition duration-150 shadow-2xl">ADD TO CART</button>
+            </div>
+
+            <div>
+              <p class="text-lg font-semibold mb-3">Specifications</p>
+              <ul id="deck-details-list" class="text-gray-400 text-sm space-y-2 list-disc list-inside">
+                <!-- Dynamically populated -->
+              </ul>
             </div>
           </div>
         </div>
