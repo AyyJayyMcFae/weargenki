@@ -240,12 +240,17 @@
   }
 
   function requirementIsMet(requirement = {}, currentSubtotal) {
-    const requirementType = normalizeMatcher(requirement.type);
-    if (requirementType === 'subtotal' || requirementType === 'subtotal_gte') {
-      return currentSubtotal >= (Number(requirement.value) || 0);
-    }
-    return countMatchingQty(state.items, requirement) >= (requirement.qty || 1);
+  const requirementType = normalizeMatcher(requirement.type);
+  if (requirementType === 'subtotal' || requirementType === 'subtotal_gte') {
+    return currentSubtotal >= (Number(requirement.value) || 0);
   }
+  if (requirementType === 'not_category') {
+    const forbiddenValue = normalizeMatcher(requirement.value);
+    // Check every item: none of them should have the forbidden tag
+    return !state.items.some(it => getItemCategoryTags(it).has(forbiddenValue));
+  }
+  return countMatchingQty(state.items, requirement) >= (requirement.qty || 1);
+}
 
   function resolveRuleTarget(rule = {}, currentSubtotal) {
     const target = rule.target || {};
