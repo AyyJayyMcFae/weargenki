@@ -13,7 +13,7 @@
     return parsed > 1 ? parsed / 100 : parsed;
   };
   const SHIPPING_RATE = normalizeShippingRate(localConfig.SHIPPING_RATE);
-  const FREE_SHIPPING_THRESHOLD_CENTS = 10000;
+  const FREE_SHIPPING_THRESHOLD_CENTS = 20000;
 
   const STORAGE_KEY = 'genki_cart_v1';
   const LAST_ORDER_KEY = 'genki_last_order_v1';
@@ -22,45 +22,76 @@
     GKVG100: {
       description: 'Free shipping unlocked.',
       rules: [
-        { target: { type: 'shipping' }, 
-          effect: { type: 'free_shipping' } }
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'shipping' }, 
+          effect: { type: 'free_shipping' },
+        }
       ]
     },
     FREESHIP: {
       description: 'Free shipping unlocked.',
       rules: [
-        { target: { type: 'shipping' }, 
-          effect: { type: 'free_shipping' } }
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'shipping' }, 
+          effect: { type: 'free_shipping' },
+        }
       ]
     },
     NEWSHIPVIP: {
       description: 'Free shipping plus 10% off your subtotal.',
       rules: [
-        { target: { type: 'shipping' }, 
-          effect: { type: 'free_shipping' } },
-        { target: { type: 'cart' }, 
-          effect: { type: 'percent', value: 10 } }
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'shipping' }, 
+          effect: { type: 'free_shipping' },
+        },
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'cart' }, 
+          effect: { type: 'percent', value: 10 },
+        }
       ]
     },
     WELCOME10: {
       description: '10% off your subtotal.',
       rules: [
-        { target: { type: 'cart' }, 
-          effect: { type: 'percent', value: 10 } }
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'cart' }, 
+          effect: { type: 'percent', value: 10 },
+        }
+      ]
+    },
+    FIRSTGLIDE: {
+      description: '10% off for first-time buyers.',
+      rules: [
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'cart' },
+          effect: { type: 'percent', value: 10 },
+        }
       ]
     },
     NEXTDROP: {
       description: '15% off your subtotal.',
       rules: [
-        { target: { type: 'cart' }, 
-          effect: { type: 'percent', value: 15 } }
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'cart' }, 
+          effect: { type: 'percent', value: 15 },
+        }
       ]
     },
     STACKED20: {
       description: '20% off orders over $100.',
       rules: [
         {
-          requires: [{ type: 'subtotal_gte', value: 10000 }],
+          requires: [
+            { type: 'not_category', value: 'deck' },
+            { type: 'subtotal_gte', value: 10000 },
+          ],
           target: { type: 'cart' },
           effect: { type: 'percent', value: 20 },
         }
@@ -70,7 +101,10 @@
       description: '$25.00 off orders over $150.',
       rules: [
         {
-          requires: [{ type: 'subtotal_gte', value: 15000 }],
+          requires: [
+            { type: 'not_category', value: 'deck' },
+            { type: 'subtotal_gte', value: 15000 },
+          ],
           target: { type: 'cart' },
           effect: { type: 'fixed', value: 2500 },
         }
@@ -79,31 +113,73 @@
     ANNIVERSARY25: {
       description: '25% off your subtotal.',
       rules: [
-        { target: { type: 'cart' },
-          effect: { type: 'percent', value: 25 } }
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'cart' },
+          effect: { type: 'percent', value: 25 },
+        }
       ]
     },
     BROKEAGAIN: {
       description: '1% off. Every cent counts.',
       rules: [
-        { target: { type: 'cart' }, 
-          effect: { type: 'percent', value: 1 } }
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'cart' }, 
+          effect: { type: 'percent', value: 1 },
+        }
       ]
     },
     POCKETLINT: {
       description: '$1.00 off your order.',
       rules: [
-        { target: { type: 'cart' }, 
-          effect: { type: 'fixed', value: 100 } }
+        {
+          requires: [{ type: 'not_category', value: 'deck' }],
+          target: { type: 'cart' }, 
+          effect: { type: 'fixed', value: 100 },
+        }
       ]
     },
     ALMOSTRICH: {
       description: '$2.00 off orders over $200.',
       rules: [
         {
-          requires: [{ type: 'subtotal_gte', value: 20000 }],
+          requires: [
+            { type: 'not_category', value: 'deck' },
+            { type: 'subtotal_gte', value: 20000 },
+          ],
           target: { type: 'cart' },
           effect: { type: 'fixed', value: 200 },
+        }
+      ]
+    },
+    DECKLAUNCH: {
+      description: 'Save 10% on any skateboard deck.',
+      rules: [
+        {
+          requires: [{ type: 'category', value: 'deck', qty: 1 }],
+          target: { type: 'cart' },
+          effect: { type: 'percent', value: 10 },
+        }
+      ]
+    },
+    DECKFIX: {
+      description: 'Free shipping on deck orders.',
+      rules: [
+        {
+          requires: [{ type: 'category', value: 'deck', qty: 1 }],
+          target: { type: 'shipping' },
+          effect: { type: 'free_shipping' },
+        }
+      ]
+    },
+    DECKLAUNCH2: {
+      description: '15% off decks with any deck purchase over $180.',
+      rules: [
+        {
+          requires: [{ type: 'category', value: 'deck', qty: 1 }, { type: 'subtotal_gte', value: 18000 }],
+          target: { type: 'cart' },
+          effect: { type: 'percent', value: 15 },
         }
       ]
     },
@@ -200,7 +276,12 @@
 
   function getItemCategoryTags(item) {
     const tags = new Set();
-    normalizeCategoryList(item?.categories).forEach((entry) => tags.add(normalizeMatcher(entry)));
+    normalizeCategoryList(item?.categories).forEach((entry) => {
+      const normalized = normalizeMatcher(entry);
+      tags.add(normalized);
+      if (normalized === 'decks') tags.add('deck');
+    });
+    if (item?.productType === 'deck') tags.add('deck');
     const haystack = normalizeMatcher([
       item?.id,
       item?.title,
@@ -210,6 +291,7 @@
     if (haystack.includes('hoodie')) tags.add('hoodie');
     if (haystack.includes('tee') || haystack.includes('t-shirt') || haystack.includes('t shirt')) tags.add('tee');
     if (haystack.includes('shirt')) tags.add('shirt');
+    if (haystack.includes('deck') || haystack.includes('skateboard')) tags.add('deck');
     return tags;
   }
 
@@ -219,6 +301,7 @@
     if (!selectorType || !selectorValue || !item) return false;
     if (selectorType === 'product') return normalizeMatcher(item.id) === selectorValue;
     if (selectorType === 'category') return getItemCategoryTags(item).has(selectorValue);
+    if (selectorType === 'not_category') return !getItemCategoryTags(item).has(selectorValue);
     return false;
   }
 
@@ -240,17 +323,15 @@
   }
 
   function requirementIsMet(requirement = {}, currentSubtotal) {
-  const requirementType = normalizeMatcher(requirement.type);
-  if (requirementType === 'subtotal' || requirementType === 'subtotal_gte') {
-    return currentSubtotal >= (Number(requirement.value) || 0);
+    const requirementType = normalizeMatcher(requirement.type);
+    if (requirementType === 'subtotal' || requirementType === 'subtotal_gte') {
+      return currentSubtotal >= (Number(requirement.value) || 0);
+    }
+    if (requirementType === 'not_category') {
+      return countMatchingQty(state.items, requirement) === 0;
+    }
+    return countMatchingQty(state.items, requirement) >= (requirement.qty || 1);
   }
-  if (requirementType === 'not_category') {
-    const forbiddenValue = normalizeMatcher(requirement.value);
-    // Check every item: none of them should have the forbidden tag
-    return !state.items.some(it => getItemCategoryTags(it).has(forbiddenValue));
-  }
-  return countMatchingQty(state.items, requirement) >= (requirement.qty || 1);
-}
 
   function resolveRuleTarget(rule = {}, currentSubtotal) {
     const target = rule.target || {};
@@ -282,6 +363,9 @@
     const requirementType = normalizeMatcher(requirement?.type);
     if (requirementType === 'subtotal' || requirementType === 'subtotal_gte') {
       return `This code works on orders over ${money(Number(requirement?.value) || 0)}.`;
+    }
+    if (requirementType === 'not_category') {
+      return 'This promo cannot be used on deck orders.';
     }
     const targetType = normalizeMatcher(rule.target?.type);
     if (targetType === 'product' && rule.target?.value) {
