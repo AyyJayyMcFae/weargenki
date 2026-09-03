@@ -10,7 +10,7 @@
   const brandName = 'GENKI';
 
   const defaults = {
-    title: `${brandName} | Streetwear built for real life`,
+    title: `${brandName} | Live Lively`,
     description: 'Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.',
     type: 'website',
     path: '/',
