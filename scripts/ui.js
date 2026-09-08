@@ -40,6 +40,18 @@ function isMockupBackgroundCutoutCandidate(src = '') {
 }
 
 function getProductImageClasses(_src, baseClasses) {
+  if (!baseClasses) return ''; // NOTE: Was 'bg-white'
+  
+  /*
+  // NOTE: This logic previously forced a white background on all product images
+  // to ensure visibility when background removal fails. It has been commented out
+  // to allow the original element backgrounds (or transparent PNGs) to show through.
+  //
+  // const cleaned = baseClasses.replace(/\bbg-[^\s"']+/g, '').replace(/\s+/g, ' ').trim();
+  // return (cleaned ? cleaned + ' ' : '') + 'bg-white';
+  */
+  
+  // Return the base classes without injecting 'bg-white' override
   return baseClasses;
 }
 
@@ -149,101 +161,101 @@ function getBackgroundReferenceColor(data, width, height) {
   return averageRgb(samples);
 }
 
-function removeSolidBackgroundFromImage(sourceImage) {
-  const canvas = document.createElement('canvas');
-  const width = sourceImage.naturalWidth || sourceImage.width;
-  const height = sourceImage.naturalHeight || sourceImage.height;
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(sourceImage, 0, 0, width, height);
+// function removeSolidBackgroundFromImage(sourceImage) {
+//   const canvas = document.createElement('canvas');
+//   const width = sourceImage.naturalWidth || sourceImage.width;
+//   const height = sourceImage.naturalHeight || sourceImage.height;
+//   canvas.width = width;
+//   canvas.height = height;
+//   const ctx = canvas.getContext('2d', { willReadFrequently: true });
+//   ctx.drawImage(sourceImage, 0, 0, width, height);
 
-  const imageData = ctx.getImageData(0, 0, width, height);
-  const data = imageData.data;
-  const [bgR, bgG, bgB] = getBackgroundReferenceColor(data, width, height);
-  const solidThreshold = 30;
-  const featherThreshold = 72;
-  const visited = new Uint8Array(width * height);
-  const backgroundMask = new Uint8Array(width * height);
-  const queue = [];
-  let queueIndex = 0;
+//   const imageData = ctx.getImageData(0, 0, width, height);
+//   const data = imageData.data;
+//   const [bgR, bgG, bgB] = getBackgroundReferenceColor(data, width, height);
+//   const solidThreshold = 30;
+//   const featherThreshold = 72;
+//   const visited = new Uint8Array(width * height);
+//   const backgroundMask = new Uint8Array(width * height);
+//   const queue = [];
+//   let queueIndex = 0;
 
-  const colorDistanceAt = (pixelIndex) => {
-    const idx = pixelIndex * 4;
-    const dr = data[idx] - bgR;
-    const dg = data[idx + 1] - bgG;
-    const db = data[idx + 2] - bgB;
-    return Math.sqrt(dr * dr + dg * dg + db * db);
-  };
+//   const colorDistanceAt = (pixelIndex) => {
+//     const idx = pixelIndex * 4;
+//     const dr = data[idx] - bgR;
+//     const dg = data[idx + 1] - bgG;
+//     const db = data[idx + 2] - bgB;
+//     return Math.sqrt(dr * dr + dg * dg + db * db);
+//   };
 
-  const enqueueIfBackground = (x, y) => {
-    if (x < 0 || y < 0 || x >= width || y >= height) return;
-    const pixelIndex = y * width + x;
-    if (visited[pixelIndex]) return;
-    visited[pixelIndex] = 1;
-    if (colorDistanceAt(pixelIndex) <= solidThreshold) {
-      backgroundMask[pixelIndex] = 1;
-      queue.push(pixelIndex);
-    }
-  };
+//   const enqueueIfBackground = (x, y) => {
+//     if (x < 0 || y < 0 || x >= width || y >= height) return;
+//     const pixelIndex = y * width + x;
+//     if (visited[pixelIndex]) return;
+//     visited[pixelIndex] = 1;
+//     if (colorDistanceAt(pixelIndex) <= solidThreshold) {
+//       backgroundMask[pixelIndex] = 1;
+//       queue.push(pixelIndex);
+//     }
+//   };
 
-  for (let x = 0; x < width; x += 1) {
-    enqueueIfBackground(x, 0);
-    enqueueIfBackground(x, height - 1);
-  }
-  for (let y = 1; y < height - 1; y += 1) {
-    enqueueIfBackground(0, y);
-    enqueueIfBackground(width - 1, y);
-  }
+//   for (let x = 0; x < width; x += 1) {
+//     enqueueIfBackground(x, 0);
+//     enqueueIfBackground(x, height - 1);
+//   }
+//   for (let y = 1; y < height - 1; y += 1) {
+//     enqueueIfBackground(0, y);
+//     enqueueIfBackground(width - 1, y);
+//   }
 
-  while (queueIndex < queue.length) {
-    const pixelIndex = queue[queueIndex++];
-    const x = pixelIndex % width;
-    const y = Math.floor(pixelIndex / width);
-    enqueueIfBackground(x + 1, y);
-    enqueueIfBackground(x - 1, y);
-    enqueueIfBackground(x, y + 1);
-    enqueueIfBackground(x, y - 1);
-  }
+//   while (queueIndex < queue.length) {
+//     const pixelIndex = queue[queueIndex++];
+//     const x = pixelIndex % width;
+//     const y = Math.floor(pixelIndex / width);
+//     enqueueIfBackground(x + 1, y);
+//     enqueueIfBackground(x - 1, y);
+//     enqueueIfBackground(x, y + 1);
+//     enqueueIfBackground(x, y - 1);
+//   }
 
-  for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
-    if (!backgroundMask[pixelIndex]) continue;
-    const idx = pixelIndex * 4;
-    data[idx + 3] = 0;
-  }
+//   for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
+//     if (!backgroundMask[pixelIndex]) continue;
+//     const idx = pixelIndex * 4;
+//     data[idx + 3] = 0;
+//   }
 
-  for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
-    if (backgroundMask[pixelIndex]) continue;
-    const distance = colorDistanceAt(pixelIndex);
-    if (distance >= featherThreshold) continue;
+//   for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
+//     if (backgroundMask[pixelIndex]) continue;
+//     const distance = colorDistanceAt(pixelIndex);
+//     if (distance >= featherThreshold) continue;
 
-    const x = pixelIndex % width;
-    const y = Math.floor(pixelIndex / width);
-    let touchesBackground = false;
+//     const x = pixelIndex % width;
+//     const y = Math.floor(pixelIndex / width);
+//     let touchesBackground = false;
 
-    for (let oy = -1; oy <= 1 && !touchesBackground; oy += 1) {
-      for (let ox = -1; ox <= 1; ox += 1) {
-        if (ox === 0 && oy === 0) continue;
-        const nx = x + ox;
-        const ny = y + oy;
-        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
-        if (backgroundMask[ny * width + nx]) {
-          touchesBackground = true;
-          break;
-        }
-      }
-    }
+//     for (let oy = -1; oy <= 1 && !touchesBackground; oy += 1) {
+//       for (let ox = -1; ox <= 1; ox += 1) {
+//         if (ox === 0 && oy === 0) continue;
+//         const nx = x + ox;
+//         const ny = y + oy;
+//         if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+//         if (backgroundMask[ny * width + nx]) {
+//           touchesBackground = true;
+//           break;
+//         }
+//       }
+//     }
 
-    if (!touchesBackground) continue;
+//     if (!touchesBackground) continue;
 
-    const idx = pixelIndex * 4;
-    const alphaRatio = Math.max(0, (distance - solidThreshold) / (featherThreshold - solidThreshold));
-    data[idx + 3] = Math.min(data[idx + 3], Math.round(255 * alphaRatio));
-  }
+//     const idx = pixelIndex * 4;
+//     const alphaRatio = Math.max(0, (distance - solidThreshold) / (featherThreshold - solidThreshold));
+//     data[idx + 3] = Math.min(data[idx + 3], Math.round(255 * alphaRatio));
+//   }
 
-  ctx.putImageData(imageData, 0, 0);
-  return canvas.toDataURL('image/png');
-}
+//   ctx.putImageData(imageData, 0, 0);
+//   return canvas.toDataURL('image/png');
+// }
 
 function queueBackgroundCutout(img, src, options = {}) {
   if (!img) return;
@@ -322,7 +334,7 @@ function renderRelatedProducts(currentProduct) {
       </div>`;
     queueBackgroundCutout(card.querySelector('img'), image);
     attachProductCardHoverSwap(card, product);
-    card.addEventListener('click', () => { window.location.hash = `#${product.id}`; });
+    card.addEventListener('click', () => { navigateToProduct(product.id); });
     grid.appendChild(card);
   });
 }
@@ -349,7 +361,7 @@ function renderShopGrid(productsToRender, title = 'ALL PRODUCTS', options = {}) 
 
     const card = document.createElement('div');
     card.className = 'bg-transparent overflow-hidden shadow-lg border border-white/10 cursor-pointer hover:border-white transition';
-    card.onclick = () => { window.location.hash = `#${product.id}`; };
+    card.onclick = () => { navigateToProduct(product.id); };
 
     card.innerHTML = `
       <div class="relative overflow-hidden">
@@ -407,6 +419,56 @@ function renderShopGrid(productsToRender, title = 'ALL PRODUCTS', options = {}) 
 
     gridContainer.appendChild(card);
   });
+
+  // Restore previous scroll position for this collection if present
+  setTimeout(() => {
+    const map = {
+      'skate-product-grid': '#skate',
+      'kinetic-product-grid': '#kinetic',
+      'shop-product-grid': 'shop.html',
+      'wishlist-product-grid': '#wishlist'
+    };
+    const gridHash = map[options.gridId] || (window.location.hash || 'shop.html').split('?')[0];
+    try {
+      const pos = parseInt(sessionStorage.getItem(`scrollPos:${gridHash}`) || '0', 10);
+      if (pos) {
+        window.scrollTo(0, pos);
+        sessionStorage.removeItem(`scrollPos:${gridHash}`);
+      }
+    } catch (e) {}
+  }, 60);
+}
+
+// Navigation helpers: save scroll + collection before navigating to product
+function navigateToProduct(productId) {
+  try {
+    const currentHash = (window.location.hash || 'shop.html').split('?')[0];
+    sessionStorage.setItem(`scrollPos:${currentHash}`, String(window.scrollY || 0));
+    sessionStorage.setItem('lastCollectionHash', currentHash);
+  } catch (e) {}
+  window.location.hash = `#${productId}`;
+}
+
+function goBackToLastCollection(defaultHash = 'shop.html') {
+  try {
+    const target = sessionStorage.getItem('lastCollectionHash') || defaultHash;
+    window.location.hash = target;
+  } catch (e) {
+    window.location.hash = defaultHash;
+  }
+}
+
+function updateBackToCollectionButton() {
+  const nodes = Array.from(document.querySelectorAll('[data-back-to-collection-link]'));
+  if (!nodes.length) return;
+  const hash = sessionStorage.getItem('lastCollectionHash') || (window.location.hash || 'shop.html').split('?')[0];
+  const mapLabel = {
+    'shop.html': 'Back to All Products',
+    '#skate': 'Back to Skate',
+    '#kinetic': 'Back to Kinetic'
+  };
+  const label = mapLabel[hash] || 'Back to All Products';
+  nodes.forEach((n) => { n.textContent = label; });
 }
 
 function renderKineticCollectionFromProducts() {
@@ -488,7 +550,7 @@ window.renderWishlistPage = function () {
       </div>`;
     queueBackgroundCutout(card.querySelector('img'), image);
     attachProductCardHoverSwap(card, product);
-    card.addEventListener('click', () => { window.location.hash = `#${product.id}`; });
+    card.addEventListener('click', () => { navigateToProduct(product.id); });
     card.querySelector('[data-wishlist-toggle]')?.addEventListener('click', async (e) => {
       e.preventDefault(); e.stopPropagation();
       const changed = await window.toggleWishlistProduct(product.id);
@@ -593,7 +655,7 @@ function renderNewArrivalsFromProducts() {
     const colorDots = colors.slice(0, 5).map((c) => `<div class="w-4 h-4 ${c?.color || 'bg-black'} border border-white/50" title="${c?.name || ''}"></div>`).join('');
     const card = document.createElement('div');
     card.className = `bg-transparent overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition duration-300 border border-white/10 cursor-pointer${visibilityClass}`;
-    card.onclick = () => { window.location.hash = `#${product.id}`; };
+    card.onclick = () => { navigateToProduct(product.id); };
     card.innerHTML = `
       <div class="relative overflow-hidden">
         <img src="${image}" alt="${product.title}" class="${getProductImageClasses(image, 'w-full h-64 object-contain bg-neutral-900 transition duration-300 hover:opacity-80')}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
@@ -616,6 +678,38 @@ function renderNewArrivalsFromProducts() {
 window.refreshFeaturedProducts = renderNewArrivalsFromProducts;
 document.addEventListener('DOMContentLoaded', () => {
   renderNewArrivalsFromProducts();
+  try { updateBackToCollectionButton(); } catch (e) {}
+
+  // When menu navigation occurs, reset saved scroll for that collection
+  try {
+    const navRoot = document.getElementById('nav-inner');
+    const normalize = (href) => {
+      if (!href) return null;
+      const h = String(href).split('?')[0];
+      if (h.startsWith('shop.html')) return 'shop.html';
+      if (h.startsWith('#skate')) return '#skate';
+      if (h.startsWith('#kinetic')) return '#kinetic';
+      return null;
+    };
+    const clearFor = (hash) => {
+      if (!hash) return;
+      try { sessionStorage.removeItem(`scrollPos:${hash}`); sessionStorage.setItem('lastCollectionHash', hash); } catch (e) {}
+    };
+    navRoot?.addEventListener('click', (ev) => {
+      const a = ev.target.closest && ev.target.closest('a');
+      if (!a) return;
+      const hash = normalize(a.getAttribute('href'));
+      if (hash) clearFor(hash);
+    });
+    // mobile nav menu
+    const mobileMenu = document.getElementById('mobile-nav-menu');
+    mobileMenu?.addEventListener('click', (ev) => {
+      const a = ev.target.closest && ev.target.closest('a');
+      if (!a) return;
+      const hash = normalize(a.getAttribute('href'));
+      if (hash) clearFor(hash);
+    });
+  } catch (e) {}
 });
 
 // ── New arrivals page ─────────────────────────────────────────
@@ -629,7 +723,7 @@ function renderShopNewFromProducts() {
     const image = product.images?.[0] || 'https://placehold.co/600x600/222222/ffffff?text=Product';
     const card = document.createElement('div');
     card.className = 'bg-transparent overflow-hidden shadow-lg border border-white/10 cursor-pointer hover:border-white';
-    card.onclick = () => { window.location.hash = `#${product.id}`; };
+    card.onclick = () => { navigateToProduct(product.id); };
     card.innerHTML = `
       <div class="relative overflow-hidden">
         <img src="${image}" alt="${product.title}" class="${getProductImageClasses(image, 'w-full h-80 object-contain bg-neutral-900')}" onerror="this.onerror=null;this.src='https://placehold.co/600x600/222222/ffffff?text=Product'">
@@ -668,6 +762,9 @@ window.updateProductWishlistButton = function () {
 function renderProduct(key) {
   const data = PRODUCTS.find((p) => p.id === key);
   if (!data) return;
+
+  // Update back-link label based on where the user came from
+  try { updateBackToCollectionButton(); } catch (e) {}
 
   const fallbackImages = data.images || [];
   const getImagesForColor = (colorObj) => {
@@ -803,6 +900,23 @@ function renderProduct(key) {
     mainImg.onpointercancel = endZoomDrag;
     mainImg.ondragstart = () => false;
   }
+
+  /*
+  // NOTE: This portion of code forced a white background on the product detail main image 
+  // and its wrapper inside the single product viewport, overriding transparency.
+  // It has been commented out to allow transparent product graphics to render over the theme background.
+  // 
+  // if (mainImg) {
+  //   try {
+  //     mainImg.classList.add('bg-white');
+  //     mainImg.style.backgroundColor = '#ffffff';
+  //     if (mainImgWrapper) {
+  //       mainImgWrapper.classList.add('bg-white');
+  //       mainImgWrapper.style.backgroundColor = '#ffffff';
+  //     }
+  //   } catch (_) {}
+  // }
+  */
 
   // ── Swipe (non-zoomed) ────────────────────────────────────────
   const SWIPE_MIN = 36, SWIPE_MAX_V = 48, SWIPE_MAX_MS = 450;
@@ -1084,16 +1198,29 @@ function renderDeck(key) {
   const descEl = el('deck-description');
   const badgeEl = el('deck-badge');
   const mainImg = el('deck-main-image');
+  const deckViewport = el('deck-main-image-viewport');
   const thumbs = el('deck-thumbs');
   const thumbsPrev = el('deck-thumbs-prev');
   const thumbsNext = el('deck-thumbs-next');
   const detailsList = el('deck-details-list');
+
+  // NOTE: Actively cleanse and strip any template-level white background classes (such as bg-white) 
+  // on the skateboard deck viewport container or the deck photo graphics itself.
+  if (mainImg) {
+    mainImg.classList.remove('bg-white');
+    mainImg.style.backgroundColor = 'transparent';
+  }
+  if (deckViewport) {
+    deckViewport.classList.remove('bg-white');
+    deckViewport.style.backgroundColor = 'transparent';
+  }
 
   // Build configuration state
   let activeBuild = 0;
   let activeGrip = 0;
   let activeTruck = 0;
   let activeWheel = 0;
+  const selectedAccessories = new Set();
   let currentImages = [];
   let activeImageIndex = 0;
 
@@ -1102,6 +1229,10 @@ function renderDeck(key) {
   const getCurrentGrip = () => getCurrentBuild()?.hoodies?.[activeGrip];
   const getCurrentTruck = () => getCurrentBuild()?.truckOptions?.[activeTruck];
   const getCurrentWheel = () => getCurrentBuild()?.wheelOptions?.[activeWheel];
+  const getAccessoryOptions = () => Array.isArray(data.accessoryOptions) ? data.accessoryOptions : [];
+  const canApplyGripAddon = () => getCurrentBuild()?.name === 'Deck + Grip';
+  const canFullyAssemble = () => getCurrentBuild()?.name === 'Complete';
+  const hasAccessory = (id) => selectedAccessories.has(id);
 
   // Calculate total price
   const calculatePrice = () => {
@@ -1115,6 +1246,9 @@ function renderDeck(key) {
     if (grip?.priceAdjustment) total += grip.priceAdjustment;
     if (truck?.priceAdjustment) total += truck.priceAdjustment;
     if (wheel?.priceAdjustment) total += wheel.priceAdjustment;
+    getAccessoryOptions().forEach((option) => {
+      if (hasAccessory(option.id)) total += option.priceAdjustment || 0;
+    });
     
     return total.toFixed(2);
   };
@@ -1130,37 +1264,96 @@ function renderDeck(key) {
     return Array.isArray(gripImages) ? gripImages : [];
   };
 
-  // Render gallery
+  // Render gallery with sync, nav buttons, and swipe support
+  const SWIPE_MIN = 36, SWIPE_MAX_V = 48, SWIPE_MAX_MS = 450;
+  let swipePointerId = null, swipeStartX = 0, swipeStartY = 0, swipeDeltaX = 0, swipeDeltaY = 0, swipeStartTime = 0;
+  let suppressClick = false;
+
+  const syncActiveImage = () => {
+    const total = currentImages.length;
+    if (!total) {
+      if (mainImg) mainImg.src = '';
+      if (thumbsPrev) thumbsPrev.disabled = true;
+      if (thumbsNext) thumbsNext.disabled = true;
+      return;
+    }
+    activeImageIndex = Math.max(0, Math.min(activeImageIndex, total - 1));
+    if (mainImg) {
+      mainImg.src = currentImages[activeImageIndex];
+      queueBackgroundCutout(mainImg, currentImages[activeImageIndex], { force: true });
+    }
+    if (thumbs) {
+      thumbs.querySelectorAll('img').forEach((t, i) => {
+        t.classList.toggle('border-white', i === activeImageIndex);
+      });
+      // ensure newly added thumbs have background stripped
+      thumbs.querySelectorAll('img').forEach((img) => {
+        img.classList.remove('bg-white');
+        img.style.backgroundColor = 'transparent';
+        queueBackgroundCutout(img, img.src, { force: true });
+      });
+    }
+    if (thumbsPrev) thumbsPrev.disabled = total <= 1 || activeImageIndex <= 0;
+    if (thumbsNext) thumbsNext.disabled = total <= 1 || activeImageIndex >= total - 1;
+  };
+
+  const goPrev = () => { if (activeImageIndex > 0) { activeImageIndex--; syncActiveImage(); } };
+  const goNext = () => { if (activeImageIndex < currentImages.length - 1) { activeImageIndex++; syncActiveImage(); } };
+
   const renderGallery = (images) => {
     currentImages = images || [];
     if (activeImageIndex >= currentImages.length) activeImageIndex = 0;
-    if (currentImages.length && mainImg) {
-      mainImg.src = currentImages[activeImageIndex] || currentImages[0];
-      queueBackgroundCutout(mainImg, currentImages[activeImageIndex] || currentImages[0], { force: true });
-    }
-    // Render thumbnails
+    // build thumbs markup
     if (thumbs) {
       thumbs.innerHTML = currentImages.map((src, i) => `
         <img src="${src}" alt="Deck ${i + 1}" class="border border-white/10 cursor-pointer hover:border-white transition ${i === activeImageIndex ? 'border-white' : ''}" data-index="${i}">
       `).join('');
-      
       thumbs.querySelectorAll('img').forEach((img) => {
+        img.classList.remove('bg-white');
+        img.style.backgroundColor = 'transparent';
         queueBackgroundCutout(img, img.src, { force: true });
         img.addEventListener('click', () => {
           activeImageIndex = parseInt(img.dataset.index);
-          if (mainImg) {
-            mainImg.src = currentImages[activeImageIndex];
-            queueBackgroundCutout(mainImg, currentImages[activeImageIndex], { force: true });
-          }
-          thumbs.querySelectorAll('img').forEach((t) => t.classList.remove('border-white'));
-          img.classList.add('border-white');
+          syncActiveImage();
         });
       });
     }
 
-    if (thumbsPrev) thumbsPrev.disabled = currentImages.length <= 1 || activeImageIndex <= 0;
-    if (thumbsNext) thumbsNext.disabled = currentImages.length <= 1 || activeImageIndex >= currentImages.length - 1;
+    // ensure main image and buttons reflect state
+    syncActiveImage();
   };
+
+  if (thumbsPrev) thumbsPrev.onclick = goPrev;
+  if (thumbsNext) thumbsNext.onclick = goNext;
+
+  // Swipe handling on deck viewport (non-zoom scenario)
+  if (deckViewport) {
+    deckViewport.onpointerdown = (e) => {
+      if (e.button !== 0 || e.target?.closest('#deck-thumbs-prev, #deck-thumbs-next')) return;
+      swipePointerId = e.pointerId; swipeStartX = e.clientX; swipeStartY = e.clientY;
+      swipeDeltaX = 0; swipeDeltaY = 0; swipeStartTime = Date.now();
+      try { deckViewport.setPointerCapture(e.pointerId); } catch (_) {}
+    };
+    deckViewport.onpointermove = (e) => {
+      if (swipePointerId === null || e.pointerId !== swipePointerId) return;
+      swipeDeltaX = e.clientX - swipeStartX; swipeDeltaY = e.clientY - swipeStartY;
+    };
+    const finishDeckSwipe = (e) => {
+      if (swipePointerId === null || e?.pointerId !== swipePointerId) return;
+      const elapsed = Date.now() - swipeStartTime;
+      const isSwipe = Math.abs(swipeDeltaX) >= SWIPE_MIN && Math.abs(swipeDeltaY) <= SWIPE_MAX_V && elapsed <= SWIPE_MAX_MS;
+      if (isSwipe) { suppressClick = true; swipeDeltaX < 0 ? goNext() : goPrev(); requestAnimationFrame(() => { suppressClick = false; }); }
+      try { deckViewport.releasePointerCapture(e.pointerId); } catch (_) {}
+      swipePointerId = null;
+    };
+    deckViewport.onpointerup = finishDeckSwipe;
+    deckViewport.onpointercancel = finishDeckSwipe;
+    deckViewport.onclick = (e) => {
+      if (e.target?.closest('#deck-thumbs-prev, #deck-thumbs-next')) return;
+      if (suppressClick) return;
+      // no zoom behavior for decks — clicks on main image do nothing special
+    };
+  }
 
   // Populate header
   if (titleEl) titleEl.textContent = data.title;
@@ -1168,13 +1361,13 @@ function renderDeck(key) {
     badgeEl.textContent = data.badge || '';
     badgeEl.style.display = data.badge ? 'inline-block' : 'none';
   }
-  if (descEl) descEl.textContent = data.keywords;
+  if (descEl) descEl.textContent = data.description || data.keywords || '';
 
   // Render build options
   const buildContainer = el('deck-build-options');
   if (buildContainer && data.skullOptions) {
     buildContainer.innerHTML = data.skullOptions.map((build, i) => `
-      <button class="build-option-btn p-4 border ${i === 0 ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-left transition" data-build="${i}">
+      <button class="build-option-btn px-3 py-3 sm:px-4 sm:py-4 border ${i === 0 ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-left transition text-sm" data-build="${i}">
         <p class="font-semibold text-white">${build.name}</p>
         <p class="text-sm text-gray-400">${build.description || ''}</p>
         <p class="text-sm text-white mt-1">${build.priceAdjustment > 0 ? `+$${build.priceAdjustment}` : 'Included'}</p>
@@ -1187,6 +1380,7 @@ function renderDeck(key) {
         activeGrip = 0;
         activeTruck = 0;
         activeWheel = 0;
+        if (!canApplyGripAddon()) selectedAccessories.delete('apply-griptape');
         
         // Update UI
         buildContainer.querySelectorAll('.build-option-btn').forEach((b) => {
@@ -1199,6 +1393,7 @@ function renderDeck(key) {
         renderGripOptions();
         renderTruckOptions();
         renderWheelOptions();
+        renderAccessoryOptions();
         updatePrice();
       });
     });
@@ -1218,7 +1413,7 @@ function renderDeck(key) {
     
     if (gripContainer && grips.length) {
       gripContainer.innerHTML = grips.map((grip, i) => `
-        <button class="grip-option-btn px-4 py-2 border ${i === activeGrip ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-sm transition" data-grip="${i}">
+        <button class="grip-option-btn px-3 py-2 sm:px-4 border ${i === activeGrip ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-sm transition" data-grip="${i}">
           <span class="inline-block w-4 h-4 rounded ${grip.color} mr-2 border border-white/30"></span>
           ${grip.name}
           ${grip.priceAdjustment > 0 ? `<span class="text-gray-400 ml-1">+$${grip.priceAdjustment}</span>` : ''}
@@ -1252,32 +1447,62 @@ function renderDeck(key) {
     }
     
     if (truckContainer && trucks.length) {
-      truckContainer.innerHTML = trucks.map((truck, i) => `
-        <button class="truck-option-btn px-4 py-2 border ${i === activeTruck ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-sm transition" data-truck="${i}">
-          <span class="inline-block w-4 h-4 rounded ${truck.color} mr-2 border border-white/30"></span>
-          ${truck.name}
-          ${truck.priceAdjustment > 0 ? `<span class="text-gray-400 ml-1">+$${truck.priceAdjustment}</span>` : ''}
-        </button>
-      `).join('');
+      const selectedTruck = trucks[activeTruck] || trucks[0];
+      truckContainer.innerHTML = `
+        <div class="border border-white/15 bg-white/[0.02] p-4 space-y-3">
+          <label for="deck-truck-select" class="block text-[11px] uppercase tracking-[0.28em] text-white/55">Choose Truck</label>
+          <select id="deck-truck-select" class="w-full bg-black border border-white/20 px-4 py-3 text-sm text-white focus:border-white outline-none">
+            ${trucks.map((truck, i) => `
+              <option value="${i}" ${i === activeTruck ? 'selected' : ''}>
+                ${truck.name}${truck.priceAdjustment > 0 ? ` (+$${truck.priceAdjustment})` : ''}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+        ${selectedTruck ? `
+          <div class="border border-white/15 bg-white/[0.03] p-4 flex items-start gap-3">
+            <span class="inline-block w-4 h-4 rounded ${selectedTruck.color} mt-1 border border-white/30"></span>
+            <div class="space-y-1">
+              <p class="text-sm font-semibold text-white">${selectedTruck.name}</p>
+              <p class="text-xs uppercase tracking-[0.24em] text-white/55">${selectedTruck.priceAdjustment > 0 ? `+$${selectedTruck.priceAdjustment}` : 'Included'}</p>
+            </div>
+          </div>
+        ` : ''}
+      `;
 
-      truckContainer.querySelectorAll('.truck-option-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          activeTruck = parseInt(btn.dataset.truck);
-          truckContainer.querySelectorAll('.truck-option-btn').forEach((b) => {
-            b.classList.remove('border-white', 'bg-white/10');
-            b.classList.add('border-white/20');
-          });
-          btn.classList.remove('border-white/20');
-          btn.classList.add('border-white', 'bg-white/10');
+      const truckSelect = truckContainer.querySelector('#deck-truck-select');
+      if (truckSelect) {
+        truckSelect.addEventListener('change', () => {
+          activeTruck = parseInt(truckSelect.value, 10);
+          renderTruckOptions();
           updatePrice();
         });
-      });
+      }
     }
   };
 
   // Render wheel options
   const wheelSection = el('deck-wheel-section');
   const wheelContainer = el('deck-wheel-options');
+  const groupWheelOptions = (wheels) => {
+    const groups = new Map();
+    wheels.forEach((wheel, index) => {
+      const groupName = wheel.name.startsWith('Blank ')
+        ? 'Blank'
+        : wheel.name.startsWith('OJ ')
+          ? 'OJ'
+          : wheel.name.startsWith('Ricta ')
+            ? 'Ricta'
+            : wheel.name.startsWith('Spitfire ')
+              ? 'Spitfire'
+              : wheel.name.startsWith('BoardPusher ')
+                ? 'BoardPusher'
+                : 'Other';
+      if (!groups.has(groupName)) groups.set(groupName, []);
+      groups.get(groupName).push({ ...wheel, index });
+    });
+    return Array.from(groups.entries());
+  };
   const renderWheelOptions = () => {
     const build = getCurrentBuild();
     const wheels = build?.wheelOptions || [];
@@ -1287,23 +1512,88 @@ function renderDeck(key) {
     }
     
     if (wheelContainer && wheels.length) {
-      wheelContainer.innerHTML = wheels.map((wheel, i) => `
-        <button class="wheel-option-btn px-4 py-2 border ${i === activeWheel ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-sm transition" data-wheel="${i}">
-          <span class="inline-block w-4 h-4 rounded ${wheel.color} mr-2 border border-white/30"></span>
-          ${wheel.name}
-          ${wheel.priceAdjustment > 0 ? `<span class="text-gray-400 ml-1">+$${wheel.priceAdjustment}</span>` : ''}
+      const groupedWheels = groupWheelOptions(wheels);
+      const selectedWheel = wheels[activeWheel] || wheels[0];
+      wheelContainer.innerHTML = `
+        <div class="border border-white/15 bg-white/[0.02] p-4 space-y-3">
+          <label for="deck-wheel-select" class="block text-[11px] uppercase tracking-[0.28em] text-white/55">Choose Wheel Set</label>
+          <select id="deck-wheel-select" class="w-full bg-black border border-white/20 px-4 py-3 text-sm text-white focus:border-white outline-none">
+            ${groupedWheels.map(([groupName, entries]) => `
+              <optgroup label="${groupName}">
+                ${entries.map((wheel) => `
+                  <option value="${wheel.index}" ${wheel.index === activeWheel ? 'selected' : ''}>
+                    ${wheel.name}${wheel.priceAdjustment > 0 ? ` (+$${wheel.priceAdjustment})` : ''}
+                  </option>
+                `).join('')}
+              </optgroup>
+            `).join('')}
+          </select>
+        </div>
+        ${selectedWheel ? `
+          <div class="border border-white/15 bg-white/[0.03] p-4 flex items-start gap-3">
+            <svg class="inline-block w-4 h-4 mt-1 flex-shrink-0" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="8" cy="8" r="7.5" fill="${selectedWheel.colorValue}"/>
+              <circle cx="8" cy="8" r="4" fill="#0d0d0d"/>
+            </svg>
+            <div class="space-y-1">
+              <p class="text-sm font-semibold text-white">${selectedWheel.name}</p>
+              <p class="text-xs uppercase tracking-[0.24em] text-white/55">${selectedWheel.priceAdjustment > 0 ? `+$${selectedWheel.priceAdjustment}` : 'Included'}</p>
+            </div>
+          </div>
+        ` : ''}
+      `;
+
+      const wheelSelect = wheelContainer.querySelector('#deck-wheel-select');
+      if (wheelSelect) {
+        wheelSelect.addEventListener('change', () => {
+          activeWheel = parseInt(wheelSelect.value, 10);
+          renderWheelOptions();
+          updatePrice();
+        });
+      }
+    }
+  };
+
+  // Render accessory options
+  const accessorySection = el('deck-accessory-section');
+  const accessoryContainer = el('deck-accessory-options');
+
+  const renderAccessoryOptions = () => {
+    const accessoryOptions = getAccessoryOptions();
+    const visibleOptions = accessoryOptions.filter((option) => {
+      if (option.id === 'apply-griptape') return canApplyGripAddon();
+      if (option.id === 'fully-assembled') return canFullyAssemble();
+      return true;
+    });
+
+    if (!canApplyGripAddon()) {
+      selectedAccessories.delete('apply-griptape');
+    }
+    if (!canFullyAssemble()) {
+      selectedAccessories.delete('fully-assembled');
+    }
+
+    if (accessorySection) {
+      accessorySection.style.display = visibleOptions.length ? 'block' : 'none';
+    }
+
+    if (accessoryContainer) {
+      accessoryContainer.innerHTML = visibleOptions.map((option) => `
+        <button class="deck-accessory-option-btn px-3 py-2 sm:px-4 border ${hasAccessory(option.id) ? 'border-white bg-white/10' : 'border-white/20 hover:border-white/50'} text-sm transition" data-accessory="${option.id}">
+          ${option.name}
+          ${option.priceAdjustment > 0 ? `<span class="text-gray-400 ml-1">+$${option.priceAdjustment}</span>` : ''}
         </button>
       `).join('');
 
-      wheelContainer.querySelectorAll('.wheel-option-btn').forEach((btn) => {
+      accessoryContainer.querySelectorAll('.deck-accessory-option-btn').forEach((btn) => {
         btn.addEventListener('click', () => {
-          activeWheel = parseInt(btn.dataset.wheel);
-          wheelContainer.querySelectorAll('.wheel-option-btn').forEach((b) => {
-            b.classList.remove('border-white', 'bg-white/10');
-            b.classList.add('border-white/20');
-          });
-          btn.classList.remove('border-white/20');
-          btn.classList.add('border-white', 'bg-white/10');
+          const { accessory: accessoryId } = btn.dataset;
+          if (hasAccessory(accessoryId)) {
+            selectedAccessories.delete(accessoryId);
+          } else {
+            selectedAccessories.add(accessoryId);
+          }
+          renderAccessoryOptions();
           updatePrice();
         });
       });
@@ -1314,6 +1604,7 @@ function renderDeck(key) {
   renderGripOptions();
   renderTruckOptions();
   renderWheelOptions();
+  renderAccessoryOptions();
   updatePrice();
   renderGallery(getGalleryImages());
 
@@ -1347,6 +1638,15 @@ function renderDeck(key) {
       if (gripName) configParts.push(gripName);
       if (truckName) configParts.push(truckName);
       if (wheelName) configParts.push(wheelName);
+      if (hasAccessory('apply-griptape')) {
+        configParts.push('Apply Griptape');
+      }
+      if (hasAccessory('fully-assembled')) {
+        configParts.push('Fully Assembled');
+      }
+      getAccessoryOptions().forEach((option) => {
+        if (option.id !== 'apply-griptape' && option.id !== 'fully-assembled' && hasAccessory(option.id)) configParts.push(option.name);
+      });
       const configDescription = configParts.join(' + ');
       const priceCents = Math.round(parseFloat(calculatePrice()) * 100);
       window.Cart.add({
@@ -1442,7 +1742,7 @@ function getLookAction(item) {
     const href = item?.linkedProduct
       ? `#${item.linkedProduct}`
       : item?.linkedSearch
-        ? `#shop?q=${encodeURIComponent(item.linkedSearch)}`
+        ? `shop.html?q=${encodeURIComponent(item.linkedSearch)}`
         : item?.linkedHref || '';
     return {
       href,
@@ -1485,6 +1785,7 @@ function shuffleArray(items) {
   return copy;
 }
 
+// NOTE: Lookbook background constraints can still be overridden using lookbookData configuration fields.
 function renderHomeLookbook() {
   const grid = document.getElementById('home-lookbook-grid');
   if (!grid) return;
@@ -1505,7 +1806,7 @@ function renderHomeLookbook() {
 
   grid.innerHTML = looks.map(([key, item], index) => `
     <div class="${slotClasses[index] || 'overflow-hidden'}">
-      <a href="#${key}" class="group block h-full">
+      <a href="lookbook-main.html#${key}" class="group block h-full">
         <img
           src="${item.image}"
           alt="${item.caption || item.title}"
@@ -1527,6 +1828,7 @@ function renderLookbookMain() {
     const card = document.createElement('a');
     card.href = `#${key}`;
     card.className = 'look-main-card group block hover:border-white transition';
+    card.dataset.key = key;
     card.innerHTML = `
       <div class="relative overflow-hidden" style="${item.imageBackground ? `background:${item.imageBackground}` : ''}">
         <img src="${item.image}" alt="${item.caption || item.title}" class="w-full h-auto ${getLookImageFit(item)} transition duration-300 group-hover:scale-[1.03] group-hover:brightness-110" style="${getLookImageStyle(item)}">
@@ -1563,7 +1865,7 @@ function renderLook(key) {
   if (captionEl) captionEl.textContent = data.caption;
   if (linkedBtn) {
     if (action.href) {
-      linkedBtn.href = action.href;
+  linkedBtn.href = action.href.startsWith('#') ? `index.html${action.href}` : action.href;
       linkedBtn.textContent = action.buttonLabel;
       linkedBtn.style.display = 'inline-block';
     } else {

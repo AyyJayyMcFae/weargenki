@@ -2,6 +2,134 @@
 // products.js — Single source of truth for all catalog data
 // =============================================================
 
+const DEFAULT_DECK_GRIP_ADDON_OPTIONS = [
+  { name: 'Jessup Black', color: 'bg-neutral-900', },
+  { name: 'Mob Grip Black', color: 'bg-black', priceAdjustment: 3 },
+];
+
+const DEFAULT_DECK_ACCESSORY_OPTIONS = [
+  { id: 'apply-griptape', name: 'Apply Griptape', priceAdjustment: 5 },
+  { id: 'fully-assembled', name: 'Fully Assembled', priceAdjustment: 10 },
+  { id: 'wall-hangers', name: 'Add Wall Hangers', priceAdjustment: 15 },
+  { id: 'skate-tool', name: 'Add Skate Tool', priceAdjustment: 15 },
+];
+
+const DEFAULT_DECK_TRUCK_OPTIONS = [
+  { name: 'Bullet Silver 140mm', color: 'bg-slate-300', colorValue: '#cbd5e1', priceAdjustment: 0 },
+  { name: 'Indy 139mm Stage 11 (Polished)', color: 'bg-brand-indy', colorValue: '#b8c5d6', priceAdjustment: 12 },
+  { name: 'Thunder Team 147 (Polished)', color: 'bg-blue-300', colorValue: '#93c5fd', priceAdjustment: 12 },
+  { name: 'Venture 5.25 High (Polished)', color: 'bg-slate-500', colorValue: '#64748b', priceAdjustment: 12 },
+  { name: 'Venture 5.25 Low (Polished)', color: 'bg-brand-venturelow', colorValue: '#475569', priceAdjustment: 12 },
+  { name: 'Indy 144mm Stage 11 (Polished)', color: 'bg-slate-100', colorValue: '#f1f5f9', priceAdjustment: 13 },
+];
+
+const DEFAULT_DECK_DETAILS = [
+  '7.25" x 31" street deck',
+  'Canadian maple wood',
+  'Medium concave shape',
+  'Weight: 1.1kg',
+];
+
+const DEFAULT_DECK_WHEEL_OPTIONS = [
+  { name: 'BoardPusher Blue Flowers 55mm/101a', color: 'bg-blue-400', colorValue: '#60a5fa', priceAdjustment: 0 },
+  { name: 'BoardPusher Dark Flowers 53mm/101a', color: 'bg-neutral-800', colorValue: '#1f2937', priceAdjustment: 0 },
+  { name: 'BoardPusher Citrus Flowers 58mm/101a', color: 'bg-yellow-400', colorValue: '#facc15', priceAdjustment: 0 },
+  { name: 'BoardPusher 65mm/78a - includes 1/4" riser', color: 'bg-cyan-300', colorValue: '#67e8f9', priceAdjustment: 3 },
+  { name: 'Blank 60mm (Solid Green) - Includes 1/4" Risers', color: 'bg-green-500', colorValue: '#22c55e', priceAdjustment: 8 },
+  { name: 'Blank 60mm (Solid Orange) - Includes 1/4" Risers', color: 'bg-orange-500', colorValue: '#f97316', priceAdjustment: 8 },
+  { name: 'Blank 60mm (Solid Pink) - Includes 1/4" Risers', color: 'bg-pink-400', colorValue: '#f472b6', priceAdjustment: 8 },
+  { name: 'Blank 60mm (Solid White) - Includes 1/4" Risers', color: 'bg-white', colorValue: '#ffffff', priceAdjustment: 8 },
+  { name: 'Blank 65mm (Solid Blue) - Includes 1/4" Risers', color: 'bg-blue-500', colorValue: '#3b82f6', priceAdjustment: 10 },
+  { name: 'Blank 65mm (Solid Orange) - Includes 1/4" Risers', color: 'bg-orange-500', colorValue: '#f97316', priceAdjustment: 10 },
+  { name: 'Blank 65mm (Solid Pink) - Includes 1/4" Risers', color: 'bg-pink-400', colorValue: '#f472b6', priceAdjustment: 10 },
+  { name: 'OJ Elite Hardline 53mm/99a', color: 'bg-orange-300', colorValue: '#fed7aa', priceAdjustment: 11 },
+  { name: 'OJ Elite Hardline 54mm/99a', color: 'bg-orange-300', colorValue: '#fed7aa', priceAdjustment: 11 },
+  { name: 'OJ Elite Hardline 55mm/99a', color: 'bg-orange-300', colorValue: '#fed7aa', priceAdjustment: 11 },
+  { name: 'Ricta Reflective Naturals Round 53mm/99a', color: 'bg-amber-600', colorValue: '#b45309', priceAdjustment: 11 },
+  { name: 'Ricta Reflective Naturals Super Slim 51mm/101a', color: 'bg-gray-400', colorValue: '#9ca3af', priceAdjustment: 11 },
+  { name: 'Ricta Reflective Naturals Wide 54mm/99a', color: 'bg-blue-500', colorValue: '#3b82f6', priceAdjustment: 11 },
+  { name: 'Blank 70mm (Solid White) - Includes 1/4" Risers', color: 'bg-white', colorValue: '#ffffff', priceAdjustment: 13 },
+  { name: 'Ricta Clouds 52mm/92a', color: 'bg-slate-200', colorValue: '#e2e8f0', priceAdjustment: 14 },
+  { name: 'Ricta Clouds 54mm/92a', color: 'bg-slate-200', colorValue: '#e2e8f0', priceAdjustment: 14 },
+  { name: 'Ricta Clouds 56mm/92a', color: 'bg-slate-200', colorValue: '#e2e8f0', priceAdjustment: 14 },
+  { name: 'OJ Hot Juice 60mm (black) - Includes 1/4" risers', color: 'bg-black', colorValue: '#000000', priceAdjustment: 16 },
+  { name: 'Spitfire Formula Four Classic (50mm, 99a)', color: 'bg-amber-700', colorValue: '#92400e', priceAdjustment: 20 },
+  { name: 'Spitfire Formula Four Classic (52mm, 99a)', color: 'bg-emerald-600', colorValue: '#059669', priceAdjustment: 20 },
+  { name: 'Spitfire Formula Four Classic (54mm, 99a)', color: 'bg-red-700', colorValue: '#b91c1c', priceAdjustment: 20 },
+  { name: 'Spitfire Formula Four Classic (55mm, 99a)', color: 'bg-yellow-400', colorValue: '#facc15', priceAdjustment: 20 },
+  { name: 'Spitfire Formula Four Classic (56mm, 99a)', color: 'bg-blue-700', colorValue: '#1d4ed8', priceAdjustment: 20 },
+  { name: 'Spitfire Formula Four Classic (58mm, 99a)', color: 'bg-purple-700', colorValue: '#7c3aed', priceAdjustment: 25 },
+];
+
+function cloneDeckGripOptions(prefix = 'Grip') {
+  return DEFAULT_DECK_GRIP_ADDON_OPTIONS.map((option) => ({
+    ...option,
+    images: [`https://placehold.co/800x3000/1a1a1a/ffffff?text=${encodeURIComponent(`${prefix} ${option.name}`)}`],
+  }));
+}
+
+function createDeckBuilderOptions(thumbnail) {
+  return [
+    {
+      name: 'Deck Only',
+      priceAdjustment: 0,
+      description: 'Raw deck without grip tape',
+      thumbnail,
+      hoodies: [
+        {
+          name: 'Blank',
+          color: 'bg-transparent',
+          images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Blank+Deck'],
+        },
+      ],
+    },
+    {
+      name: 'Deck + Grip',
+      priceAdjustment: 10,
+      description: 'Deck with grip tape applied',
+      thumbnail: 'https://placehold.co/200x200/1a1a1a/ffffff?text=Deck%2BGrip',
+      hoodies: cloneDeckGripOptions('Deck Grip'),
+    },
+    {
+      name: 'Complete',
+      priceAdjustment: 90,
+      description: 'Fully built skateboard with trucks and wheels',
+      thumbnail: 'https://placehold.co/200x200/1a1a1a/ffffff?text=Complete',
+      hoodies: cloneDeckGripOptions('Complete Grip'),
+      truckOptions: DEFAULT_DECK_TRUCK_OPTIONS.map((option) => ({ ...option })),
+      wheelOptions: DEFAULT_DECK_WHEEL_OPTIONS.map((option) => ({ ...option })),
+    },
+  ];
+}
+
+function createDeckProduct({
+  id,
+  title,
+  images,
+  badge = 'SKATE',
+  price = '$75.00 ',
+  keywords = '',
+  description = '',
+  details = DEFAULT_DECK_DETAILS,
+}) {
+  return {
+    id,
+    title,
+    price,
+    badge,
+    categories: 'Decks',
+    keywords,
+    description,
+    images,
+    productType: 'deck',
+    primaryOptionLabel: 'Build',
+    secondaryOptionLabel: 'Deck Art',
+    accessoryOptions: DEFAULT_DECK_ACCESSORY_OPTIONS.map((option) => ({ ...option })),
+    skullOptions: createDeckBuilderOptions(images?.[0]),
+    details: [...details],
+  };
+}
+
 const PRODUCTS = [
   {
     id: 'saiko-hoodie',
@@ -12,7 +140,7 @@ const PRODUCTS = [
     keywords: 'saiko psycho hoodie sweatshirt comfortable casual',
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
     images: [
-      'https://files.tapstitch.com/hugepod/material/custom_printing/19995531a40547c384faeee71c0e75c7.png?x-oss-process=style/hugepod-product','https://files.tapstitch.com/hugepod/material/custom_printing/a298505f3d134f549de401c801ce5adb.png?x-oss-process=style/hugepod-product',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1779387859/997f895e-728d-40e4-a380-a2d10972f702.png','https://res.cloudinary.com/dzhvdoifb/image/upload/v1779387864/595968d6-fd2a-453b-9d82-8825ed2fde11.png',
     ]
   },
 
@@ -25,25 +153,41 @@ const PRODUCTS = [
     keywords: 'saiko psycho tee t-shirt casual comfortable',
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
     images: [
-      'https://files.tapstitch.com/hugepod/material/custom_printing/e62cd985686f4efc8f043ab105864009.png','https://files.tapstitch.com/hugepod/material/custom_printing/9a50865d75aa4448b56ff121c91feb92.png',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1779391241/fde169c9-bb50-423b-a2ea-dcba3783ab65.png', 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1779391249/b68f5f3d-c3b8-44f5-84e6-e8a66eb4a7b3.png'
+    ]
+  },
+
+
+
+  {
+    id: 'genki-kinetic-mens-stripe-performance-shorts',
+    title: 'Kinetic™ Mens Stripe Performance Shorts',
+    price: '$40.00',
+    badge: 'KINETIC',
+    categories: ['Bottoms'],
+    keywords: 'kinetic mens stripe performance shorts athletic',
+    sizes: ['S', 'M', 'L', 'XL', '2XL'],
+    images: [
+      'https://files.tapstitch.com/hugepod/material/custom_printing/4cc9a60fa76b4eac941bbc8e85fdb1d8.png?x-oss-process=style/hugepod-product',
+      'https://files.tapstitch.com/hugepod/material/custom_printing/ea47030744c241d0b8ad87c9715b10a0.png?x-oss-process=style/hugepod-product'
     ]
   },
 
   { 
     id: 'kinetic-Heartbeat-cap',
-    title: 'Kinetic Heartbeat Cap',
+    title: 'Kinetic™ Heartbeat Cap',
     price: '$30.00',
     badge: 'KINETIC',
     categories: ['Accessories'],
     keywords: 'kinetic heartbeat cap hat snapback adjustable',
-    images: ['https://cdn.printful.me/t/quick-stores/products/17849610-396-69cd7511cdcbf' ]
+    images: ['https://res.cloudinary.com/dzhvdoifb/image/upload/v1778112021/17849610-396-69cd7511cdcbf_yic50g.webp' ]
   },
 
   {
     id: 'essentials-tee',
     title: 'Essentials™ Tee',
     price: '$35.00 ',
-    badge: 'ESSENTIALS',
+    badge: '',
     categories: ['Tops'],
     keywords: 'essentials tee t-shirt casual comfortable',
     sizes: ['S', 'M', 'L', 'XL', '2XL', '3XL'],
@@ -351,9 +495,9 @@ const PRODUCTS = [
   },
   {
     id: 'sigilism-boxy-tank',
-    title: 'Sigilism Boxy Tank',
+    title: 'Kinetic™ Sigilism Boxy Tank',
     price: '$35.00 ',
-    badge: 'NEW',
+    badge: 'KINETIC',
     categories: ['Tops'],
     keywords: 'sigilism boxy tank sleeveless shirt graphic tank top',
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
@@ -386,7 +530,7 @@ const PRODUCTS = [
     id: 'rainman-jersey',
     title: 'Rainman Button-Up Jersey',
     price: '$60.00 ',
-    badge: 'NEW',
+    badge: '',
     categories: ['Tops'],
     keywords: 'rainman buttonup button up jersey baseball jersey athletic shirt',
     sizes: ['S', 'M', 'L', 'XL'],
@@ -428,7 +572,7 @@ const PRODUCTS = [
     id: 'vintage-washed-distressed-jeans',
     title: 'Vintage Washed Distressed Jeans',
     price: '$60.00 ',
-    badge: 'NEW',
+    badge: '',
     categories: ['Bottoms', 'Denim'],
     keywords: 'vintage washed distressed jeans denim pants',
     sizes: ['S', 'M', 'L', 'XL'],
@@ -450,7 +594,7 @@ const PRODUCTS = [
 
   {
     id: 'genki-kinetic-performance-shortskirt',
-    title: 'Genki Kinetic™ Performance ShortSkirt',
+    title: 'Kinetic™ Performance ShortSkirt',
     price: '$45.00 ',
     badge: 'KINETIC',
     categories: 'Bottoms',
@@ -487,7 +631,7 @@ const PRODUCTS = [
     id: 'ouroboros-sun-fade-fur-hoodie',
     title: 'Ouroboros Sun Fade Fur Hoodie',
     price: '$100.00 ',
-    badge: 'NEW',
+    badge: '',
     categories: ['Tops', 'outerwear'],
     keywords: 'ouroboros sun fade fur hoodie sweatshirt pullover',
     sizes: ['S', 'M', 'L', 'XL'],
@@ -511,7 +655,7 @@ const PRODUCTS = [
     id: 'esquire-rough-edge-drawstring-shorts',
     title: 'Esquire Rough Edge Drawstring Shorts',
     price: '$50.00 ',
-    badge: 'NEW',
+    badge: '',
     categories: 'Bottoms',
     keywords: 'esquire rough edge drawstring shorts casual pants',
     sizes: ['S', 'M', 'L', 'XL'],
@@ -543,7 +687,7 @@ const PRODUCTS = [
     id: 'vintage-washed-heavyweight-jeans',
     title: 'Vintage Washed Heavyweight Jeans',
     price: '$85.00 ',
-    badge: 'NEW',
+    badge: '',
     categories: 'Bottoms',
     keywords: 'vintage washed heavyweight jeans denim pants trousers',
     sizes: ['S', 'M', 'L', 'XL'],
@@ -566,7 +710,7 @@ const PRODUCTS = [
     id: 'ouroboros-striped-straight-legs',
     title: 'Ouroboros Striped Straight Legs',
     price: '$55.00 ',
-    badge: 'NEW',
+    badge: '',
     categories: 'Bottoms',
     keywords: 'ouroboros striped straight legs pants trousers',
     sizes: ['S', 'M', 'L', 'XL'],
@@ -598,7 +742,7 @@ const PRODUCTS = [
 
   {
     id: 'genki-kinetic-long-sleeve-shirt',
-    title: 'Genki Kinetic™ Long Sleeve Shirt',
+    title: 'Kinetic™ Long Sleeve Shirt',
     price: '$55.00 ',
     badge: 'KINETIC',
     categories: 'Tops',
@@ -740,7 +884,7 @@ const PRODUCTS = [
     id: 'saiko-psycho-patch',
     title: 'Saiko Psycho Patch',
     price: '$12.00 ',
-    badge: 'NEW',
+    badge: 'DROP',
     categories: 'Accessories',
     keywords: 'saiko psycho patch embroidered patch accessory',
     images: [
@@ -769,7 +913,7 @@ const PRODUCTS = [
     id: 'saiko-psycho-beanie',
     title: 'Saiko Psycho Beanie',
     price: '$30.00 ',
-    badge: 'NEW',
+    badge: 'DROP',
     categories: 'Accessories',
     keywords: 'saiko psycho beanie knit cap accessory',
     images: [
@@ -861,7 +1005,7 @@ const PRODUCTS = [
     id: 'acd-organic-sweatshirt',
     title: '[ACD] Unfinished Organic Sweatshirt',
     price: '$40.00 ',
-    badge: '[ACD] Sketch',
+    badge: '[ACD]',
     categories: 'Tops',
     keywords: "sweatshirt Unfinished organic casual sketch artwork ali can't draw",
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
@@ -888,7 +1032,7 @@ const PRODUCTS = [
 
   {
     id: 'genki-kinetic-fitted-tee',
-    title: 'Genki Kinetic™ Fitted T-shirt',
+    title: 'Kinetic™ Fitted T-shirt',
     price: '$40.00 ',
     surcharges: { '2XL†': 2.00, '3XL†': 3.00 },
     badge: 'KINETIC',
@@ -914,7 +1058,7 @@ const PRODUCTS = [
 
   {
     id: 'genki-kinetic-fleece-joggers',
-    title: 'Genki Kinetic™ Fleece Joggers',
+    title: 'Kinetic™ Fleece Joggers',
     price: '$55.00 ',
     surcharges: { '2XL†': 3.00 },
     badge: 'KINETIC',
@@ -944,7 +1088,7 @@ const PRODUCTS = [
     id: 'acd-4am-vibes-tee',
     title: '[ACD] 4 AM Vibes Heavy Tee',
     price: '$45.00 ',
-    badge: '[ACD] Sketch',
+    badge: '[ACD]',
     urgencyTag: 'Upgrading',
     categories: 'Tops',
     keywords: "heavy tee 4 am vibes acd sketch comfortable durable artwork ali can't draw",
@@ -959,7 +1103,7 @@ const PRODUCTS = [
     details: [
       'Heavyweight fabric for durability.',
       'Relaxed fit for comfort.',
-      'Features the "4 AM Vibes" [ACD] Sketch graphic.',
+      'Features the "4 AM Vibes" [ACD] graphic.',
     ],
   },
 
@@ -967,7 +1111,7 @@ const PRODUCTS = [
     id: 'acd-neko-pastel-cap',
     title: '[ACD] Neko Pastel Baseball Cap',
     price: '$30.00 ',
-    badge: '[ACD] Sketch',
+    badge: '[ACD]',
     categories: 'Accessories',
     keywords: "cap pastel neko baseball adjustable lightweight japanese cat hat artwork ali can't draw",
     images: [
@@ -1113,28 +1257,28 @@ const PRODUCTS = [
     ],
   },
 
-  {
-    id: 'acd-kancho-hancho-shirt',
-    title: '[ACD] Kancho Hancho Button Up Shirt',
-    price: '$70.00 ',
-    surcharges: { '2XL†': 2.00, '3XL†': 3.00, '4XL†': 5.00, '5XL†': 6.00, '6XL†': 7.00 },
-    badge: '[ACD] Sketch',
-    urgencyTag: 'Archiving',
-    categories: 'Tops',
-    keywords: "button-up shirt kancho hancho acd sketch casual lightweight artwork ali can't draw",
-    sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†', '5XL†', '6XL†'],
-    images: [
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-1.png',
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-0.png',
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-12.png',
-      'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-13.png',
-    ],
-    details: [
-      'Lightweight and breathable fabric for comfort.',
-      'Features the "Kancho Hancho" [ACD] Sketch graphic.',
-      'Classic button-up design with a relaxed fit.',
-    ],
-  },
+  // {
+  //   id: 'acd-kancho-hancho-shirt',
+  //   title: '[ACD] Kancho Hancho Button Up Shirt',
+  //   price: '$70.00 ',
+  //   surcharges: { '2XL†': 2.00, '3XL†': 3.00, '4XL†': 5.00, '5XL†': 6.00, '6XL†': 7.00 },
+  //   badge: '[ACD]',
+  //   urgencyTag: 'Archiving',
+  //   categories: 'Tops',
+  //   keywords: "button-up shirt kancho hancho acd sketch casual lightweight artwork ali can't draw",
+  //   sizes: ['S', 'M', 'L', 'XL', '2XL†', '3XL†', '4XL†', '5XL†', '6XL†'],
+  //   images: [
+  //     'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-1.png',
+  //     'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-0.png',
+  //     'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-12.png',
+  //     'https://uploads.twitchalerts.com/000/115/629/159/21699478-mockup-176586211717117-13.png',
+  //   ],
+  //   details: [
+  //     'Lightweight and breathable fabric for comfort.',
+  //     'Features the "Kancho Hancho" [ACD] graphic.',
+  //     'Classic button-up design with a relaxed fit.',
+  //   ],
+  // },
 
   {
     id: 'genki-sakura-duffel-bag',
@@ -1229,80 +1373,39 @@ const PRODUCTS = [
   // =============================================================
   // SKATEBOARD DECKS - Custom build configurator
   // =============================================================
-  {
-    id: 'genki-skate-deck',
-    title: 'GENKI Skate Deck',
-    price: '$65.00 ',
-    badge: 'NEW',
-    categories: 'Decks',
-    keywords: 'skateboard deck street skate genki custom build complete',
+  createDeckProduct({
+    id: 'genki-penumbra-deck',
+    title: 'Penumbra Deck',
+    keywords: 'skateboard shadow penumbra deck street skate genki custom build complete',
+    description: 'Classic GENKI deck with the shared build configurator.',
     images: [
-      'https://products.boardpusher.com/2603/05/custom-skateboard-82334993-a8e3-4601-802b-c04e2ddbd88elgm.jpg?v=cf',
-      'https://placehold.co/800x3000/1a1a1a/ffffff?text=GENKI+Skate+Deck+Back',
-      'https://placehold.co/800x3000/1a1a1a/ffffff?text=GENKI+Skate+Deck+Side',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1779317210/FadeRomajiFront_t81up8.png',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1779317211/FadeRomajiSide_taojtx.png',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1779383413/fadeHero_gnfhqf.png',
     ],
-    // Custom product type for deck builder
-    productType: 'deck',
-    primaryOptionLabel: 'Build',
-    secondaryOptionLabel: 'Deck Art',
-    // Build options: Deck Only, Deck + Grip, Complete
-    skullOptions: [
-      {
-        name: 'Deck Only', priceAdjustment: 0,
-        description: 'Raw deck without grip tape',
-        thumbnail: 'https://products.boardpusher.com/2603/05/custom-skateboard-82334993-a8e3-4601-802b-c04e2ddbd88elgm.jpg?v=cf',
-        hoodies: [
-          { name: 'Blank', color: 'bg-transparent', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Blank+Deck'] },
-        ],
-      },
-      {
-        name: 'Deck + Grip', priceAdjustment: 15,
-        description: 'Deck with grip tape applied',
-        thumbnail: 'https://placehold.co/200x200/1a1a1a/ffffff?text=Deck%2BGrip',
-        // Grip tape options
-        hoodies: [
-          { name: 'Standard Black', color: 'bg-gray-800', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Standard+Black+Grip'], priceAdjustment: 0 },
-          { name: 'Checkered Black/White', color: 'bg-gray-200', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Checkered+Grip'], priceAdjustment: 5 },
-          { name: 'Die Cut Logo', color: 'bg-gray-700', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Die+Cut+Logo+Grip'], priceAdjustment: 8 },
-          { name: 'Clear', color: 'bg-blue-100/30', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Clear+Grip'], priceAdjustment: 5 },
-        ],
-      },
-      {
-        name: 'Complete', priceAdjustment: 45,
-        description: 'Fully built skateboard with trucks and wheels',
-        thumbnail: 'https://placehold.co/200x200/1a1a1a/ffffff?text=Complete',
-        // Grip tape options for complete
-        hoodies: [
-          { name: 'Standard Black', color: 'bg-gray-800', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Complete+Standard'], priceAdjustment: 0 },
-          { name: 'Checkered', color: 'bg-gray-200', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Complete+Checkered'], priceAdjustment: 5 },
-          { name: 'Die Cut Logo', color: 'bg-gray-700', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Complete+Logo'], priceAdjustment: 8 },
-          { name: 'Clear', color: 'bg-blue-100/30', images: ['https://placehold.co/800x3000/1a1a1a/ffffff?text=Complete+Clear'], priceAdjustment: 5 },
-        ],
-        // Truck options (stored in custom field)
-        truckOptions: [
-          { name: 'Standard Silver', color: 'bg-gray-400', priceAdjustment: 0 },
-          { name: 'Matte Black', color: 'bg-gray-900', priceAdjustment: 10 },
-          { name: 'Polished Chrome', color: 'bg-gray-300', priceAdjustment: 15 },
-          { name: 'Gold', color: 'bg-yellow-500', priceAdjustment: 20 },
-        ],
-        // Wheel options
-        wheelOptions: [
-          { name: '52mm White', color: 'bg-white', priceAdjustment: 0 },
-          { name: '52mm Black', color: 'bg-black', priceAdjustment: 0 },
-          { name: '54mm White', color: 'bg-gray-100', priceAdjustment: 5 },
-          { name: '54mm Black', color: 'bg-gray-800', priceAdjustment: 5 },
-          { name: '54mm Red', color: 'bg-red-600', priceAdjustment: 8 },
-          { name: '54mm Blue', color: 'bg-blue-600', priceAdjustment: 8 },
-        ],
-      },
+  }),
+  createDeckProduct({
+    id: 'saiko-psycho-split-deck',
+    title: 'Saiko Psycho Split Deck',
+    keywords: 'skateboard deck street skate saiko psycho split custom build complete',
+    description: 'Saiko Psycho Split deck using the shared builder options.',
+    images: [
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1778111511/custom-skateboard-38dda22c-af73-4172-93b6-f07c00cb8fc4lgm_j9a79j.jpg',
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1779317198/FaceSide_vdshtd.png',
+      'https://placehold.co/800x3000/1a1a1a/ffffff?text=Saiko+Psycho+Face+Deck+Side',
     ],
-    details: [
-      '7.25" x 31" street deck',
-      'Canadian maple wood',
-      'Medium concave shape',
-      'Weight: 1.1kg',
+  }),
+  createDeckProduct({
+    id: 'saiko-psycho-logo-deck',
+    title: 'Saiko Psycho Logo Deck',
+    keywords: 'skateboard deck street skate saiko psycho logo custom build complete',
+    description: 'Saiko Psycho Logo deck using the shared builder options.',
+    images: [
+      'https://res.cloudinary.com/dzhvdoifb/image/upload/v1779383711/f610cafc-e655-48f1-a51c-7bfc31ac71c4.png',
+      'https://placehold.co/800x3000/1a1a1a/ffffff?text=Saiko+Psycho+Logo+Deck+Back',
+      'https://placehold.co/800x3000/1a1a1a/ffffff?text=Saiko+Psycho+Logo+Deck+Side',
     ],
-  },
+  })
 ];
 
 // Normalise urgencyTag values on load

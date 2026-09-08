@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GENKI | Collabs</title>
+  <meta name="description" content="GENKI is an independent streetwear label with limited-run drops, everyday essentials, and editorial-inspired looks built for real life." />
+  <meta name="keywords" content="GENKI, Wear Genki, streetwear, clothing brand, graphic tees, hoodies, outerwear, accessories, limited drops" />
+  <meta name="author" content="GENKI" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <link rel="canonical" href="https://weargenki.vercel.app/collabs.html" id="canonical-link" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/dzhvdoifb/image/upload/v1772417097/Kanji_Boxed_z35cw0.png">
+  <link rel="shortcut icon" href="https://res.cloudinary.com/dzhvdoifb/image/upload/v1767129720/blueGlitch_sddxpb.png?v=2">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dzhvdoifb/image/upload/v1767129720/blueGlitch_sddxpb.png?v=2">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0d0d0d">
+  <meta property="og:site_name" content="GENKI">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="GENKI | Live Lively">
+  <meta property="og:description" content="Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.">
+  <meta property="og:image" content="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp">
+  <meta property="og:image:alt" content="GENKI streetwear campaign image">
+  <meta property="og:url" content="https://weargenki.vercel.app/collabs.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GENKI | Live Lively">
+  <meta name="twitter:description" content="Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.">
+  <meta name="twitter:image" content="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762066135/WtBAmJy_nidtmq.webp">
+  <meta name="twitter:image:alt" content="GENKI streetwear campaign image">
+  <script type="application/ld+json" id="structured-data">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://weargenki.vercel.app/#organization",
+        "name": "GENKI",
+        "url": "https://weargenki.vercel.app/",
+        "logo": "https://res.cloudinary.com/dzhvdoifb/image/upload/v1772417097/Kanji_Boxed_z35cw0.png",
+        "sameAs": [
+          "https://www.instagram.com/weargenki/"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://weargenki.vercel.app/#website",
+        "url": "https://weargenki.vercel.app/",
+        "name": "GENKI",
+        "description": "Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.",
+        "publisher": {
+          "@id": "https://weargenki.vercel.app/#organization"
+        }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://weargenki.vercel.app/collabs.html#webpage",
+        "url": "https://weargenki.vercel.app/collabs.html",
+        "name": "GENKI | Live Lively",
+        "description": "Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.",
+        "isPartOf": {
+          "@id": "https://weargenki.vercel.app/#website"
+        },
+        "about": {
+          "@id": "https://weargenki.vercel.app/#organization"
+        }
+      }
+    ]
+  }
+  </script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              neon: '#8BFF5B',
+              ink: '#0a0a0f',
+              fatigue: '#5b4f36',
+              dusty: '#e49182',
+              navy: '#1a2a4a',
+              maroon: '#4a1010',
+              charcoal: '#38302a',
+              moss: '#70745b',
+              army: '#323f34',
+              indy: '#af500e',
+              venturelow: '#910704'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+    html { font-size: 100%; }
+    @media (min-width: 1024px) {
+      html { font-size: 90%; }
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0d0d0d;
+      color: #f7f7f7;
+      scroll-behavior: smooth;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #app-container { flex: 1; padding-top: 86px; }
+    .standalone-page { padding-top: 10px !important; }
+    #search-input-container {
+      position: absolute;
+      right: calc(100% + 8px);
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      opacity: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transition: width 0.3s ease-out, opacity 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      z-index: 70;
+    }
+    #search-input-container.active { width: 280px; opacity: 1; pointer-events: auto; }
+    #search-input-container input { padding-right: 40px; }
+    #desktop-category-links {
+      transition: filter .22s ease, opacity .22s ease, transform .22s ease;
+    }
+    #nav-inner.search-active #desktop-category-links {
+      filter: blur(5px);
+      opacity: .28;
+      transform: translateX(-4px);
+      pointer-events: none;
+    }
+    .kinetic-shell {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,0) 28%),
+        linear-gradient(180deg, rgba(13,13,13,1), rgba(13,13,13,.96));
+    }
+    .kinetic-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent 85%);
+      pointer-events: none;
+    }
+    .kinetic-stat {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      backdrop-filter: blur(4px);
+    }
+    .kinetic-rail {
+      border-left: 1px solid rgba(255,255,255,.12);
+      padding-left: 1rem;
+    }
+    #mobile-nav-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      width: 100%;
+      min-width: auto;
+      background: rgba(0,0,0,.96);
+      border: 1px solid rgba(255,255,255,.12);
+      z-index: 80;
+      opacity: 0;
+      transform: translateY(-6px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    #mobile-nav-menu.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    @media (max-width: 767px) {
+      #nav-inner nav { gap: .15rem; }
+      #search-toggle-container { position: static; }
+      #search-input-container {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 12px;
+        right: 12px;
+        width: auto;
+        transform: none;
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(13,13,13,.98);
+        z-index: 80;
+      }
+      #search-input-container.active { width: auto; }
+      #mobile-nav-menu {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 64px;
+        width: 100%;
+        max-width: 100vw;
+        background: rgba(0,0,0,.98);
+        border-top: 1px solid rgba(255,255,255,.08);
+        max-height: calc(100vh - 64px);
+        overflow-y: auto;
+      }
+    }
+    .cart-line { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .qty-btn { width: 28px; height: 28px; border: 1px solid rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; }
+    .price-sm { color: #cfcfcf; }
+    @keyframes cart-pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,.35); }
+      70% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(255,255,255,0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+    .cart-attention { animation: cart-pulse .7s ease-out; }
+    #announcement-bar {
+      width: 100%;
+      height: 28px;
+      border-top: 1px solid rgba(255,255,255,.1);
+      background: rgba(0,0,0,.9);
+      overflow: hidden;
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .announcement-marquee {
+      display: flex;
+      width: max-content;
+      will-change: transform;
+    }
+    .announcement-run {
+      display: flex;
+      align-items: center;
+      height: 28px;
+      white-space: nowrap;
+    }
+    .announcement-item {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .28em;
+      color: rgba(255,255,255,.82);
+      padding-right: 2.2rem;
+      padding-left: .6rem;
+    }
+    .announcement-item[data-href], .announcement-item[data-action] { cursor: pointer; }
+    .announcement-item[data-href]:hover, .announcement-item[data-action]:hover { color: rgba(255,255,255,1); }
+    .announcement-divider {
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,.42);
+      margin-right: 2.2rem;
+      flex: 0 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <header id="main-header" class="fixed top-0 left-0 w-full z-50 pointer-events-auto transition-all duration-300 bg-black/90 backdrop-blur">
+    <div id="nav-inner" class="w-full px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center transition-all duration-300">
+      <div id="logo-container" class="opacity-100 transition-opacity duration-300">
+        <a href="index.html#home" id="home-link" class="text-xl font-bold tracking-widest text-white">GENKI / 元気</a>
+      </div>
+      <nav class="flex gap-1 md:gap-4 items-center">
+        <div id="desktop-category-links" class="hidden lg:flex items-center gap-1 mr-1">
+          <a href="shop.html" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Shop All</a>
+          <a href="kinetic.html" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Kinetic</a>
+          <a href="index.html#skate" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Skate</a>
+          <!-- <a href="shop.html#categories-tops" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Tops</a>
+          <a href="shop.html#categories-bottoms" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Bottoms</a>
+          <a href="shop.html#categories-outerwear" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Outerwear</a>
+          <a href="shop.htmlcategories-accessories" class="px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition duration-150 hover:bg-white/10">Accessories</a> -->
+        </div>
+        <div id="search-toggle-container" class="relative">
+          <button id="search-toggle-button" aria-label="Search" class="p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10 z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+          <div id="search-input-container" class="bg-neutral-800 shadow-xl border border-white/10">
+            <input type="text" id="header-search-input" placeholder="Search products..." class="w-full h-10 p-2 bg-transparent text-white text-sm focus:outline-none">
+            <button id="search-submit-button" aria-label="Submit Search" class="absolute right-0 top-0 h-full w-10 text-white/70 hover:text-white transition">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><line x1="21" y1="21" x2="16.65" y2="16.65"></line><circle cx="11" cy="11" r="8"></circle></svg>
+            </button>
+          </div>
+        </div>
+        <button id="auth-button" aria-label="Login" class="hidden md:flex p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10 items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span id="auth-chip" class="hidden md:inline text-[10px] uppercase tracking-[0.2em]">Guest</span>
+        </button>
+        <button id="wishlist-nav-button" aria-label="Wishlist" class="relative hidden md:block p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+          <span id="wishlist-count" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+        <div class="relative lg:hidden">
+          <button id="mobile-nav-toggle" aria-label="Menu" aria-expanded="false" class="p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"></line><line x1="7" y1="12" x2="20" y2="12"></line><line x1="10" y1="17" x2="20" y2="17"></line></svg>
+          </button>
+          <div id="mobile-nav-menu" class="shadow-xl">
+            <a href="shop.html" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition">Shop All</a>
+            <a href="kinetic.html" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Kinetic</a>
+            <a href="index.html#skate" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Skate</a>
+            <!-- <a href="shop.html#categories-tops" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Tops</a>
+            <a href="shop.html#categories-bottoms" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Bottoms</a>
+            <a href="shop.html#categories-outerwear" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Outerwear</a>
+            <a href="shop.html#categories-accessories" class="block px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Accessories</a> -->
+            <button id="mobile-auth-button" type="button" class="w-full flex items-center justify-between px-4 py-3 text-left text-sm text-white/85 hover:text-white hover:bg-white/5 transition">
+              <span>Account</span>
+              <span id="mobile-auth-chip" class="text-[10px] uppercase tracking-[0.2em] text-white/45">Guest</span>
+            </button>
+            <button id="mobile-wishlist-button" type="button" class="w-full flex items-center justify-between px-4 py-3 text-left text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">
+              <span>Wishlist</span>
+              <span id="mobile-wishlist-count" class="min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
+            </button>
+          </div>
+        </div>
+        <button id="cart-toggle" aria-label="Shopping Bag" class="relative p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+          <span id="cart-count" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
+        </button>
+      </nav>
+    </div>
+    <div id="announcement-bar" class="announcement-bar">
+      <div class="announcement-marquee" aria-label="Store announcements">
+        <div class="announcement-run">
+          <span class="announcement-item" data-href="lookbook-main.html">Tag @WearGenki to be featured</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item" data-action="open-newsletter">Weekly Updates and Quarterly Drops</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item" data-href="shop.html">Free Shipping on Orders Over $200</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+          <span class="announcement-item" data-href="https://weargenki.vercel.app/" data-target="_blank">Mind Our Dust</span>
+          <span class="announcement-divider" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="app-container" class="flex-1">
+    <div id="collabs-page" class="standalone-page py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
+        <div class="flex flex-col lg:flex-row gap-8 lg:items-center">
+          <div class="space-y-4">
+            <p class="text-xs uppercase tracking-[0.35em] text-white/60">Collabs</p>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Let’s build something together.</h1>
+            <p class="text-gray-300 leading-relaxed">We collaborate with artists, bands, crews, and brands that share our love for bold graphics and functional gear. Limited drops, small runs, big impact.</p>
+            <div class="flex flex-wrap gap-3">
+              <a href="mailto:ayyjayy.genki@gmail.com" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Email Collabs</a>
+              <a href="index.html#new" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">View recent drops</a>
+            </div>
+          </div>
+          <div class="relative flex-1">
+            <div class="absolute inset-4 bg-gradient-to-br from-white/10 via-white/5 to-transparent blur-3xl pointer-events-none"></div>
+            <img src="https://res.cloudinary.com/dzhvdoifb/image/upload/v1762748929/2hW9VA8_nnfzy0.webp" alt="Collab visual" class="relative w-full h-full object-cover border border-white/10 shadow-2xl">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Types</p>
+            <h3 class="text-xl font-semibold">Artist & band merch</h3>
+            <p class="text-gray-400 text-sm">Short-run tees, hoods, hats, and accessories with split revenue and shared promo.</p>
+          </div>
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Process</p>
+            <h3 class="text-xl font-semibold">Co-design sprints</h3>
+            <p class="text-gray-400 text-sm">We swap moodboards, prototypes, and samples fast, then drop limited capsules.</p>
+          </div>
+          <div class="bg-neutral-900/60 border border-white/10 p-6 space-y-2">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/50">Distribution</p>
+            <h3 class="text-xl font-semibold">Shared spotlight</h3>
+            <p class="text-gray-400 text-sm">Featured in our shop, lookbook, and socials with your channels co-promoting.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="checkout-success-page" class="standalone-page hidden py-24">
+      <div class="px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto text-center space-y-4">
+        <p class="text-xs uppercase tracking-[0.35em] text-white/60">Success</p>
+        <h1 id="checkout-success-title" class="text-4xl md:text-5xl font-extrabold tracking-tight">Order received</h1>
+        <p id="checkout-success-copy" class="text-gray-300 leading-relaxed">We'll process your order shortly. Check your email for the receipt.</p>
+        <p class="text-sm text-gray-400">Cancel code: <span id="checkout-cancel-code" class="text-white font-semibold tracking-widest">—</span></p>
+        <p class="text-xs text-gray-500">You can cancel this order within <span id="checkout-cancel-window">12</span> hours.</p>
+        <div class="bg-neutral-900/60 border border-white/10 p-4 text-left space-y-3">
+          <p class="text-xs uppercase tracking-[0.3em] text-white/60">Cancel Request</p>
+          <p class="text-xs text-gray-400">Submit your email and cancel code. This sends a cancellation request to our inbox.</p>
+          <input id="cancel-email" type="email" placeholder="Order email" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+          <input id="cancel-code-input" type="text" inputmode="numeric" maxlength="8" placeholder="8-digit cancel code" class="w-full bg-neutral-800 border border-white/10 p-2 text-white tracking-widest" />
+          <textarea id="cancel-reason" placeholder="Optional note (e.g., ordered by mistake)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
+          <button id="cancel-submit" class="w-full py-3 border border-white/20 text-white font-semibold uppercase tracking-widest text-xs hover:border-white transition">Submit Cancel Request</button>
+          <p id="cancel-submit-status" class="text-xs hidden"></p>
+        </div>
+        <div class="flex items-center justify-center gap-3">
+          <a href="kinetic.html" class="px-6 py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Back to Kinetic</a>
+          <a href="index.html#home" class="px-6 py-3 border border-white/30 text-white font-semibold uppercase tracking-widest text-sm hover:border-white transition">Back Home</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="checkout-page" class="hidden fixed inset-0 z-[80] bg-black/95 p-3 sm:p-6 lg:p-10 overflow-y-auto">
+    <div id="checkout-modal-panel" class="max-w-6xl mx-auto bg-[#0d0d0d] border border-white/15 p-4 sm:p-6 lg:p-8 relative">
+      <button id="checkout-close" type="button" aria-label="Close checkout" class="absolute top-3 right-3 w-10 h-10 border border-white/25 text-white/80 hover:text-white hover:border-white transition flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+      <div class="px-0 max-w-6xl mx-auto space-y-8">
+        <div id="checkout-step-shipping" class="space-y-8">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="space-y-2">
+              <p class="text-xs uppercase tracking-[0.35em] text-white/60">Checkout</p>
+              <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Review Your Order</h1>
+              <p class="text-yellow-400 leading-relaxed">Genki is officially live. Not ready to checkout yet? Submit an order and we'll hold it for you. Pay when you're ready.</p>
+            </div>
+            <a href="kinetic.html" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Continue shopping</a>
+          </div>
+          <div class="grid gap-8 lg:grid-cols-12">
+            <section class="lg:col-span-7 space-y-4">
+              <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold tracking-wide">Your cart</h2>
+                <span class="text-xs text-gray-400 uppercase tracking-[0.3em]">Items</span>
+              </div>
+              <div id="cart-items" class="space-y-4"></div>
+              <div class="border-t border-white/10 pt-4 flex items-center justify-between">
+                <span class="text-sm text-gray-400">Subtotal</span>
+                <span id="cart-subtotal" class="text-lg font-bold">$0.00</span>
+              </div>
+            </section>
+            <section id="checkout-form" class="lg:col-span-5 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+              <h2 class="text-xl font-semibold tracking-wide">Shipping Details</h2>
+              <p class="text-xs text-gray-400">Continue to payment to add your card and promo code.</p>
+              <div class="space-y-3">
+                <input id="sq-name" type="text" placeholder="Full name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                <input id="sq-email" type="email" placeholder="Email" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                <div class="flex flex-col gap-3 sm:flex-row">
+                  <input id="sq-address" type="text" placeholder="Shipping address" class="w-full flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <input id="sq-address-2" type="text" placeholder="Apt, suite (optional)" class="w-full flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
+                </div>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <input id="sq-city" type="text" placeholder="City" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <input id="sq-state" type="text" placeholder="State" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <input id="sq-zip" type="text" placeholder="ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                </div>
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <input id="sq-country" type="text" placeholder="Country" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <input id="sq-phone" type="tel" placeholder="Phone number" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                </div>
+                <textarea id="sq-notes" type="text" placeholder="Extra Notes (optional)" class="w-full bg-neutral-800 border border-white/10 p-2 text-white"></textarea>
+                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+                  <button id="checkout-continue" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Continue to Payment</button>
+                  <p class="text-xs uppercase tracking-[0.25em] text-white/60 whitespace-nowrap">or</p>
+                  <button id="square-pay-later" class="w-full py-3 border border-white/20 text-white font-bold tracking-widest hover:border-white transition">Submit Request</button>
+                </div>
+                <p class="text-xs text-gray-500">Submit Request does not place a paid order.</p>
+                <p id="checkout-error" class="text-sm text-red-400 hidden"></p>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div id="checkout-step-payment" class="hidden space-y-8">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="space-y-2">
+              <p class="text-xs uppercase tracking-[0.35em] text-white/60">Payment</p>
+              <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight">Add Payment Details</h1>
+              <p class="text-gray-400 leading-relaxed">Promo codes, shipping, and final total are shown here.</p>
+            </div>
+            <button id="checkout-back" type="button" class="text-sm text-gray-400 hover:text-white transition underline underline-offset-4">Back to shipping</button>
+          </div>
+          <div class="grid gap-8 lg:grid-cols-12">
+            <section class="lg:col-span-5 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+              <h2 class="text-xl font-semibold tracking-wide">Order Summary</h2>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-sm text-gray-400">
+                  <span>Subtotal</span>
+                  <span id="payment-subtotal" class="text-white font-semibold">$0.00</span>
+                </div>
+                <div class="flex items-center justify-between text-sm text-gray-400">
+                  <span>Shipping</span>
+                  <span id="payment-shipping" class="text-white font-semibold">$0.00</span>
+                </div>
+                <div id="payment-discount-row" class="hidden flex items-center justify-between text-sm text-green-400">
+                  <span>Promo discount</span>
+                  <span id="payment-discount" class="font-semibold">-$0.00</span>
+                </div>
+                <div class="border-t border-white/10 pt-3 flex items-center justify-between text-lg font-semibold">
+                  <span>Total</span>
+                  <span id="payment-total">$0.00</span>
+                </div>
+              </div>
+            </section>
+            <section class="lg:col-span-7 space-y-4 bg-neutral-900/60 border border-white/10 p-6">
+              <h2 class="text-xl font-semibold tracking-wide">Payment & Promo</h2>
+              <div class="space-y-3">
+                <div>
+                  <label class="text-xs uppercase tracking-[0.3em] text-white/60">Promo code</label>
+                  <div class="mt-2 flex gap-2">
+                    <input id="sq-promo" type="text" placeholder="Enter promo code (optional)" class="min-w-0 flex-1 bg-neutral-800 border border-white/10 p-2 text-white" />
+                    <button id="sq-promo-apply" type="button" class="shrink-0 border border-white/20 px-4 text-sm font-bold uppercase tracking-[0.2em] text-white hover:border-white transition">Apply</button>
+                  </div>
+                  <p id="sq-promo-status" class="mt-2 text-sm text-gray-400 hidden"></p>
+                </div>
+                <div class="space-y-2 border border-white/10 p-3">
+                  <p class="text-xs uppercase tracking-[0.3em] text-white/60">Card details</p>
+                  <input id="sq-cardholder-name" type="text" placeholder="Cardholder name" class="w-full bg-neutral-800 border border-white/10 p-2 text-white" />
+                  <input id="sq-billing-zip" type="text" placeholder="Billing ZIP" class="w-full bg-neutral-800 border border-white/10 p-2 text-gray-400" />
+                  <div id="square-card-container" class="bg-neutral-800 border border-white/10 p-3 rounded"></div>
+                </div>
+                <button id="square-pay" class="w-full py-3 bg-white text-black font-bold tracking-widest hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">Pay Now</button>
+                <p class="text-xs text-gray-500">Pay Now captures payment securely.</p>
+                <p id="square-error" class="text-sm text-red-400 hidden"></p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="newsletter-modal" class="hidden fixed inset-0 z-[85] bg-black/90 p-4 sm:p-6 overflow-y-auto">
+    <div id="newsletter-modal-panel" class="max-w-xl mx-auto bg-[#0d0d0d] border border-white/15 p-5 sm:p-6 relative mt-12 sm:mt-20">
+      <button id="newsletter-close" type="button" aria-label="Close newsletter signup" class="absolute top-3 right-3 w-10 h-10 border border-white/25 text-white/80 hover:text-white hover:border-white transition flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+      <p class="text-xs uppercase tracking-[0.35em] text-white/60">Newsletter</p>
+      <h2 class="text-3xl font-extrabold tracking-tight mt-2">Weekly Updates + Monthly Drops</h2>
+      <p class="text-sm text-gray-300 mt-3">Get launch reminders, restock notes, and drop-day alerts.</p>
+      <form id="newsletter-form" class="mt-5 space-y-3">
+        <input id="newsletter-email" type="email" required placeholder="Email address" class="w-full bg-neutral-800 border border-white/10 p-3 text-white" />
+        <button id="newsletter-submit" type="submit" class="w-full py-3 bg-white text-black font-semibold uppercase tracking-widest text-sm hover:bg-gray-200 transition">Sign me up</button>
+      </form>
+      <p id="newsletter-status" class="text-xs text-gray-400 mt-3 hidden"></p>
+    </div>
+  </div>
+
+  <div id="newsletter-fab" class="hidden fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] max-w-[22rem]">
+    <div class="border border-white/20 bg-black/90 backdrop-blur px-4 py-3 shadow-2xl">
+      <button id="newsletter-fab-dismiss" type="button" aria-label="Dismiss newsletter prompt" class="absolute -top-2 -right-2 w-7 h-7 border border-white/30 bg-black text-white/80 hover:text-white hover:border-white transition flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+      <p class="text-[10px] uppercase tracking-[0.28em] text-white/60">Newsletter</p>
+      <p class="text-sm text-gray-200 mt-1">Weekly updates and drop alerts.</p>
+      <button id="newsletter-fab-open" type="button" class="mt-3 w-full py-2.5 bg-white text-black font-semibold uppercase tracking-widest text-xs hover:bg-gray-200 transition">Sign Up</button>
+    </div>
+  </div>
+
+  <form id="order-slip-form" action="https://formsubmit.co/ayyjayy.genki@gmail.com" method="POST" class="hidden">
+    <input type="text" name="_honey" tabindex="-1" autocomplete="off" />
+    <input type="hidden" name="_subject" value="New order request (test)" />
+    <input type="hidden" name="_template" value="table" />
+    <input type="hidden" name="_captcha" value="false" />
+    <input type="hidden" name="_next" />
+    <input type="hidden" name="subtotal" />
+    <input type="hidden" name="shipping_cost" />
+    <input type="hidden" name="total" />
+    <input type="hidden" name="name" />
+    <input type="hidden" name="email" />
+    <input type="hidden" name="phone" />
+    <input type="hidden" name="shipping_details" />
+    <input type="hidden" name="notes" />
+    <input type="hidden" name="items" />
+    <input type="hidden" name="promo_code" />
+    <input type="hidden" name="cancel_code" />
+    <input type="hidden" name="cancel_window_hours" />
+  </form>
+
+  <form id="cancel-slip-form" action="https://formsubmit.co/ayyjayy.genki@gmail.com" method="POST" class="hidden">
+    <input type="text" name="_honey" tabindex="-1" autocomplete="off" />
+    <input type="hidden" name="_subject" value="Cancel request" />
+    <input type="hidden" name="_template" value="table" />
+    <input type="hidden" name="_captcha" value="false" />
+    <input type="hidden" name="cancel_code" />
+    <input type="hidden" name="email" />
+    <input type="hidden" name="reason" />
+    <input type="hidden" name="within_window" />
+    <input type="hidden" name="local_match" />
+    <input type="hidden" name="submitted_at" />
+  </form>
+
+  <footer class="bg-black border-t border-white/10 mt-auto py-10">
+    <div class="w-full px-4 sm:px-6 lg:px-8 text-center text-gray-400">
+      <p class="text-xl font-bold tracking-widest mb-4">GENKI</p>
+      <div class="flex justify-center space-x-6 text-sm mb-6">
+        <a href="shop.html" class="hover:text-white transition">Shop</a>
+        <a href="about.html" class="hover:text-white transition">About</a>
+        <a href="collabs.html" class="hover:text-white transition">Collabs</a>
+        <a href="contact.html" class="hover:text-white transition">Contact</a>
+      </div>
+      <p class="text-xs">&copy; 2023 GENKI Streetwear. All rights reserved.</p>
+      <p class="text-xs mt-2">Designed and built by <a href="http://ayyjayymcfae-portfolio.vercel.app" target="_blank" class="hover:text-white transition">AyyJayyMcFae</a>.</p>
+    </div>
+  </footer>
+
+  <script src="./genki-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./scripts/products.js?v=1.2.4"></script>
+  <script src="./scripts/cart.js?v=1.2.4"></script>
+  <script src="./scripts/ticker.js?v=1.2.4"></script>
+  <script src="./scripts/auth.js?v=1.2.4"></script>
+  <script src="./scripts/ui.js?v=1.2.4"></script>
+  <script>
+    (function () {
+      const searchInputContainer = document.getElementById('search-input-container');
+      const searchToggleButton = document.getElementById('search-toggle-button');
+      const searchSubmitButton = document.getElementById('search-submit-button');
+      const searchInput = document.getElementById('header-search-input');
+      const navInner = document.getElementById('nav-inner');
+      const mobileNavMenu = document.getElementById('mobile-nav-menu');
+      const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+      const checkoutModal = document.getElementById('checkout-page');
+      const checkoutModalPanel = document.getElementById('checkout-modal-panel');
+      const checkoutCloseButton = document.getElementById('checkout-close');
+      const newsletterModal = document.getElementById('newsletter-modal');
+      const newsletterModalPanel = document.getElementById('newsletter-modal-panel');
+      const newsletterCloseButton = document.getElementById('newsletter-close');
+      const newsletterFab = document.getElementById('newsletter-fab');
+      const newsletterFabOpenButton = document.getElementById('newsletter-fab-open');
+      const newsletterFabDismissButton = document.getElementById('newsletter-fab-dismiss');
+      const NEWSLETTER_PROMPT_KEY = 'genki_newsletter_prompt_state';
+
+      function syncSearchNavState() {
+        navInner?.classList.toggle('search-active', Boolean(searchInputContainer?.classList.contains('active')));
+      }
+
+      function closeSearchOnDocumentClick(event) {
+        if (!searchInputContainer.contains(event.target) && !searchToggleButton.contains(event.target)) {
+          searchInputContainer.classList.remove('active');
+          syncSearchNavState();
+          document.removeEventListener('click', closeSearchOnDocumentClick);
+        }
+      }
+
+      function closeMobileNavOnDocumentClick(event) {
+        if (!mobileNavMenu.contains(event.target) && !mobileNavToggle.contains(event.target)) {
+          closeMobileNavMenu();
+        }
+      }
+
+      function closeMobileNavMenu() {
+        mobileNavMenu?.classList.remove('active');
+        mobileNavToggle?.setAttribute('aria-expanded', 'false');
+        document.removeEventListener('click', closeMobileNavOnDocumentClick);
+      }
+
+      window.toggleSearchInput = function (event) {
+        if (event) event.stopPropagation();
+        closeMobileNavMenu();
+        searchInputContainer.classList.toggle('active');
+        syncSearchNavState();
+        if (searchInputContainer.classList.contains('active')) {
+          searchInput.focus();
+          document.addEventListener('click', closeSearchOnDocumentClick);
+        } else {
+          document.removeEventListener('click', closeSearchOnDocumentClick);
+        }
+      };
+
+      window.toggleMobileNavMenu = function (event) {
+        if (event) event.stopPropagation();
+        searchInputContainer.classList.remove('active');
+        syncSearchNavState();
+        document.removeEventListener('click', closeSearchOnDocumentClick);
+        const isOpen = mobileNavMenu.classList.toggle('active');
+        mobileNavToggle.setAttribute('aria-expanded', String(isOpen));
+        if (isOpen) document.addEventListener('click', closeMobileNavOnDocumentClick);
+        else document.removeEventListener('click', closeMobileNavOnDocumentClick);
+      };
+
+      window.performSearchAndRoute = function () {
+        const query = searchInput.value.trim();
+        window.location.href = query ? `shop.html?q=${encodeURIComponent(query)}` : 'shop.html';
+      };
+
+      function getNewsletterPromptState() {
+        try { return localStorage.getItem(NEWSLETTER_PROMPT_KEY) || ''; } catch (_) { return ''; }
+      }
+
+      function setNewsletterPromptState(value) {
+        try { localStorage.setItem(NEWSLETTER_PROMPT_KEY, value); } catch (_) {}
+      }
+
+      function syncNewsletterPromptVisibility() {
+        if (!newsletterFab) return;
+        const state = getNewsletterPromptState();
+        const modalOpen = newsletterModal && !newsletterModal.classList.contains('hidden');
+        const shouldShow = !modalOpen && state !== 'dismissed' && state !== 'signed-up';
+        newsletterFab.classList.toggle('hidden', !shouldShow);
+      }
+
+      window.dismissNewsletterPrompt = function (reason = 'dismissed') {
+        setNewsletterPromptState(reason || 'dismissed');
+        syncNewsletterPromptVisibility();
+      };
+
+      const handleCheckoutEscape = (e) => { if (e.key === 'Escape') window.closeCheckoutModal(); };
+      const handleNewsletterEscape = (e) => { if (e.key === 'Escape') window.closeNewsletterModal(); };
+
+      window.openCheckoutModal = function () {
+        if (!checkoutModal) return;
+        checkoutModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        document.addEventListener('keydown', handleCheckoutEscape);
+      };
+
+      window.closeCheckoutModal = function () {
+        if (!checkoutModal) return;
+        checkoutModal.classList.add('hidden');
+        if (!newsletterModal || newsletterModal.classList.contains('hidden')) document.body.style.overflow = '';
+        document.removeEventListener('keydown', handleCheckoutEscape);
+      };
+
+      window.openNewsletterModal = function () {
+        if (!newsletterModal) return;
+        newsletterModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        document.addEventListener('keydown', handleNewsletterEscape);
+        document.getElementById('newsletter-status')?.classList.add('hidden');
+        requestAnimationFrame(() => document.getElementById('newsletter-email')?.focus());
+        syncNewsletterPromptVisibility();
+      };
+
+      window.closeNewsletterModal = function () {
+        if (!newsletterModal) return;
+        newsletterModal.classList.add('hidden');
+        if (!checkoutModal || checkoutModal.classList.contains('hidden')) document.body.style.overflow = '';
+        document.removeEventListener('keydown', handleNewsletterEscape);
+        syncNewsletterPromptVisibility();
+      };
+
+      function showStandalonePage(pageId) {
+        document.getElementById('collabs-page')?.classList.add('hidden');
+        document.getElementById('checkout-success-page')?.classList.add('hidden');
+        document.getElementById(pageId)?.classList.remove('hidden');
+      }
+
+      function syncStandaloneRoute() {
+        const hash = (window.location.hash || '#kinetic').split('?')[0];
+        if (hash === '#checkout-success') {
+          showStandalonePage('checkout-success-page');
+          window.closeCheckoutModal?.();
+          window.scrollTo(0, 0);
+          return;
+        }
+        showStandalonePage('collabs-page');
+      }
+
+      function redirectToIndexHash(hash) {
+        window.location.href = `index.html${hash}`;
+      }
+
+      function bindStandaloneNavRedirects() {
+        [
+          ['auth-button', '#account'],
+          ['wishlist-nav-button', '#wishlist'],
+          ['mobile-auth-button', '#account'],
+          ['mobile-wishlist-button', '#wishlist']
+        ].forEach(([id, hash]) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            redirectToIndexHash(hash);
+          }, true);
+        });
+      }
+
+      window.navigateToProduct = function (productId) {
+        try {
+          sessionStorage.setItem('lastCollectionHash', '#kinetic');
+          sessionStorage.setItem('scrollPos:#kinetic', String(window.scrollY || 0));
+        } catch (_) {}
+        window.location.href = `index.html#${productId}`;
+      };
+
+      checkoutCloseButton?.addEventListener('click', window.closeCheckoutModal);
+      checkoutModal?.addEventListener('click', (e) => { if (e.target === checkoutModal) window.closeCheckoutModal(); });
+      checkoutModalPanel?.addEventListener('click', (e) => e.stopPropagation());
+      newsletterCloseButton?.addEventListener('click', window.closeNewsletterModal);
+      newsletterModal?.addEventListener('click', (e) => { if (e.target === newsletterModal) window.closeNewsletterModal(); });
+      newsletterModalPanel?.addEventListener('click', (e) => e.stopPropagation());
+      newsletterFabOpenButton?.addEventListener('click', window.openNewsletterModal);
+      newsletterFabDismissButton?.addEventListener('click', () => window.dismissNewsletterPrompt('dismissed'));
+      searchToggleButton?.addEventListener('click', window.toggleSearchInput);
+      searchSubmitButton?.addEventListener('click', window.performSearchAndRoute);
+      mobileNavToggle?.addEventListener('click', window.toggleMobileNavMenu);
+      searchInput?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          window.performSearchAndRoute();
+        }
+      });
+
+      window.route = syncStandaloneRoute;
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        bindStandaloneNavRedirects();
+        syncStandaloneRoute();
+        syncNewsletterPromptVisibility();
+        if (typeof initAnnouncementTicker === 'function') {
+          initAnnouncementTicker();
+        }
+        if (typeof window.initSupabaseWishlist === 'function') {
+          await window.initSupabaseWishlist();
+        }
+      });
+
+      window.addEventListener('hashchange', syncStandaloneRoute);
+    })();
+  </script>
+</body>
+</html>

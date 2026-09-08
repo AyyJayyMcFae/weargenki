@@ -239,14 +239,18 @@
     const categoriesSlug = hashParts[1];
     const urlParams = new URLSearchParams(fullHash.split('?')[1] || '');
 
-    // Checkout is modal-driven
-    if (baseHash === '#checkout') {
-      window.openCheckoutModal?.();
-      window.location.hash = window.__GENKI_LAST_ROUTE_HASH || '#home';
-      return;
-    }
-    window.closeCheckoutModal?.();
-    window.__GENKI_LAST_ROUTE_HASH = baseHash || '#home';
+if (baseHash === '#checkout') {
+  window.openCheckoutModal?.();
+  window.__GENKI_JUST_OPENED_CHECKOUT = true;
+  window.location.hash = window.__GENKI_LAST_ROUTE_HASH || '#home';
+  return;
+}
+if (window.__GENKI_JUST_OPENED_CHECKOUT) {
+  window.__GENKI_JUST_OPENED_CHECKOUT = false;
+} else {
+  window.closeCheckoutModal?.();
+}
+window.__GENKI_LAST_ROUTE_HASH = baseHash || '#home';
 
     // Resolve page ID
     let pageId = pageMap[baseHash] || 'home-page';

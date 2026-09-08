@@ -1,0 +1,22 @@
+{
+  "name": "GENKI",
+  "short_name": "GENKI",
+  "description": "Independent streetwear with limited-run drops, everyday essentials, and bold looks built for real life.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0d0d0d",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dzhvdoifb/image/upload/v1772417097/Kanji_Boxed_z35cw0.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "https://res.cloudinary.com/dzhvdoifb/image/upload/v1767129720/blueGlitch_sddxpb.png?v=2",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
