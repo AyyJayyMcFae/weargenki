@@ -288,7 +288,7 @@
             <button id="mobile-wishlist-button" class="w-full text-left px-4 py-3 text-sm text-white/85 hover:text-white hover:bg-white/5 transition border-t border-white/10">Wishlist</button>
           </div>
         </div>
-        <button id="cart-toggle" aria-label="Cart" class="relative p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
+        <button id="cart-button" aria-label="Cart" class="relative p-2 text-white/90 hover:text-white transition duration-150 hover:bg-white/10">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
           <span id="cart-count" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-white text-[11px] text-black rounded-full flex items-center justify-center font-bold">0</span>
         </button>
@@ -382,7 +382,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <section class="lg:col-span-5 space-y-4">
           <h2 class="text-xl font-semibold tracking-wide">Your Cart</h2>
-          <div id="cart-items" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+          <div id="checkout-items" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
           <div class="border-t border-white/10 pt-4 space-y-2 text-sm">
             <div class="flex justify-between"><span class="text-gray-400">Subtotal</span><span id="payment-subtotal">$0.00</span></div>
             <div class="flex justify-between"><span class="text-gray-400">Shipping</span><span id="payment-shipping">Calculated at checkout</span></div>
@@ -515,21 +515,6 @@
       const newsletterFabOpenButton = document.getElementById('newsletter-fab-open');
       const newsletterFabDismissButton = document.getElementById('newsletter-fab-dismiss');
       const NEWSLETTER_PROMPT_KEY = 'genki_newsletter_prompt_state';
-      const handleCheckoutEscape = (e) => { if (e.key === 'Escape') window.closeCheckoutModal(); };
-
-window.openCheckoutModal = function () {
-  if (!checkoutModal) return;
-  checkoutModal.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  document.addEventListener('keydown', handleCheckoutEscape);
-};
-
-window.closeCheckoutModal = function () {
-  if (!checkoutModal) return;
-  checkoutModal.classList.add('hidden');
-  if (!newsletterModal || newsletterModal.classList.contains('hidden')) document.body.style.overflow = '';
-  document.removeEventListener('keydown', handleCheckoutEscape);
-};
       const SHOP_FILTERS_STATE_KEY = 'genki_shop_filters_open';
 
       // ── Search ────────────────────────────────────────────────────
