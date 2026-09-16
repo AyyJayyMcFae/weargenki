@@ -671,6 +671,25 @@
     toggle.classList.add('cart-attention');
   }
 
+  const checkoutModal = $('#checkout-page');
+  if (checkoutModal && typeof window.openCheckoutModal !== 'function') {
+    window.openCheckoutModal = function () {
+      checkoutModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeCheckoutModal = function () {
+      checkoutModal.classList.add('hidden');
+      document.body.style.overflow = '';
+    };
+    $('#checkout-close')?.addEventListener('click', window.closeCheckoutModal);
+    checkoutModal.addEventListener('click', (event) => {
+      if (event.target === checkoutModal) window.closeCheckoutModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !checkoutModal.classList.contains('hidden')) window.closeCheckoutModal();
+    });
+  }
+
   function goToCheckout() {
     if (typeof window.openCheckoutModal === 'function') { window.openCheckoutModal(); return; }
     console.warn('Checkout modal is unavailable on this page.');
