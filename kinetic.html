@@ -263,6 +263,7 @@
       to { transform: translateX(-50%); }
     }
   </style>
+  <link rel="stylesheet" href="./styles/site-chrome.css">
 </head>
 <body>
   <header id="main-header" class="fixed top-0 left-0 w-full z-50 pointer-events-auto transition-all duration-300 bg-black/90 backdrop-blur">
@@ -426,6 +427,7 @@
   <script>
     const searchInputContainer = document.getElementById('search-input-container');
     const searchToggleButton = document.getElementById('search-toggle-button');
+    const searchSubmitButton = document.getElementById('search-submit-button');
     const searchInput = document.getElementById('header-search-input');
     const navInner = document.getElementById('nav-inner');
     const mobileNavMenu = document.getElementById('mobile-nav-menu');
@@ -499,6 +501,8 @@
       }
       window.initSupabaseWishlist?.();
       window.initAnnouncementTicker?.();
+      searchToggleButton?.addEventListener('click', toggleSearchInput);
+      searchSubmitButton?.addEventListener('click', performSearchAndRoute);
       searchInput?.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
