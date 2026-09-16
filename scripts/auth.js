@@ -355,10 +355,13 @@ const authState = {
       const el = document.getElementById(id);
       if (el && !el.dataset.bound) { el.addEventListener('click', handler); el.dataset.bound = '1'; }
     };
-    bind('auth-button', () => { window.location.hash = '#account'; });
-    bind('wishlist-nav-button', () => { window.location.hash = '#wishlist'; });
-    bind('mobile-auth-button', () => { window.location.hash = '#account'; window.toggleMobileNavMenu?.(); });
-    bind('mobile-wishlist-button', () => { window.location.hash = '#wishlist'; window.toggleMobileNavMenu?.(); });
+    const isHomeApp = /(^|\/)index\.html$/.test(window.location.pathname) || window.location.pathname.endsWith('/');
+    const routeAccount = () => { window.location.href = isHomeApp ? '#account' : 'index.html#account'; };
+    const routeWishlist = () => { window.location.href = isHomeApp ? '#wishlist' : 'index.html#wishlist'; };
+    bind('auth-button', routeAccount);
+    bind('wishlist-nav-button', routeWishlist);
+    bind('mobile-auth-button', () => { routeAccount(); window.toggleMobileNavMenu?.(); });
+    bind('mobile-wishlist-button', () => { routeWishlist(); window.toggleMobileNavMenu?.(); });
     bind('account-signin-button', signInWithGoogle);
     bind('account-signout-button', signOutUser);
     bind('account-refresh-orders', loadOrdersForAccount);

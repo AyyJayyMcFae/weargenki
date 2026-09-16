@@ -169,7 +169,11 @@
     function toggleSearchInput(event) { event?.stopPropagation(); document.getElementById('search-input-container')?.classList.toggle('active'); document.getElementById('header-search-input')?.focus(); }
     function toggleMobileNavMenu(event) { event?.stopPropagation(); document.getElementById('mobile-nav-menu')?.classList.toggle('hidden'); }
     function performSearchAndRoute() { const query = document.getElementById('header-search-input')?.value.trim(); window.location.href = query ? `shop.html?q=${encodeURIComponent(query)}` : 'shop.html'; }
-    document.addEventListener('DOMContentLoaded', () => { renderSkateCollectionFromProducts(); });
+    document.addEventListener('DOMContentLoaded', () => {
+      renderSkateCollectionFromProducts();
+      window.initSupabaseWishlist?.();
+      window.initAnnouncementTicker?.();
+    });
   </script>
 </body>
 </html>
