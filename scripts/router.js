@@ -154,7 +154,7 @@
     const query = searchInput.value.trim();
     searchInputContainer.classList.remove('active');
     syncSearchNavState();
-    window.location.hash = query ? `#shop?q=${encodeURIComponent(query)}` : '#shop';
+    window.location.href = query ? `shop.html?q=${encodeURIComponent(query)}` : 'shop.html';
   };
 
   searchInput?.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); window.performSearchAndRoute(); } });
