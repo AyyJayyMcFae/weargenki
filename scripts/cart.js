@@ -673,7 +673,7 @@
 
   function goToCheckout() {
     if (typeof window.openCheckoutModal === 'function') { window.openCheckoutModal(); return; }
-    window.location.hash = '#checkout';
+    console.warn('Checkout modal is unavailable on this page.');
   }
 
   // ── Square SDK ───────────────────────────────────────────────
