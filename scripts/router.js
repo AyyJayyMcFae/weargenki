@@ -61,7 +61,7 @@
     if (announcementBar) {
       announcementBar.style.opacity = progress.toFixed(2);
       announcementBar.style.transform = `translateY(${(-6 + progress * 6).toFixed(1)}px)`;
-      announcementBar.style.pointerEvents = 'auto';
+      announcementBar.style.pointerEvents = progress < 0.1 ? 'none' : 'auto';
     }
     homeLink.style.pointerEvents = progress < 0.1 ? 'none' : 'auto';
   }

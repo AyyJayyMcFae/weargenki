@@ -168,8 +168,8 @@ const PRODUCTS = [
     keywords: 'kinetic mens stripe performance shorts athletic',
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
     images: [
-      'https://files.tapstitch.com/hugepod/material/custom_printing/4cc9a60fa76b4eac941bbc8e85fdb1d8.png?x-oss-process=style/hugepod-product',
-      'https://files.tapstitch.com/hugepod/material/custom_printing/ea47030744c241d0b8ad87c9715b10a0.png?x-oss-process=style/hugepod-product'
+      'https://files.tapstitch.com/hugepod/material/custom_printing/4cc9a60fa76b4eac941bbc8e85fdb1d8.png',
+      'https://files.tapstitch.com/hugepod/material/custom_printing/ea47030744c241d0b8ad87c9715b10a0.png'
     ]
   },
 
@@ -243,11 +243,11 @@ const PRODUCTS = [
         name: 'PS Smiley', color: 'bg-purple-600',
         thumbnail: 'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774415813/SPSmileyPurple_vo4aex.png',
         hoodies: [
-          { name: 'Black', color: 'bg-black', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/cc66e4be5aa54085a2ccb46e0ced79f5.png',
+          { name: 'Black', color: 'bg-black', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/d428c236822e4efe852dd4899e7d43f1.png?x-oss-process=style/hugepod-product',
             'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408192/Essential_Cotton_T-Shirt-gallery-10_baxeru.png'] },
-          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/40077ba831b048eb9f32c108f530cac4.png',
+          { name: 'Dark Grey', color: 'bg-gray-400', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/23d752032f1c453f9c47dc31a750c4b3.png?x-oss-process=style/hugepod-product',
             'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408200/Essential_Cotton_T-Shirt-gallery-22_lg1miv.png'] },
-          { name:  'White', color: 'bg-white', images: ['https://ajmall-vc-public-bucket.oss-us-west-1.aliyuncs.com/hugepod/material/custom_printing/0573d40ab7c64e0da645121ed8711094.png',
+          { name:  'White', color: 'bg-white', images: ['https://files.tapstitch.com/hugepod/material/custom_printing/0573d40ab7c64e0da645121ed8711094.png',
             'https://res.cloudinary.com/dzhvdoifb/image/upload/v1774408194/Essential_Cotton_T-Shirt-gallery-12_hmcnwz.png'] },
         ],
       },
