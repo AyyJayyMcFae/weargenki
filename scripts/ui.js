@@ -161,101 +161,101 @@ function getBackgroundReferenceColor(data, width, height) {
   return averageRgb(samples);
 }
 
-// function removeSolidBackgroundFromImage(sourceImage) {
-//   const canvas = document.createElement('canvas');
-//   const width = sourceImage.naturalWidth || sourceImage.width;
-//   const height = sourceImage.naturalHeight || sourceImage.height;
-//   canvas.width = width;
-//   canvas.height = height;
-//   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-//   ctx.drawImage(sourceImage, 0, 0, width, height);
+function removeSolidBackgroundFromImage(sourceImage) {
+  const canvas = document.createElement('canvas');
+  const width = sourceImage.naturalWidth || sourceImage.width;
+  const height = sourceImage.naturalHeight || sourceImage.height;
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(sourceImage, 0, 0, width, height);
 
-//   const imageData = ctx.getImageData(0, 0, width, height);
-//   const data = imageData.data;
-//   const [bgR, bgG, bgB] = getBackgroundReferenceColor(data, width, height);
-//   const solidThreshold = 30;
-//   const featherThreshold = 72;
-//   const visited = new Uint8Array(width * height);
-//   const backgroundMask = new Uint8Array(width * height);
-//   const queue = [];
-//   let queueIndex = 0;
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const [bgR, bgG, bgB] = getBackgroundReferenceColor(data, width, height);
+  const solidThreshold = 30;
+  const featherThreshold = 72;
+  const visited = new Uint8Array(width * height);
+  const backgroundMask = new Uint8Array(width * height);
+  const queue = [];
+  let queueIndex = 0;
 
-//   const colorDistanceAt = (pixelIndex) => {
-//     const idx = pixelIndex * 4;
-//     const dr = data[idx] - bgR;
-//     const dg = data[idx + 1] - bgG;
-//     const db = data[idx + 2] - bgB;
-//     return Math.sqrt(dr * dr + dg * dg + db * db);
-//   };
+  const colorDistanceAt = (pixelIndex) => {
+    const idx = pixelIndex * 4;
+    const dr = data[idx] - bgR;
+    const dg = data[idx + 1] - bgG;
+    const db = data[idx + 2] - bgB;
+    return Math.sqrt(dr * dr + dg * dg + db * db);
+  };
 
-//   const enqueueIfBackground = (x, y) => {
-//     if (x < 0 || y < 0 || x >= width || y >= height) return;
-//     const pixelIndex = y * width + x;
-//     if (visited[pixelIndex]) return;
-//     visited[pixelIndex] = 1;
-//     if (colorDistanceAt(pixelIndex) <= solidThreshold) {
-//       backgroundMask[pixelIndex] = 1;
-//       queue.push(pixelIndex);
-//     }
-//   };
+  const enqueueIfBackground = (x, y) => {
+    if (x < 0 || y < 0 || x >= width || y >= height) return;
+    const pixelIndex = y * width + x;
+    if (visited[pixelIndex]) return;
+    visited[pixelIndex] = 1;
+    if (colorDistanceAt(pixelIndex) <= solidThreshold) {
+      backgroundMask[pixelIndex] = 1;
+      queue.push(pixelIndex);
+    }
+  };
 
-//   for (let x = 0; x < width; x += 1) {
-//     enqueueIfBackground(x, 0);
-//     enqueueIfBackground(x, height - 1);
-//   }
-//   for (let y = 1; y < height - 1; y += 1) {
-//     enqueueIfBackground(0, y);
-//     enqueueIfBackground(width - 1, y);
-//   }
+  for (let x = 0; x < width; x += 1) {
+    enqueueIfBackground(x, 0);
+    enqueueIfBackground(x, height - 1);
+  }
+  for (let y = 1; y < height - 1; y += 1) {
+    enqueueIfBackground(0, y);
+    enqueueIfBackground(width - 1, y);
+  }
 
-//   while (queueIndex < queue.length) {
-//     const pixelIndex = queue[queueIndex++];
-//     const x = pixelIndex % width;
-//     const y = Math.floor(pixelIndex / width);
-//     enqueueIfBackground(x + 1, y);
-//     enqueueIfBackground(x - 1, y);
-//     enqueueIfBackground(x, y + 1);
-//     enqueueIfBackground(x, y - 1);
-//   }
+  while (queueIndex < queue.length) {
+    const pixelIndex = queue[queueIndex++];
+    const x = pixelIndex % width;
+    const y = Math.floor(pixelIndex / width);
+    enqueueIfBackground(x + 1, y);
+    enqueueIfBackground(x - 1, y);
+    enqueueIfBackground(x, y + 1);
+    enqueueIfBackground(x, y - 1);
+  }
 
-//   for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
-//     if (!backgroundMask[pixelIndex]) continue;
-//     const idx = pixelIndex * 4;
-//     data[idx + 3] = 0;
-//   }
+  for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
+    if (!backgroundMask[pixelIndex]) continue;
+    const idx = pixelIndex * 4;
+    data[idx + 3] = 0;
+  }
 
-//   for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
-//     if (backgroundMask[pixelIndex]) continue;
-//     const distance = colorDistanceAt(pixelIndex);
-//     if (distance >= featherThreshold) continue;
+  for (let pixelIndex = 0; pixelIndex < backgroundMask.length; pixelIndex += 1) {
+    if (backgroundMask[pixelIndex]) continue;
+    const distance = colorDistanceAt(pixelIndex);
+    if (distance >= featherThreshold) continue;
 
-//     const x = pixelIndex % width;
-//     const y = Math.floor(pixelIndex / width);
-//     let touchesBackground = false;
+    const x = pixelIndex % width;
+    const y = Math.floor(pixelIndex / width);
+    let touchesBackground = false;
 
-//     for (let oy = -1; oy <= 1 && !touchesBackground; oy += 1) {
-//       for (let ox = -1; ox <= 1; ox += 1) {
-//         if (ox === 0 && oy === 0) continue;
-//         const nx = x + ox;
-//         const ny = y + oy;
-//         if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
-//         if (backgroundMask[ny * width + nx]) {
-//           touchesBackground = true;
-//           break;
-//         }
-//       }
-//     }
+    for (let oy = -1; oy <= 1 && !touchesBackground; oy += 1) {
+      for (let ox = -1; ox <= 1; ox += 1) {
+        if (ox === 0 && oy === 0) continue;
+        const nx = x + ox;
+        const ny = y + oy;
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        if (backgroundMask[ny * width + nx]) {
+          touchesBackground = true;
+          break;
+        }
+      }
+    }
 
-//     if (!touchesBackground) continue;
+    if (!touchesBackground) continue;
 
-//     const idx = pixelIndex * 4;
-//     const alphaRatio = Math.max(0, (distance - solidThreshold) / (featherThreshold - solidThreshold));
-//     data[idx + 3] = Math.min(data[idx + 3], Math.round(255 * alphaRatio));
-//   }
+    const idx = pixelIndex * 4;
+    const alphaRatio = Math.max(0, (distance - solidThreshold) / (featherThreshold - solidThreshold));
+    data[idx + 3] = Math.min(data[idx + 3], Math.round(255 * alphaRatio));
+  }
 
-//   ctx.putImageData(imageData, 0, 0);
-//   return canvas.toDataURL('image/png');
-// }
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL('image/png');
+}
 
 function queueBackgroundCutout(img, src, options = {}) {
   if (!img) return;

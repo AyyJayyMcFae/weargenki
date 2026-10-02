@@ -357,12 +357,12 @@
     };
   }
 
-  function getRuleFailureMessage(rule = {}) {
+  function getRuleFailureMessage(rule = {}, failedRequirement = null) {
     const requires = Array.isArray(rule.requires) ? rule.requires : [];
-    const requirement = requires[0];
+    const requirement = failedRequirement || requires[0];
     const requirementType = normalizeMatcher(requirement?.type);
     if (requirementType === 'subtotal' || requirementType === 'subtotal_gte') {
-      return `This code works on orders over ${money(Number(requirement?.value) || 0)}.`;
+      return `This code requires an order subtotal of at least ${money(Number(requirement?.value) || 0)}.`;
     }
     if (requirementType === 'not_category') {
       return 'This promo cannot be used on deck orders.';
@@ -390,7 +390,7 @@
           eligible: false,
           discount: 0,
           freeShipping: false,
-          message: getRuleFailureMessage(rule),
+          message: getRuleFailureMessage(rule, unmet),
         };
       }
 
